@@ -1,5 +1,5 @@
 const connectDb = require('./db');
-
+const sql = require('mssql');
 async function writeBreakerData(data, tableIndex) {
     try {
         const pool = await connectDb.connectionToSqlDB();
@@ -37,8 +37,8 @@ async function getActiveEnergy(startTime, endTime) {
   try{
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
-        .input('StartTime', startTime)
-        .input('EndTime', endTime)
+        .input('StartTime', sql.DateTime, startTime)
+        .input('EndTime', sql.DateTime, endTime)
         .execute('GetActiveEnergyByTime');
         console.log({status : 200 , data : result.recordset[0]});
         return {status : 200, data : result.recordset};
