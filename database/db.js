@@ -2,13 +2,13 @@ const sql = require('mssql');
 const dataFromBreaker = require('../modbusClient/checkConnection');
 require('dotenv').config();
 const config = {
-    user: 'digitalPanel',
-    password: '1234',
-    server: 'IL-L-7220251\\ABB_2019', // e.g. IL-L-7220251\ABB_2019
-    database: 'DigitalPanel',
+    server: process.env.DB_SERVER, // נשלף מה-env
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     options: {
-        encrypt: false, // for azure change to true
-        trustServerCertificate: true // change to false for production
+        encrypt: false, // אם אתה לא ב-Azure
+        trustServerCertificate: true
     }
 };
 async function connectionToSqlDB() {
@@ -21,4 +21,4 @@ async function connectionToSqlDB() {
     }
 }
 
-module.exports = {connectionToSqlDB};
+module.exports = { connectionToSqlDB };

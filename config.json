@@ -1,0 +1,20 @@
+{
+    "breakers": [
+        {
+            "name": "Q1",
+            "type": "EMAX2.1"
+        },
+        {
+            "name": "Q2",
+            "type": "XT5"
+        },
+        {
+            "name": "Q3",
+            "type": "XT4"
+        },
+        {
+            "name": "Q4",
+            "type": "XT2"
+        }
+    ]
+}
