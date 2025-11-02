@@ -9,7 +9,8 @@ async function createTables() {
         const result = await pool.request().query(`CREATE TABLE MainData(
                                                        id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
                                                        name VARCHAR(50) NOT NULL,
-                                                       type VARCHAR(50));`);
+                                                       type VARCHAR(50) NOT NULL,
+                                                       load VARCHAR(50) NOT NULL);`);
         console.log({ 'MainData table create successfully': 200 });
     } catch (err) {
         console.error('Error imported!:', err);
@@ -78,9 +79,10 @@ async function createTables() {
             const result = await pool.request()
                 .input('name', config.breakers[index].name)
                 .input('type', config.breakers[index].type)
+                .input('load', config.breakers[index].load)
                 .query(`
-                                    INSERT INTO MainData (name, type)
-                                    VALUES (@name, @type)
+                                    INSERT INTO MainData (name, type, load)
+                                    VALUES (@name, @type, @load)
                                                          `);
             console.log({ 'Data Insetred': 200 });
         } catch (err) {

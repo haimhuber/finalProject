@@ -9,8 +9,6 @@ const screenRouters = require('./routers/screens');
 app.use(bodyparser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-//app.use(express.static(path.join(__dirname, 'public')));
-
 
 createTables.createTables();
 //startModbusClient.start();
