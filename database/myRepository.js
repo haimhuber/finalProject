@@ -1,6 +1,10 @@
 const connectDb = require('./db');
 const sql = require('mssql');
 async function writeBreakerData(data, tableIndex) {
+  const bits = [];
+  for (let i = 15; i >= 0; i--) {
+    bits.push((data[12] >> i) & 1);    
+  }
   try {
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
