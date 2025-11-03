@@ -2,8 +2,8 @@ const connectDb = require('./db');
 const sql = require('mssql');
 async function writeBreakerData(data, tableIndex) {
   const bits = [];
-  for (let i = 15; i >= 0; i--) {
-    bits.push((data[12] >> i) & 1);    
+  for (let i = 14; i >= 0; i--) { // Only 14 bits
+    bits.push((data[12] >> i) & 1); // MSB bits[0] | LSB bits[14]
   }
   try {
     const pool = await connectDb.connectionToSqlDB();
@@ -22,10 +22,24 @@ async function writeBreakerData(data, tableIndex) {
       .input('ApparentPower', data[10] / 10.0)
       .input('NominalCurrent', data[11] / 10.0)
       .input('ActiveEnergy', ((data[13] * 65536) + data[14]) / 10.0)
-      .query(`INSERT INTO Switches
-                    (switch_id, V12, V23, V31, I1, I2, I3, Frequency, PowerFactor, ActivePower, ReactivePower, ApparentPower, NominalCurrent, ActiveEnergy)
-                    VALUES 
-                    (@switch_id, @V12, @V23, @V31, @I1, @I2, @I3, @Frequency, @PowerFactor, @ActivePower, @ReactivePower, @ApparentPower, @NominalCurrent, @ActiveEnergy)`);
+      .input('CommStatus', bits[0])
+      .input('ProtectionTrip', bits[1])
+      .input('ProtectionInstTrip', bits[2])
+      .input('ProtectionI_Enabled', bits[3])
+      .input('ProtectionS_Enabled', bits[4])
+      .input('ProtectionL_Enabled', bits[5])
+      .input('ProtectionG_Trip', bits[6])
+      .input('ProtectionI_Trip', bits[7])
+      .input('ProtectionS_Trip', bits[8])
+      .input('ProtectionL_Trip', bits[9])
+      .input('TripDisconnected', bits[10])
+      .input('Tripped', bits[11])
+      .input('Undefined', bits[12])
+      .input('BreakerClose', bits[13])
+      .input('BreakerOpen', bits[14])
+      .execute('addBreakerData');
+
+    console.log('Data inserted successfully:', result.rowsAffected);
 
     if (result.rowsAffected[0] === 0) {
       return { message: 'Values cannot be sent', status: 404 };
