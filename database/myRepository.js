@@ -39,8 +39,6 @@ async function writeBreakerData(data, tableIndex) {
       .input('BreakerOpen', bits[14])
       .execute('addBreakerData');
 
-    console.log('Data inserted successfully:', result.rowsAffected);
-
     if (result.rowsAffected[0] === 0) {
       return { message: 'Values cannot be sent', status: 404 };
     }
