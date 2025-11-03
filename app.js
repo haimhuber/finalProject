@@ -10,8 +10,9 @@ app.use(bodyparser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 createTables.createTables();
-//startModbusClient.start();
+startModbusClient.start();
 app.use('/screens', screenRouters);
 
 app.listen(port, () => {

@@ -21,7 +21,7 @@ async function writeBreakerData(data, tableIndex) {
       .query(`INSERT INTO Switches
                     (switch_id, V12, V23, V31, I1, I2, I3, Frequency, PowerFactor, ActivePower, ReactivePower, ApparentPower, NominalCurrent, ActiveEnergy)
                     VALUES 
-                    (@V12, @V23, @V31, @I1, @I2, @I3, @Frequency, @PowerFactor, @ActivePower, @ReactivePower, @ApparentPower, @NominalCurrent, @ActiveEnergy)`);
+                    (@switch_id, @V12, @V23, @V31, @I1, @I2, @I3, @Frequency, @PowerFactor, @ActivePower, @ReactivePower, @ApparentPower, @NominalCurrent, @ActiveEnergy)`);
 
     if (result.rowsAffected[0] === 0) {
       return { message: 'Values cannot be sent', status: 404 };
