@@ -1,11 +1,11 @@
 const sql = require('mssql');
-const dataFromBreaker = require('../modbusClient/checkConnection');
 require('dotenv').config();
+
 const config = {
-    server: process.env.DB_SERVER, // נשלף מה-env
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    server: 'localhost', // נשלף מה-env
+    user: 'abb',
+    password: '1234',
+    database: 'DigitalPanel',
     options: {
         encrypt: false, // אם אתה לא ב-Azure
         trustServerCertificate: true
