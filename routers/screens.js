@@ -7,7 +7,9 @@ router.get('/', screenAction.homePage);
 
 router.get('/homeScreen', screenAction.homeScreen);
 
-router.get('/data', screenAction.data);
+router.get('/data', screenAction.dataPage);
+
+router.get('/breakersData', screenAction.breakersData);
 
 router.post('/data', screenAction.data);
 

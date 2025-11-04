@@ -5,6 +5,8 @@ async function writeBreakerData(data, tableIndex) {
   for (let i = 14; i >= 0; i--) { // Only 14 bits
     bits.push((data[12] >> i) & 1); // MSB bits[0] | LSB bits[14]
   }
+  console.log(bits);
+  
   try {
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
@@ -49,21 +51,58 @@ async function writeBreakerData(data, tableIndex) {
   }
 }
 
-
-async function getActiveEnergy(startTime, endTime) {
+// --------------------------------------------------------------------------------------//
+async function getActiveEnergy(switch_id, startTime, endTime) {
   try {
+    if (!switch_id || !startTime || !endTime) {
+      throw new Error('Missing required parameters: switch_id, startTime, endTime');
+    }
+    const start = new Date(startTime);
+    const end = new Date(endTime);  
+    console.log(start);
+      
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
-      .input('StartTime', sql.DateTime, startTime)
-      .input('EndTime', sql.DateTime, endTime)
-      .execute('GetActiveEnergyByTime');
-    console.log({ status: 200, data: result.recordset[0] });
+      .input('switch_id', sql.Int, switch_id)
+      .input('startTime', sql.DateTime, start)
+      .input('endTime', sql.DateTime, end)
+      .execute('getActiveEnergy');           // call the SP that returns formatted time
+
+    if (!result.recordset || result.recordset.length === 0) {
+      console.log('No data found for the given parameters');
+      return { status: 200, data: [] };
+    }
+
+    console.log({ status: 200, data: result.recordset });
     return { status: 200, data: result.recordset };
 
   } catch (err) {
-    console.error('Error imported!:', err);
-    return { message: err, status: 500 };
+    console.error('Error fetching active energy:', err);
+    return { status: 500, message: err.message };
   }
-};
+}
 
-module.exports = { writeBreakerData, getActiveEnergy };
+// --------------------------------------------------------------------------------------//
+
+
+async function getBreakersData() {
+  try{
+     const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+    .execute('getBreakerData');
+    if (!result.recordset || result.recordset.length === 0) {
+      console.log('No data found');
+      return { status: 200, data: [] };
+    }
+
+    console.log({ status: 200, data: result.recordset });
+    return { status: 200, data: result.recordset };
+
+  } catch (err) {
+    console.error('Error fetching active energy:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+
+module.exports = { writeBreakerData, getActiveEnergy, getBreakersData };

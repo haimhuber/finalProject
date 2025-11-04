@@ -12,7 +12,7 @@ let interval = null;
 let write
 async function pollData() {
   console.log("📡 Polling data from breakers...");
-  if (writeToDbEvery1min > 2) {
+  if (writeToDbEvery1min > 11 ) {
     write = true;
     writeToDbEvery1min = 0;
   } else {

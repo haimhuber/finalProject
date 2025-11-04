@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path'); // Helps with file paths
 const sqlData = require('../database/myRepository');
+const { log } = require('console');
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
 
@@ -18,11 +19,12 @@ const dataPage = async (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'data.html'));
 };
 
-const data = async (req, res) => {
-    const {startTime, endTime} = req.body;
-
+const data = async (req, res) => {    
+    const {switch_id, startTime, endTime} = req.body;
+    console.log('Received request:', { switch_id, startTime, endTime });
+    
     try {
-        const getSqlData = await sqlData.getActiveEnergy(startTime, endTime);
+        const getSqlData = await sqlData.getActiveEnergy(switch_id, startTime, endTime);
         console.log('SQL Data:', getSqlData);
         
         res.status(200).json(getSqlData); 
@@ -32,5 +34,14 @@ const data = async (req, res) => {
     }  
 };
 
+const breakersData = async (req, res) => {
 
-module.exports = {homeScreen, homePage, dataPage, data};
+    try{
+        const getBreakerDataFromSql = await sqlData.getBreakersData();
+        res.status(200).json(getBreakerDataFromSql);
+    }catch(err){
+
+    }
+};
+
+module.exports = {homeScreen, homePage, dataPage, data, breakersData};
