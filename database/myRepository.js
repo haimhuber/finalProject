@@ -6,7 +6,7 @@ async function writeBreakerData(data, tableIndex) {
     bits.push((data[12] >> i) & 1); // MSB bits[0] | LSB bits[14]
   }
   console.log(bits);
-  
+
   try {
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
@@ -58,10 +58,10 @@ async function getActiveEnergy(switch_id, startTime, endTime) {
       throw new Error('Missing required parameters: switch_id, startTime, endTime');
     }
     const start = new Date(startTime);
-    const end = new Date(endTime);  
+    const end = new Date(endTime);
     console.log(start);
-      
-    const pool = await connectDb.connectionToSqlDB();
+
+    const pool = await connectDb.connectionToSqlDB('DigitalPanel');
     const result = await pool.request()
       .input('switch_id', sql.Int, switch_id)
       .input('startTime', sql.DateTime, start)
@@ -86,10 +86,10 @@ async function getActiveEnergy(switch_id, startTime, endTime) {
 
 
 async function getBreakersData() {
-  try{
-     const pool = await connectDb.connectionToSqlDB();
+  try {
+    const pool = await connectDb.connectionToSqlDB('DigitalPanel');
     const result = await pool.request()
-    .execute('getBreakerData');
+      .execute('getBreakersData');
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
       return { status: 200, data: [] };

@@ -1,6 +1,7 @@
 const sqlConnection = require('./db');
 const sql = require('mssql'); // Make sure you import this
 const tableCreation = require('./tablesCreation');
+const createSp = require('./storeProcedures');
 async function createDatabase() {
     try {
         // 1️⃣ Connect to master database
@@ -24,6 +25,7 @@ async function createDatabase() {
         const pool = await sqlConnection.connectionToSqlDB('DigitalPanel');
         console.log('✅ Connected to DigitalPanel database');
         tableCreation.createTables();
+        createSp.createSp();
 
     } catch (err) {
         console.error('❌ Error creating database or tables:', err);

@@ -40,6 +40,22 @@ async function createTables() {
         ApparentPower FLOAT NOT NULL,
         NominalCurrent FLOAT NOT NULL,
         ActiveEnergy FLOAT NOT NULL,
+        CommStatus BIT NOT NULL,
+        ProtectionTrip BIT NOT NULL,
+        ProtectionInstTrip BIT NOT NULL,
+        ProtectionI_Enabled BIT NOT NULL,
+        ProtectionS_Enabled BIT NOT NULL,
+        ProtectionL_Enabled BIT NOT NULL,
+        ProtectionG_Trip BIT NOT NULL,
+        ProtectionI_Trip BIT NOT NULL,
+        ProtectionS_Trip BIT NOT NULL,
+        ProtectionL_Trip BIT NOT NULL,
+        TripDisconnected BIT NOT NULL,
+        Tripped BIT NOT NULL,
+        Undefined BIT NOT NULL,
+        BreakerClose BIT NOT NULL,
+        BreakerOpen BIT NOT NULL,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (switch_id) REFERENCES MainData(id) ON DELETE CASCADE
       );
     `);
