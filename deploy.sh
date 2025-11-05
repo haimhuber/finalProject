@@ -58,12 +58,12 @@ else
     git pull
 fi
 
-# ----------------------------
-# 4️⃣ Open VS Code
-# ----------------------------
-cd "$TARGET_DIR" || exit 1
-echo "💻 Opening VS Code..."
-code . &
+# # ----------------------------
+# # 4️⃣ Open VS Code
+# # ----------------------------
+# cd "$TARGET_DIR" || exit 1
+# echo "💻 Opening VS Code..."
+# code . &
 
 # ----------------------------
 # 5️⃣ Install Node.js dependencies
