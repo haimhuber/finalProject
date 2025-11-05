@@ -1,6 +1,7 @@
 const startModbusClient = require('./modbusClient/checkConnection');
 const express = require('express');
-const createTables = require('./database/databaseCreation');
+const createTables = require('./database/tablesCreation');
+const createDatabase = require('./database/createDatabase');
 const app = express();
 const bodyparser = require('body-parser');
 const path = require('path');
@@ -10,9 +11,8 @@ app.use(bodyparser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-createTables.createTables();
-startModbusClient.start();
+createDatabase.createDatabase();
+// startModbusClient.start();
 app.use('/screens', screenRouters);
 
 app.listen(port, () => {
