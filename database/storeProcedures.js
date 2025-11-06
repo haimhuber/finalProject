@@ -3,9 +3,9 @@ const checkDelete = require('./deleteTables');
 const database = 'DigitalPanel';
 
 async function createSp() {
-    try {
-        const pool = await connectDb.connectionToSqlDB(database);
-        await pool.request().query(`
+  try {
+    const pool = await connectDb.connectionToSqlDB(database);
+    await pool.request().query(`
       CREATE or alter PROCEDURE addBreakerData
         @switch_id INT,
         @V12 FLOAT,
@@ -54,8 +54,8 @@ async function createSp() {
         );
       END
     `);
-     console.log("✅ Stored Procedure 'addBreakerData' created successfully");
-        await pool.request().query(`      
+    console.log("✅ Stored Procedure 'addBreakerData' created successfully");
+    await pool.request().query(`      
             CREATE OR ALTER PROCEDURE getActiveEnergy
                 @switch_id INT,
                 @startTime DATETIME,
@@ -77,29 +77,29 @@ async function createSp() {
                     S.timestamp;
             END;`);
 
-        console.log("✅ Stored Procedure 'getActiveEnergy' created successfully");
-        
-         await pool.request().query(`      
+    console.log("✅ Stored Procedure 'getActiveEnergy' created successfully");
+
+    await pool.request().query(`      
            create or alter Procedure getAllSwitchesData
-            @switch_id INT
+            @rows INT
             as 
               begin
-              select * from Switches where Switches.switch_id = @switch_id
+              select TOP (@rows) * from Switches
             end`);
-             console.log("✅ Stored Procedure 'getAllSwitchesData' created successfully");
+    console.log("✅ Stored Procedure 'getAllSwitchesData' created successfully");
 
-          await pool.request().query(`      
+    await pool.request().query(`      
             CREATE OR ALTER PROCEDURE getAllSwitchesNames
                 
             AS
             BEGIN
                Select * from MainData
             END;`);
-             console.log("✅ Stored Procedure 'getAllSwitchesNames' created successfully");
-    } catch (err) {
-        console.error('❌ Error creating addBreakerData SP:', err);
-        return { message: err.message, status: 500 };
-    }
+    console.log("✅ Stored Procedure 'getAllSwitchesNames' created successfully");
+  } catch (err) {
+    console.error('❌ Error creating addBreakerData SP:', err);
+    return { message: err.message, status: 500 };
+  }
 }
 
 module.exports = { createSp };

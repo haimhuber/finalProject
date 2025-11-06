@@ -10,8 +10,6 @@ router.get('/data', screenAction.dataPage);
 
 // -- In case user didn't send paramter
 router.get('/breakersMainData/', screenAction.breakersMainData);
-router.get('/breakersMainData/:switch_id', screenAction.breakersMainData);
-
 
 router.get('/breakersNames', screenAction.breakersNames);
 

@@ -1,6 +1,10 @@
 const connectDb = require('./db');
 const sql = require('mssql');
 const databse = 'DigitalPanel';
+const path = require('path');
+const configPath = path.join(__dirname, '../config.json');
+const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+
 async function writeBreakerData(data, tableIndex) {
   const bits = [];
   for (let i = 14; i >= 0; i--) { // Only 14 bits
@@ -105,11 +109,11 @@ async function getBreakersNames() {
   }
 }
 
-async function getBreakersMainData(switch_id) {
+async function getBreakersMainData() {
   try {
     const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
-      .input('switch_id', sql.Int, switch_id)
+      .input('rows', sql.Int, config.breakers.length)
       .execute('getAllSwitchesData');
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
