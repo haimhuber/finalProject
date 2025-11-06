@@ -1,5 +1,6 @@
 const connectDb = require('./db');
 const sql = require('mssql');
+const databse = 'DigitalPanel';
 async function writeBreakerData(data, tableIndex) {
   const bits = [];
   for (let i = 14; i >= 0; i--) { // Only 14 bits
@@ -61,7 +62,7 @@ async function getActiveEnergy(switch_id, startTime, endTime) {
     const end = new Date(endTime);
     console.log(start);
 
-    const pool = await connectDb.connectionToSqlDB('DigitalPanel');
+    const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
       .input('switch_id', sql.Int, switch_id)
       .input('startTime', sql.DateTime, start)
@@ -87,7 +88,7 @@ async function getActiveEnergy(switch_id, startTime, endTime) {
 
 async function getBreakersData() {
   try {
-    const pool = await connectDb.connectionToSqlDB('DigitalPanel');
+    const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
       .execute('getBreakersData');
     if (!result.recordset || result.recordset.length === 0) {
@@ -104,5 +105,24 @@ async function getBreakersData() {
   }
 }
 
+async function getBreakersMainData() {
+  try {
+    const pool = await connectDb.connectionToSqlDB(databse);
+    const result = await pool.request()
+      .execute('getAllSwitchesData');
+    if (!result.recordset || result.recordset.length === 0) {
+      console.log('No data found');
+      return { status: 200, data: [] };
+    }
 
-module.exports = { writeBreakerData, getActiveEnergy, getBreakersData };
+    console.log({ status: 200, data: result.recordset });
+    return { status: 200, data: result.recordset };
+
+  } catch (err) {
+    console.error('Error fetching Switches data:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+
+module.exports = { writeBreakerData, getActiveEnergy, getBreakersMainData, getBreakersData };

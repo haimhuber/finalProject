@@ -34,14 +34,14 @@ const data = async (req, res) => {
     }  
 };
 
-const breakersData = async (req, res) => {
+const breakersMainData = async (req, res) => {
 
     try{
-        const getBreakerDataFromSql = await sqlData.getBreakersData();
+        const getBreakerDataFromSql = await sqlData.getBreakersMainData();
         res.status(200).json(getBreakerDataFromSql);
     }catch(err){
 
     }
 };
 
-module.exports = {homeScreen, homePage, dataPage, data, breakersData};
+module.exports = {homeScreen, homePage, dataPage, data, breakersMainData};

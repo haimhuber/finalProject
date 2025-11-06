@@ -1,17 +1,15 @@
 const connectDb = require('./db');
 const database = 'DigitalPanel';
-const path = require('path');
-const fs = require('fs');
-const { Int } = require('mssql');
-const configPath = path.join(__dirname, '../config.json'); // go up one folder
-const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-const readline = require('readline');
-// --------------------------------------------------------------------------
+const checkIfNeedsToDelete = require('./deleteTables');
+
 async function createTables() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
+  const checkState = await checkIfNeedsToDelete.deleteAllTables();
+
+  if (!checkState) {
+    console.log('⛔ Table creation skipped due to user cancellation or error.');
+    return;
+  }
+
   try {
     const pool = await connectDb.connectionToSqlDB(database);
 
@@ -27,7 +25,7 @@ async function createTables() {
     `);
     console.log({ 'MainData table created (if not exists)': 200 });
 
-    // 2️⃣ Switches table
+    // 2️⃣ Switches
     await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Switches' AND xtype='U')
       CREATE TABLE Switches (
@@ -67,7 +65,7 @@ async function createTables() {
     `);
     console.log({ 'Switches table created (if not exists)': 200 });
 
-    // 3️⃣ Alerts table
+    // 3️⃣ Alerts
     await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Alerts' AND xtype='U')
       CREATE TABLE Alerts (
@@ -81,7 +79,7 @@ async function createTables() {
     `);
     console.log({ 'Alerts table created (if not exists)': 200 });
 
-    // 4️⃣ Events table
+    // 4️⃣ Events
     await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Events' AND xtype='U')
       CREATE TABLE Events (
@@ -93,60 +91,6 @@ async function createTables() {
       );
     `);
     console.log({ 'Events table created (if not exists)': 200 });
-
-    // 5️⃣ Insert data from config.breakers (only if MainData is empty)
-    const check = await pool.request().query('SELECT COUNT(*) AS count FROM MainData');
-
-    if (check.recordset[0].count != config["breakers"].length) {
-
-      rl.question('⚠️ WARNING: config.json has change! This will DELETE ALL DATA from the database. Are you sure? (yes/no): ', async (answer) => {
-        rl.close();
-        if (answer.toLowerCase() === 'yes') {
-          try {
-            const pool = await connectDb.connectionToSqlDB('DigitalPanel');
-
-            // Delete child tables first
-            await pool.request().query('DELETE FROM Switches');
-            await pool.request().query('DELETE FROM Alerts');
-            await pool.request().query('DELETE FROM Events');
-
-            // Then delete parent table
-            await pool.request().query('DELETE FROM MainData');
-
-            console.log('✅ All tables cleared successfully.');
-            for (const breaker of config.breakers) {
-              await pool.request()
-                .input('name', breaker.name)
-                .input('type', breaker.type)
-                .input('load', breaker.load)
-                .query(`
-            INSERT INTO MainData (name, type, load)
-            VALUES (@name, @type, @load);
-          `);
-            }
-            console.log({ 'Data inserted into MainData': 200 });
-          } catch (err) {
-            console.error('❌ Error clearing tables:', err);
-          }
-        } else {
-          console.log('❌ Operation canceled by user.');
-        }
-      });
-
-      // // Delete data in child tables first
-      // await pool.request().query('DELETE FROM Switches');
-      // await pool.request().query('DELETE FROM Alerts');
-      // await pool.request().query('DELETE FROM Events');
-
-      // // Then delete data from the parent table
-      // await pool.request().query('DELETE FROM MainData');
-
-      // console.log('✅ All tables cleared safely.');
-
-
-    } else {
-      console.log('⚠️ MainData already has records. Skipping insert.');
-    }
 
   } catch (err) {
     console.error('❌ Error creating tables:', err);

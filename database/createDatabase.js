@@ -22,10 +22,10 @@ async function createDatabase() {
         await masterPool.close();
 
         // 4️⃣ Connect to the new database
-        const pool = await sqlConnection.connectionToSqlDB('DigitalPanel');
+        const pool = await sqlConnection.connectionToSqlDB(dbName);
         console.log('✅ Connected to DigitalPanel database');
-        tableCreation.createTables();
-        createSp.createSp();
+        const createTables = await tableCreation.createTables();
+        const createSp1 = await createSp.createSp();
 
     } catch (err) {
         console.error('❌ Error creating database or tables:', err);

@@ -1,4 +1,5 @@
 const connectDb = require('./db');
+const checkDelete = require('./deleteTables');
 const database = 'DigitalPanel';
 
 async function createSp() {
@@ -53,6 +54,7 @@ async function createSp() {
         );
       END
     `);
+     console.log("✅ Stored Procedure 'addBreakerData' created successfully");
         await pool.request().query(`      
             CREATE OR ALTER PROCEDURE getActiveEnergy
                 @switch_id INT,
@@ -76,7 +78,15 @@ async function createSp() {
             END;`);
 
         console.log("✅ Stored Procedure 'getActiveEnergy' created successfully");
-        // await pool.close();
+        
+         await pool.request().query(`      
+            CREATE OR ALTER PROCEDURE getAllSwitchesData
+                
+            AS
+            BEGIN
+               Select * from Switches
+            END;`);
+             console.log("✅ Stored Procedure 'getAllSwitchesData' created successfully");
     } catch (err) {
         console.error('❌ Error creating addBreakerData SP:', err);
         return { message: err.message, status: 500 };
