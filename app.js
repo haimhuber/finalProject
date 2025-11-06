@@ -12,10 +12,10 @@ const myIp = require('./ipAddress/getPcIp');
 app.use(bodyparser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+const cors = require('cors');
 host =  myIp.getLocalIPs();
 
-
+app.use(cors({ origin: 'http://localhost:5173' }));
 createDatabase.createDatabase();
 startModbusClient.start();
 app.use('/', screenRouters);

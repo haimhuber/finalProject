@@ -80,13 +80,22 @@ async function createSp() {
         console.log("✅ Stored Procedure 'getActiveEnergy' created successfully");
         
          await pool.request().query(`      
-            CREATE OR ALTER PROCEDURE getAllSwitchesData
+           create or alter Procedure getAllSwitchesData
+            @switch_id INT
+            as 
+              begin
+              select * from Switches where Switches.switch_id = @switch_id
+            end`);
+             console.log("✅ Stored Procedure 'getAllSwitchesData' created successfully");
+
+          await pool.request().query(`      
+            CREATE OR ALTER PROCEDURE getAllSwitchesNames
                 
             AS
             BEGIN
-               Select * from Switches
+               Select * from MainData
             END;`);
-             console.log("✅ Stored Procedure 'getAllSwitchesData' created successfully");
+             console.log("✅ Stored Procedure 'getAllSwitchesNames' created successfully");
     } catch (err) {
         console.error('❌ Error creating addBreakerData SP:', err);
         return { message: err.message, status: 500 };

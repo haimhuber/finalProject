@@ -86,11 +86,11 @@ async function getActiveEnergy(switch_id, startTime, endTime) {
 // --------------------------------------------------------------------------------------//
 
 
-async function getBreakersData() {
+async function getBreakersNames() {
   try {
     const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
-      .execute('getBreakersData');
+      .execute('getAllSwitchesNames');
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
       return { status: 200, data: [] };
@@ -105,10 +105,11 @@ async function getBreakersData() {
   }
 }
 
-async function getBreakersMainData() {
+async function getBreakersMainData(switch_id) {
   try {
     const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
+      .input('switch_id', sql.Int, switch_id)
       .execute('getAllSwitchesData');
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
@@ -125,4 +126,6 @@ async function getBreakersMainData() {
 }
 
 
-module.exports = { writeBreakerData, getActiveEnergy, getBreakersMainData, getBreakersData };
+
+
+module.exports = { writeBreakerData, getActiveEnergy, getBreakersMainData, getBreakersNames };

@@ -8,12 +8,14 @@ router.get('/', screenAction.homePage);
 
 router.get('/data', screenAction.dataPage);
 
-router.get('/breakersMainData', screenAction.breakersMainData);
+// -- In case user didn't send paramter
+router.get('/breakersMainData/', screenAction.breakersMainData);
+router.get('/breakersMainData/:switch_id', screenAction.breakersMainData);
 
 
-router.get('/breakersData', screenAction.breakersMainData);
+router.get('/breakersNames', screenAction.breakersNames);
 
-router.post('/data', screenAction.data);
+router.post('/data', screenAction.activeEnergyData);
 
 
 module.exports = router;
