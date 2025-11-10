@@ -1,58 +1,20 @@
 import { Outlet } from 'react-router-dom';
 import { DigitalPanelCard } from '../DigitalPanelCard/DigitalPanelCard';
+import { fetchAndCombineData } from '../../Types/CombinedData';
 import './DigitalPanelGallery.css';
 import { useEffect, useState } from 'react';
 
 export const DigitalPanelGallery = () => {
-  const [liveData, setLiveData] = useState<any[]>([]);
-  const [breakerNames, setBreakerNames] = useState<any[]>([]);
   const [combinedDataState, setCombinedDataState] = useState<any[]>([]);
 
   useEffect(() => {
-    async function getLiveData() {
-      try {
-        const response = await fetch("api/breakersMainData");
-        const data = await response.json();
-        return data.data; // Return the array
-      } catch (err) {
-        console.error("Error fetching live data:", err);
-        return [];
-      }
+    async function getData() {
+      const response = await fetchAndCombineData();
+      setCombinedDataState(response);
     }
-
-    async function getBreakerNames() {
-      try {
-        const response = await fetch("api/breakersNames");
-        const data = await response.json();
-        return data.data; // Return the array/object
-      } catch (err) {
-        console.error("Error fetching breaker names:", err);
-        return [];
-      }
-    }
-
-    async function fetchAndCombineData() {
-      const liveDataFetched = await getLiveData();
-      const breakerNamesFetched = await getBreakerNames();
-
-      setLiveData(liveDataFetched);
-      setBreakerNames(breakerNamesFetched);
-
-      // Combine using switch_id as key 
-      const combined = liveDataFetched.map((item: { switch_id: number; }) => ({
-        ...item,
-        ...(breakerNamesFetched[item.switch_id - 1] || {}) // Merge extra info
-      }));
-
-      setCombinedDataState(combined);
-      console.log("Combined Data:", combined);
-    }
-
-    // Initial fetch
-    fetchAndCombineData();
-
-    // Refresh every 10 seconds
-    const intervalId = setInterval(fetchAndCombineData, 10000);
+    getData();
+    // Refresh every 60 seconds
+    const intervalId = setInterval(getData, 60000);
     return () => clearInterval(intervalId);
   }, []);
 

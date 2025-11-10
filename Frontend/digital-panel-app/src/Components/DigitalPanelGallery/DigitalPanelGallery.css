@@ -13,8 +13,3 @@
 }
 
 
-/* Hover effect for 3D "lifted" look */
-.single-card:hover {
-  transform: translateY(-8px) scale(1.03);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-}
