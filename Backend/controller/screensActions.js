@@ -34,7 +34,7 @@ const activeEnergyData = async (req, res) => {
     }
 };
 
-const breakersMainData = async (req, res) => {
+const breakersLiveData = async (req, res) => {
     try {
         const getBreakerDataFromSql = await sqlData.getBreakersMainData();
         res.status(200).json(getBreakerDataFromSql);
@@ -55,4 +55,4 @@ const breakersNames = async (req, res) => {
     }
 };
 
-module.exports = { homeScreen, homePage, dataPage, activeEnergyData, breakersMainData, breakersNames };
+module.exports = { homeScreen, homePage, dataPage, activeEnergyData, breakersLiveData, breakersNames };

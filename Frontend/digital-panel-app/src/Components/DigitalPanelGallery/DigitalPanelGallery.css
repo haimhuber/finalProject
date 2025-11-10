@@ -1,0 +1,20 @@
+/* DigitalPanelGallery.css */
+
+/* Container wrapping all cards */
+.digital-panel-gallery {
+  display: flex;             /* arrange cards side by side */
+  flex-wrap: wrap;           /* wrap to next line if too many */
+  gap: 20px;                 /* space between cards */
+  justify-content: center;   /* center cards horizontally */
+  padding: 20px;
+  background-color: #f9fafb;
+  box-sizing: border-box;
+  min-height: 100vh;         /* full viewport height */
+}
+
+
+/* Hover effect for 3D "lifted" look */
+.single-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}

@@ -1,0 +1,40 @@
+/* DigitalPanelGallery.css or App.css */
+
+/* Navigation container */
+.navigator {
+  display: flex;
+  justify-content: center; /* center the links */
+  align-items: center;
+  gap: 24px;               /* spacing between links */
+  padding: 16px 0;
+  background: linear-gradient(145deg, #f3f3f5, #e0e0e3); /* soft 3D look */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* subtle shadow */
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Links inside nav */
+.navigator a {
+  text-decoration: none;
+  color: #1f2937;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for links */
+.navigator a:hover {
+  background-color: #f16726; /* accent color */
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transform: translateY(-2px);
+}
+
+/* Active link (optional if using NavLink) */
+.navigator a.active {
+  background-color: #f16726;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}

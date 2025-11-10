@@ -86,16 +86,22 @@ async function createSp() {
               begin
               select TOP (@rows) * from Switches
             end`);
-    console.log("✅ Stored Procedure 'getAllSwitchesData' created successfully");
+    console.log("✅ Stored Procedure 'getLiveSwitchesData' created successfully");
 
-    await pool.request().query(`      
-            CREATE OR ALTER PROCEDURE getAllSwitchesNames
-                
-            AS
-            BEGIN
-               Select * from MainData
-            END;`);
-    console.log("✅ Stored Procedure 'getAllSwitchesNames' created successfully");
+    await pool.request().query(`             
+        CREATE OR ALTER PROCEDURE getLiveData
+            @liveData INT
+        AS
+        BEGIN
+        SELECT *
+            FROM (
+            SELECT TOP (@liveData) *
+            FROM Switches
+            ORDER BY Switches.timestamp DESC
+        ) AS Latest
+        ORDER BY Latest.timestamp ASC;
+        END;`);
+    console.log("✅ Stored Procedure 'getLiveData' created successfully");
   } catch (err) {
     console.error('❌ Error creating addBreakerData SP:', err);
     return { message: err.message, status: 500 };

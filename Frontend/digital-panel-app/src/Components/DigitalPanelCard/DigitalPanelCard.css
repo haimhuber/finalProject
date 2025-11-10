@@ -1,0 +1,136 @@
+/* Main card container */
+.names-card {
+  background: #f3f3f5; /* soft neutral background for neumorphism */
+  border-radius: 20px; /* slightly rounder corners */
+  padding: 24px;
+  width: 360px;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  color: #1f2937;
+
+  /* Soft 3D shadow (neumorphic style) */
+  box-shadow: 
+    8px 8px 16px rgba(0,0,0,0.15),  /* dark shadow */
+    -8px -8px 16px rgba(255,255,255,0.7); /* highlight */
+
+  margin: 16px auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* Subtle gradient for depth */
+  background: linear-gradient(145deg, #f3f3f5, #e0e0e3);
+}
+
+/* Hover effect for “lifted” feeling */
+.names-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 
+    12px 12px 24px rgba(0,0,0,0.2), 
+    -12px -12px 24px rgba(255,255,255,0.75);
+}
+
+
+/* 3D hover effect */
+.names-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 8px 8px 24px rgba(0,0,0,0.2), -8px -8px 24px rgba(255,255,255,0.8);
+}
+
+/* Header styles */
+.names-card h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #000000; /* ABB Red */
+}
+
+.names-card h4 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 2px 0;
+}
+
+/* Com Status */
+.names-card h4 span.true {
+  color: #10b981; /* green */
+  font-weight: 600;
+}
+
+.names-card h4 span.false {
+  color: #ef4444; /* red */
+  font-weight: 600;
+}
+
+/* Live Data Section */
+.digital-live-data {
+  background: linear-gradient(135deg, #f9fafb, #e5e7eb);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 16px;
+  border-left: 4px solid #e30613; /* ABB red accent */
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.7);
+}
+
+.digital-live-data h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.digital-live-data h5 {
+  font-size: 0.95rem;
+  margin: 2px 0;
+}
+
+/* Protection Data Section */
+.digital-data {
+  background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 16px;
+  border-left: 4px solid #1f2937; /* dark gray accent */
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.7);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 12px;
+}
+
+.digital-data h5 {
+  font-size: 0.9rem;
+  margin: 2px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Boolean status styling */
+.digital-data h5 span.true {
+  color: #10b981; 
+  font-weight: 600;
+}
+
+.digital-data h5 span.false {
+  color: #ef4444; 
+  font-weight: 600;
+}
+
+/* Optional: subtle divider between sections */
+.names-card h4, .digital-live-data h3 {
+  border-bottom: 1px solid #d1d5db;
+  padding-bottom: 2px;
+  margin-bottom: 6px;
+}
+
+/* Rounded bars for live voltage/current visualization (optional) */
+.live-bar {
+  height: 8px;
+  border-radius: 4px;
+  margin: 2px 0 6px 0;
+  background: #e5e7eb;
+  position: relative;
+}
+
+.live-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: #e30613;
+  width: 50%; /* dynamically set via inline style for each value */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}

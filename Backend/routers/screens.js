@@ -9,7 +9,7 @@ router.get('/', screenAction.homePage);
 router.get('/data', screenAction.dataPage);
 
 // -- In case user didn't send paramter
-router.get('/breakersMainData/', screenAction.breakersMainData);
+router.get('/breakersMainData/', screenAction.breakersLiveData);
 
 router.get('/breakersNames', screenAction.breakersNames);
 
