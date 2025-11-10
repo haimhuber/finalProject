@@ -24,7 +24,7 @@ async function writeBreakerData(data, tableIndex) {
       .input('I2', data[4] / 10.0)
       .input('I3', data[5] / 10.0)
       .input('Frequency', data[6] / 10.0)
-      .input('PowerFactor', data[7] / 100.0)
+      .input('PowerFactor', data[7] / 10.0)
       .input('ActivePower', data[8] / 10.0)
       .input('ReactivePower', data[9] / 10.0)
       .input('ApparentPower', data[10] / 10.0)

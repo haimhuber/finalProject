@@ -33,3 +33,14 @@ export type DigitalPanelCardProps = {
     BreakerClose: string;
     BreakerOpen: string;
 };
+
+export type DigitalPanelHomeProps = {
+    name: string;
+    type: string;
+    load: string;
+    CommStatus: string;
+    Tripped: string;
+    BreakerClose: string;
+    
+};
+
