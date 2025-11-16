@@ -35,6 +35,7 @@ export type DigitalPanelCardProps = {
 };
 
 export type DigitalPanelHomeProps = {
+    switch_id: string;
     name: string;
     type: string;
     load: string;

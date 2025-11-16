@@ -32,10 +32,14 @@
       console.log("Combined Data:", combined);
     }
 
- export async function getActivePowerData(){
-  try{
-
-  } catch(err){
-    
-  }
+ export async function getActivePowerData(switch_id : string){
+    try {
+        const response = await fetch(`api/activepower/${switch_id}`);
+        const data = await response.json();
+        console.log(data.data);
+        return data.data; // Return the array/object
+      } catch (err) {
+        console.error("Error fetching breaker names:", err);
+        return [];
+      }
  }

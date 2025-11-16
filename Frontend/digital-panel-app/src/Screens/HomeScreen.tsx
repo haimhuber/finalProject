@@ -20,7 +20,8 @@ const HomeScreen = () => {
         {combinedDataState.map((curr) =>{
           return(
             <div className='single-card'>
-              <DigitalPanelHomeLayout 
+              <DigitalPanelHomeLayout
+              switch_id={curr.switch_id} 
               name={curr.name} 
               type={curr.type} 
               load={curr.load} 

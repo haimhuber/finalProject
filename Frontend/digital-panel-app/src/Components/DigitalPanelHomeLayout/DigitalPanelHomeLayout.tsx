@@ -11,6 +11,7 @@ import {
 } from 'chart.js';
 import type { DigitalPanelHomeProps } from '../../Types/digitalPanel';
 import { useEffect, useState } from 'react';
+import { getActivePowerData } from '../../Types/CombinedData';
 
 ChartJS.register(
   CategoryScale,
@@ -23,8 +24,23 @@ ChartJS.register(
 );
 
 export const DigitalPanelHomeLayout: React.FC<DigitalPanelHomeProps> = 
-({ name, type, load, CommStatus, Tripped, BreakerClose }) => {
+({ switch_id, name, type, load, CommStatus, Tripped, BreakerClose }) => {
   const [toggle, setToggle] = useState<boolean>(false);
+  const [activePower, setActivePower] = useState<any[]>([]);
+  useEffect(() => {
+    async function getData() {
+      const response = await getActivePowerData(switch_id);
+      setActivePower(response);
+      console.log(activePower);
+      
+      
+      
+    }
+    getData();
+    // Refresh every 60 seconds
+    const intervalId = setInterval(getData, 60000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   function toggleFunction() {
     setToggle(!toggle);
@@ -35,7 +51,7 @@ export const DigitalPanelHomeLayout: React.FC<DigitalPanelHomeProps> =
     datasets: [
       {
         label: 'Active Power (kW)',
-        data: [25.8, 38.8, 95.8, 85.8, 150.8, 200.8],
+        data: activePower,
         borderColor: 'rgba(75,192,192,1)',
         backgroundColor: 'rgba(75,192,192,0.2)',
         tension: 0.4,

@@ -13,7 +13,9 @@ router.get('/breakersMainData/', screenAction.breakersLiveData);
 
 router.get('/breakersNames', screenAction.breakersNames);
 
-router.get('/data/:switch_id', screenAction.activePowerData);
+router.get('/activePower', screenAction.activePowerData);
+
+router.get('/activePower/:switch_id', screenAction.activePowerData);
 
 
 module.exports = router;
