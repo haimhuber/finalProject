@@ -32,4 +32,10 @@
       console.log("Combined Data:", combined);
     }
 
-    // Initial fetch
+ export async function getActivePowerData(){
+  try{
+
+  } catch(err){
+    
+  }
+ }

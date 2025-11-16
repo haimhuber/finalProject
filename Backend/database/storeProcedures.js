@@ -102,10 +102,41 @@ async function createSp() {
         ORDER BY Latest.timestamp ASC;
         END;`);
     console.log("✅ Stored Procedure 'getLiveData' created successfully");
+
+     await pool.request().query(`             
+       CREATE OR ALTER PROCEDURE GetDailySample
+              @switch_id INT
+              AS
+              BEGIN
+                  SET NOCOUNT ON;
+
+                  SELECT day_slot, ActivePower, timestamp
+                  FROM (
+                      SELECT 
+                          CAST(timestamp AS DATE) AS day_slot,
+                          Switches.ActivePower,
+                          timestamp,
+                          ROW_NUMBER() OVER (
+                              PARTITION BY CAST(timestamp AS DATE)
+                              ORDER BY timestamp DESC
+                          ) AS rn
+                      FROM Switches
+                      WHERE switch_id = @switch_id
+                  ) AS t
+                  WHERE rn = 1
+                  ORDER BY day_slot ASC;
+              END
+              
+              `);
+    console.log("✅ Stored Procedure 'GetDailySample' created successfully");
+
   } catch (err) {
     console.error('❌ Error creating addBreakerData SP:', err);
     return { message: err.message, status: 500 };
   }
+  
+
+  
 }
 
 module.exports = { createSp };

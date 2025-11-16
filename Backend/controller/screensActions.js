@@ -19,12 +19,12 @@ const dataPage = async (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'data.html'));
 };
 
-const activeEnergyData = async (req, res) => {
-    const { switch_id, startTime, endTime } = req.body;
-    console.log('Received request:', { switch_id, startTime, endTime });
+const activePowerData = async (req, res) => {
+    const { switch_id} = req.params;
+    console.log('Received request:', { switch_id });
 
     try {
-        const getSqlData = await sqlData.getActiveEnergy(switch_id, startTime, endTime);
+        const getSqlData = await sqlData.getActivePower(switch_id);
         console.log('SQL Data:', getSqlData);
 
         res.status(200).json(getSqlData);
@@ -55,4 +55,4 @@ const breakersNames = async (req, res) => {
     }
 };
 
-module.exports = { homeScreen, homePage, dataPage, activeEnergyData, breakersLiveData, breakersNames };
+module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames };

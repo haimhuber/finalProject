@@ -58,21 +58,16 @@ async function writeBreakerData(data, tableIndex) {
 }
 
 // --------------------------------------------------------------------------------------//
-async function getActiveEnergy(switch_id, startTime, endTime) {
+async function getActivePower(switch_id) {
   try {
-    if (!switch_id || !startTime || !endTime) {
+    if (!switch_id) {
       throw new Error('Missing required parameters: switch_id, startTime, endTime');
     }
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    console.log(start);
-
+  
     const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
       .input('switch_id', sql.Int, switch_id)
-      .input('startTime', sql.DateTime, start)
-      .input('endTime', sql.DateTime, end)
-      .execute('getActiveEnergy');           // call the SP that returns formatted time
+      .execute('GetDailySample');           // call the SP that returns formatted time
 
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found for the given parameters');
@@ -133,4 +128,4 @@ async function getBreakersMainData() {
 
 
 
-module.exports = { writeBreakerData, getActiveEnergy, getBreakersMainData, getBreakersNames };
+module.exports = { writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames };

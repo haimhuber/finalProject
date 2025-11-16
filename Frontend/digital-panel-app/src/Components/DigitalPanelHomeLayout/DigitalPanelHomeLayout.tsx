@@ -34,7 +34,7 @@ export const DigitalPanelHomeLayout: React.FC<DigitalPanelHomeProps> =
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
-        label: 'Energy (kW)',
+        label: 'Active Power (kW)',
         data: [25.8, 38.8, 95.8, 85.8, 150.8, 200.8],
         borderColor: 'rgba(75,192,192,1)',
         backgroundColor: 'rgba(75,192,192,0.2)',
