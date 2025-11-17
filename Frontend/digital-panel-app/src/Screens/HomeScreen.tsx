@@ -74,9 +74,6 @@ export const HomeScreen: React.FC = () => {
     }
 
     getCombinedData();
-
-    const intervalId = setInterval(getCombinedData, 60000); // refresh every 60s
-    return () => clearInterval(intervalId);
   }, []);
 
   if (loading) {
@@ -99,7 +96,7 @@ export const HomeScreen: React.FC = () => {
 
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+    <div style={{alignItems: "center", display: "flex", flexWrap: "wrap", gap: "20px" }}>
       {combinedDataState.map((panel) => {
         const activePower = activePowerDataState[panel.switch_id] || [];
         const dayLabels = dayLabelsState[panel.switch_id] || [];
