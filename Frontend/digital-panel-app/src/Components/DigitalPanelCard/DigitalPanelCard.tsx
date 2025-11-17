@@ -6,7 +6,7 @@ import { getActivePowerData } from '../../Types/CombinedData';
 import { Line } from 'react-chartjs-2';
 
 export const DigitalPanelCard: React.FC<DigitalPanelCardProps> = 
-({ switch_id, name, type, load, CommStatus, V12, V23, V31, Frequency, PowerFactor, ActivePower, ReactivePower, NominalCurrent, ActiveEnergy, ProtectionTrip, ProtectionI_Enabled }) => {
+({ switch_id, name, type, load, CommStatus, V12, V23, V31, Frequency, PowerFactor, ActivePower, ReactivePower, NominalCurrent, ActiveEnergy, ProtectionTrip, ProtectionInstTrip, ProtectionI_Enabled, Tripped, BreakerClose }) => {
   const [toggle, setToggle] = useState<boolean>(false);
 
  const [activePower, setActivePower] = useState<number[]>([]);
@@ -83,7 +83,11 @@ export const DigitalPanelCard: React.FC<DigitalPanelCardProps> =
               <h5>Apparent Power: {ReactivePower} KVA</h5>
               <h5>Nominal Current: {NominalCurrent} A</h5>
               <h5 style={{ color: CommStatus ? 'green' : 'red' }} >Protection Trip: {ProtectionTrip ? 'Disable' : 'Enabled'} </h5>
+               <h5 style={{ color: CommStatus ? 'green' : 'red' }} >Protection Inst Trip: {ProtectionInstTrip ? 'Disable' : 'Enabled'} </h5>
               <h5 style={{ color: CommStatus ? 'green' : 'red' }} >Protection I Enabled: {ProtectionI_Enabled ? 'Enabled' : 'Disable'} </h5>
+              <h5 style={{ color: CommStatus ? 'green' : 'red' }} >Protection I Enabled: {ProtectionI_Enabled ? 'Enabled' : 'Disable'} </h5>
+              <h5 style={{ color: CommStatus ? 'red' : 'green' }} >Breaker Position: {BreakerClose ? 'Close' : 'Open'} </h5>
+              <h5 style={{ color: CommStatus ? 'green' : 'red' }} >Breaker Trip: {Tripped ? 'Tripped' : 'Ok'} </h5>
               <div style={{ width: '100%', height: '200px', marginTop: '20px' }}>
               <Line data={data} options={options} />
         </div>

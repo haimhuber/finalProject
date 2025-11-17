@@ -6,24 +6,66 @@ import { useEffect, useState } from 'react';
 
 export const DigitalPanelGallery = () => {
   const [combinedDataState, setCombinedDataState] = useState<any[]>([]);
-
+  const [loading, setLoading] = useState<boolean>(true); // ✅ added loading state
+  useEffect(() => {
+    async function initial() {
+      setLoading(true); // start loading
+       try {
+        const response = await fetchAndCombineData();
+        setCombinedDataState(response);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false); // stop loading
+      }
+    }
+    initial();
+    
+  }, []);
+  
   useEffect(() => {
     async function getData() {
-      const response = await fetchAndCombineData();
-      setCombinedDataState(response);
+      try {
+        const response = await fetchAndCombineData();
+        setCombinedDataState(response);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false); // stop loading
+      }
     }
+
     getData();
+   
+
     // Refresh every 60 seconds
     const intervalId = setInterval(getData, 60000);
     return () => clearInterval(intervalId);
   }, []);
 
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh', // full viewport height
+          width: '100vw',  // full width
+          fontSize: '1.5rem',
+          backgroundColor: '#0d0e10ff',
+        }}
+      >
+        Loading Dashboard data...
+      </div>
+    );
+  }
+
   return (
     <div className="digital-panel-gallery">
-      {combinedDataState.map((curr) =>{
-        return(
-          <div className='single-card'>
-            <DigitalPanelCard 
+      {combinedDataState.map((curr) => (
+        <div className='single-card' key={curr.switch_id}>
+          <DigitalPanelCard 
             switch_id={curr.switch_id}
             name={curr.name} 
             type={curr.type} 
@@ -55,11 +97,10 @@ export const DigitalPanelGallery = () => {
             Tripped={curr.Tripped} 
             Undefined={curr.Undefined} 
             BreakerClose={curr.BreakerClose} 
-            BreakerOpen={curr.BreakerOpen}>
-            </DigitalPanelCard>
-          </div>
-        )
-      })}
-  </div>
+            BreakerOpen={curr.BreakerOpen} 
+          />
+        </div>
+      ))}
+    </div>
   );
 };

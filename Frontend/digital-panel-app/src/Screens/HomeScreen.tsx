@@ -39,31 +39,38 @@ export const HomeScreen: React.FC = () => {
   const [combinedDataState, setCombinedDataState] = useState<CombinedDataItem[]>([]);
   const [activePowerDataState, setActivePowerDataState] = useState<Record<string, number[]>>({});
   const [dayLabelsState, setDayLabelsState] = useState<Record<string, string[]>>({});
+  const [loading, setLoading] = useState<boolean>(true); // ✅ added loading state
 
   useEffect(() => {
     async function getCombinedData() {
-      const combinedData = await fetchAndCombineData();
-      setCombinedDataState(combinedData);
+      setLoading(true); // start loading
+      try {
+        const combinedData = await fetchAndCombineData();
+        setCombinedDataState(combinedData);
 
-      // Fetch active power for each panel
-      const activePowerMap: Record<string, number[]> = {};
-      const dayLabelsMap: Record<string, string[]> = {};
+        const activePowerMap: Record<string, number[]> = {};
+        const dayLabelsMap: Record<string, string[]> = {};
 
-      await Promise.all(
-        combinedData.map(async (panel: { switch_id: string; }) => {
-          const response = await getActivePowerData(panel.switch_id);
-          const values = response.map((item: any) => item.ActivePower);
-          const dayLabels = response.map((item: any) => {
-            const d = new Date(item.day_slot);
-            return d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
-          });
-          activePowerMap[panel.switch_id] = values;
-          dayLabelsMap[panel.switch_id] = dayLabels;
-        })
-      );
+        await Promise.all(
+          combinedData.map(async (panel: { switch_id: string }) => {
+            const response = await getActivePowerData(panel.switch_id);
+            const values = response.map((item: any) => item.ActivePower);
+            const dayLabels = response.map((item: any) => {
+              const d = new Date(item.day_slot);
+              return d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
+            });
+            activePowerMap[panel.switch_id] = values;
+            dayLabelsMap[panel.switch_id] = dayLabels;
+          })
+        );
 
-      setActivePowerDataState(activePowerMap);
-      setDayLabelsState(dayLabelsMap);
+        setActivePowerDataState(activePowerMap);
+        setDayLabelsState(dayLabelsMap);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setLoading(false); // stop loading
+      }
     }
 
     getCombinedData();
@@ -71,6 +78,25 @@ export const HomeScreen: React.FC = () => {
     const intervalId = setInterval(getCombinedData, 60000); // refresh every 60s
     return () => clearInterval(intervalId);
   }, []);
+
+  if (loading) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",      // full viewport height
+        width: "100vw",       // full width
+        fontSize: "1.5rem",
+        backgroundColor: "#010101ff",
+      }}
+    >
+      Loading Home data...
+    </div>
+  );
+}
+
 
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
