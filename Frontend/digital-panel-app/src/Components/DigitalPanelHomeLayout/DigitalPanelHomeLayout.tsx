@@ -23,39 +23,48 @@ ChartJS.register(
   Legend
 );
 
-export const DigitalPanelHomeLayout: React.FC<DigitalPanelHomeProps> = 
-({ switch_id, name, type, load, CommStatus, Tripped, BreakerClose }) => {
+type ActivePowerResponse = {
+  ActivePower: number;
+  day_slot: string;
+  timestamp: string;
+};
+
+export const DigitalPanelHomeLayout: React.FC<DigitalPanelHomeProps> = ({
+  switch_id,
+  name,
+  type,
+  load,
+  CommStatus,
+  Tripped,
+  BreakerClose,
+}) => {
   const [toggle, setToggle] = useState<boolean>(false);
   const [activePower, setActivePower] = useState<number[]>([]);
   const [day, setDay] = useState<string[]>([]);
- useEffect(() => {
-  async function getData() {
-    const response = await getActivePowerData(switch_id);
 
-    let values: number[] = [];
-    let daySlots: string[] = [];
-    // Case 1: array of objects
-    values = response.map((item: any) => item.ActivePower);
-    daySlots = response.map((item: any) => {
-      const d = new Date(item.day_slot);
-      return d.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-    });
-    });
-    console.log(daySlots);
-    
-    setActivePower(values);
-    setDay(daySlots);
-  }
+  useEffect(() => {
+    async function getData() {
+      try {
+        const response: ActivePowerResponse[] = await getActivePowerData(switch_id);
 
-  getData();
-  
-}, [switch_id]);
+        const values = response.map(item => item.ActivePower);
 
-  function toggleFunction() {
-    setToggle(!toggle);
-  }
+        const daySlots = response.map(item => {
+          const d = new Date(item.day_slot);
+          return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+        });
+
+        setActivePower(values);
+        setDay(daySlots);
+      } catch (err) {
+        console.error('Error fetching active power data:', err);
+      }
+    }
+
+    getData();
+  }, [switch_id]);
+
+  const toggleFunction = () => setToggle(prev => !prev);
 
   const data = {
     labels: day,
@@ -74,16 +83,16 @@ export const DigitalPanelHomeLayout: React.FC<DigitalPanelHomeProps> =
     responsive: true,
     plugins: {
       legend: { position: 'top' as const },
-      title: { display: true, text: `${name} Active Energy` },
+      title: { display: true, text: `${name} Active Power` },
     },
   };
 
-  // Show alert if breaker tripped or communication error
+  // Alert logic
   const showAlertCommStatus = !CommStatus;
   const showAlertTripStatus = Tripped;
 
   return (
-    <div className='names-card' style={{ position: 'relative' }}>
+    <div className="names-card" style={{ position: 'relative', padding: '20px' }}>
       {(showAlertCommStatus || showAlertTripStatus) && (
         <div
           style={{
@@ -93,10 +102,15 @@ export const DigitalPanelHomeLayout: React.FC<DigitalPanelHomeProps> =
             fontSize: '24px',
             color: 'red',
           }}
-          title={Tripped ? 'Breaker Tripped!' : 'Communication Error'}
+          title={
+            Tripped
+              ? 'Breaker Tripped!'
+              : showAlertCommStatus
+              ? 'Communication Error'
+              : ''
+          }
         >
-          {showAlertCommStatus ?  '❌'  : '⚠️'}
-          {showAlertTripStatus && !showAlertCommStatus ?  '❌'  : ''}
+          {showAlertTripStatus ? '❌' : showAlertCommStatus ? '⚠️' : ''}
         </div>
       )}
 
@@ -114,12 +128,12 @@ export const DigitalPanelHomeLayout: React.FC<DigitalPanelHomeProps> =
         <h4 style={{ color: 'red' }}>Breaker Tripped!</h4>
       )}
 
-      <button onClick={toggleFunction}>
+      <button onClick={toggleFunction} style={{ marginTop: '10px' }}>
         {toggle ? 'Hide Chart' : 'Show Chart'}
       </button>
 
-      {toggle && (
-        <div style={{ width: '100%', height: '200px', marginTop: '20px' }}>
+      {toggle && activePower.length > 0 && (
+        <div style={{ width: '100%', height: '250px', marginTop: '20px' }}>
           <Line data={data} options={options} />
         </div>
       )}

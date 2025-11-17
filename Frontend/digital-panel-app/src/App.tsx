@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, useParams, Link } from 'react-router-dom'
 import './App.css'
 import { DigitalPanelGallery } from './Components/DigitalPanelGallery/DigitalPanelGallery'
-import HomeScreen from './Screens/HomeScreen';
+import { HomeScreen } from './Screens/HomeScreen';
+
 
 function App() {
   return (
