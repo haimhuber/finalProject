@@ -6,7 +6,7 @@ import { getActivePowerData } from '../../Types/CombinedData';
 import { Line } from 'react-chartjs-2';
 
 export const DigitalPanelCard: React.FC<DigitalPanelCardProps> = 
-({ switch_id, name, type, load, CommStatus, V12, V23, V31, I1, I2, I3, Frequency, PowerFactor, ActivePower, ReactivePower, ApparentPower, NominalCurrent, ActiveEnergy, ProtectionTrip, ProtectionInstTrip, ProtectionI_Enabled, ProtectionS_Enabled, ProtectionL_Enabled, ProtectionG_Trip, ProtectionI_Trip, ProtectionS_Trip, ProtectionL_Trip, TripDisconnected, Tripped, Undefined, BreakerClose, BreakerOpen }) => {
+({ switch_id, name, type, load, CommStatus, V12, V23, V31, Frequency, PowerFactor, ActivePower, ReactivePower, NominalCurrent, ActiveEnergy, ProtectionTrip, ProtectionI_Enabled }) => {
   const [toggle, setToggle] = useState<boolean>(false);
 
  const [activePower, setActivePower] = useState<number[]>([]);
