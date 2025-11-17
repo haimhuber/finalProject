@@ -14,6 +14,7 @@ const HomeScreen = () => {
         const intervalId = setInterval(getData, 60000);
         return () => clearInterval(intervalId);
       }, []);
+
   
     return (
       <div className="digital-panel-gallery">

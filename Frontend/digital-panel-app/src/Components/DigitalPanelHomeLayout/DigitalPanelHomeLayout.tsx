@@ -26,28 +26,39 @@ ChartJS.register(
 export const DigitalPanelHomeLayout: React.FC<DigitalPanelHomeProps> = 
 ({ switch_id, name, type, load, CommStatus, Tripped, BreakerClose }) => {
   const [toggle, setToggle] = useState<boolean>(false);
-  const [activePower, setActivePower] = useState<any[]>([]);
-  useEffect(() => {
-    async function getData() {
-      const response = await getActivePowerData(switch_id);
-      setActivePower(response);
-      console.log(activePower);
-      
-      
-      
-    }
-    getData();
-    // Refresh every 60 seconds
-    const intervalId = setInterval(getData, 60000);
-    return () => clearInterval(intervalId);
-  }, []);
+  const [activePower, setActivePower] = useState<number[]>([]);
+  const [day, setDay] = useState<string[]>([]);
+ useEffect(() => {
+  async function getData() {
+    const response = await getActivePowerData(switch_id);
+
+    let values: number[] = [];
+    let daySlots: string[] = [];
+    // Case 1: array of objects
+    values = response.map((item: any) => item.ActivePower);
+    daySlots = response.map((item: any) => {
+      const d = new Date(item.day_slot);
+      return d.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+    });
+    console.log(daySlots);
+    
+    setActivePower(values);
+    setDay(daySlots);
+  }
+
+  getData();
+  
+}, [switch_id]);
 
   function toggleFunction() {
     setToggle(!toggle);
   }
 
   const data = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: day,
     datasets: [
       {
         label: 'Active Power (kW)',
