@@ -1,6 +1,6 @@
 
 export type DigitalPanelCardProps = {
-    switch_id: number;
+    switch_id: string;
     name: string;
     type: string;
     load: string;
