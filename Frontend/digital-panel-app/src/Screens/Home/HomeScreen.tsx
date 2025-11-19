@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { getActivePowerData, fetchAndCombineData } from "../Types/CombinedData";
+import { getActivePowerData, fetchAndCombineData } from "../../Types/CombinedData";
 
 ChartJS.register(
   CategoryScale,

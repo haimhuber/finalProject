@@ -15,7 +15,16 @@ app.use(express.urlencoded({ extended: true }));
 const cors = require('cors');
 host =  myIp.getLocalIPs();
 
-app.use(cors({ origin: 'http://10.29.176.133:5173/' }));
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      callback(null, origin); // allow all origins dynamically
+    },
+    credentials: true,
+  })
+);
+
 createDatabase.createDatabase();
 startModbusClient.start();
 app.use('/', screenRouters);

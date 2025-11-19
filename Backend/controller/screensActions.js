@@ -6,6 +6,17 @@ const { log } = require('console');
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
 
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+
+const SECRET_KEY = "your_secret_key";
+
+// Hardcoded user — replace with DB later
+const userDB = {
+  username: "admin",
+  passwordHash: bcrypt.hashSync("1234", 10)
+};
+
 const homeScreen = async (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'));
 };
@@ -75,4 +86,19 @@ const breakersNames = async (req, res) => {
     }
 };
 
-module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData };
+
+const login = async (req, res) => {
+  const { username, password } = req.body;
+
+  if (username !== userDB.username)
+    return res.status(401).json({ message: "Invalid username" });
+
+  const match = await bcrypt.compare(password, userDB.passwordHash);
+  if (!match) return res.status(401).json({ message: "Invalid password" });
+
+  const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "1h" });
+
+  res.json({ token });
+};
+
+module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login };

@@ -1,26 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const screenAction = require('../controller/screensActions');
+const authenticateJWT = require('../jsonwebtoken/jsonwebtoken'); // <-- import middleware
 
+router.get('/', authenticateJWT);
 
-router.get('/', screenAction.homePage);
+// Protect this route
+router.get('/data', authenticateJWT, screenAction.dataPage);
 
+// Protect breakers data routes
+router.get('/breakersMainData/', authenticateJWT, screenAction.breakersLiveData);
+router.get('/breakersNames', authenticateJWT, screenAction.breakersNames);
 
-router.get('/data', screenAction.dataPage);
-
-// -- In case user didn't send paramter
-router.get('/breakersMainData/', screenAction.breakersLiveData);
-
-router.get('/breakersNames', screenAction.breakersNames);
-
-router.get('/activePower/:switch_id', screenAction.activePowerData);
-router.get('/activeEnergy/:switch_id', screenAction.activeEnergyData);
-router.get('/activeEnergy', screenAction.activeEnergyData);
-router.get('/hi', (req, res) =>{
-    console.log("Hi");
-    
-    res.status(200).json({Params: "1"});
-});
+router.get('/activePower/:switch_id', authenticateJWT, screenAction.activePowerData);
+router.get('/activeEnergy/:switch_id', authenticateJWT, screenAction.activeEnergyData);
+router.get('/activeEnergy', authenticateJWT, screenAction.activeEnergyData);
+router.post("/login", screenAction.login);
 
 
 module.exports = router;
