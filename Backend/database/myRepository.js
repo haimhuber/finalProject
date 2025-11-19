@@ -82,6 +82,31 @@ async function getActivePower(switch_id) {
     return { status: 500, message: err.message };
   }
 }
+// --------------------------------------------------------------------------------------//
+async function getActiveEnergy(switch_id) {
+  try {
+    if (!switch_id) {
+      throw new Error('Missing required parameters: switch_id, startTime, endTime');
+    }
+  
+    const pool = await connectDb.connectionToSqlDB(databse);
+    const result = await pool.request()
+      .input('switch_id', sql.Int, switch_id)
+      .execute('GetDailySampleActiveEnergy');           // call the SP that returns formatted time
+
+    if (!result.recordset || result.recordset.length === 0) {
+      console.log('No data found for the given parameters');
+      return { status: 200, data: [] };
+    }
+
+    console.log({ status: 200, data: result.recordset });
+    return { status: 200, data: result.recordset };
+
+  } catch (err) {
+    console.error('Error fetching active energy:', err);
+    return { status: 500, message: err.message };
+  }
+}
 
 // --------------------------------------------------------------------------------------//
 
@@ -128,4 +153,4 @@ async function getBreakersMainData() {
 
 
 
-module.exports = { writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames };
+module.exports = { writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy };

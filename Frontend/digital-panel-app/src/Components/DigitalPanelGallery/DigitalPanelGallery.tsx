@@ -1,4 +1,3 @@
-import { Outlet } from 'react-router-dom';
 import { DigitalPanelCard } from '../DigitalPanelCard/DigitalPanelCard';
 import { fetchAndCombineData } from '../../Types/CombinedData';
 import './DigitalPanelGallery.css';

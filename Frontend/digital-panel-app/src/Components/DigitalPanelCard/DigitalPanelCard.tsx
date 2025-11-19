@@ -1,24 +1,23 @@
 import './DigitalPanelCard.css';
 import React, { useEffect, useState } from 'react'
 import type { DigitalPanelCardProps } from '../../Types/digitalPanel';
-import { Link } from 'react-router-dom';
-import { getActivePowerData } from '../../Types/CombinedData';
+import { getActiveEnergyData } from '../../Types/CombinedData';
 import { Line } from 'react-chartjs-2';
 
 export const DigitalPanelCard: React.FC<DigitalPanelCardProps> = 
-({ switch_id, name, type, load, CommStatus, V12, V23, V31, Frequency, PowerFactor, ActivePower, ReactivePower, NominalCurrent, ActiveEnergy, ProtectionTrip, ProtectionInstTrip, ProtectionI_Enabled, Tripped, BreakerClose }) => {
+({ switch_id, name, type, load, CommStatus, V12, V23, V31, Frequency, PowerFactor, ActivePower, ReactivePower, NominalCurrent, ActiveEnergy, ProtectionTrip, ProtectionInstTrip, Tripped, BreakerClose }) => {
   const [toggle, setToggle] = useState<boolean>(false);
 
- const [activePower, setActivePower] = useState<number[]>([]);
+ const [activeEnergy, setActiveEnergy] = useState<number[]>([]);
   const [day, setDay] = useState<string[]>([]);
  useEffect(() => {
   async function getData() {
-    const response = await getActivePowerData(switch_id);
+    const response = await getActiveEnergyData(switch_id);
 
     let values: number[] = [];
     let daySlots: string[] = [];
     // Case 1: array of objects
-    values = response.map((item: any) => item.ActivePower);
+    values = response.map((item: any) => item.ActiveEnergy);
     daySlots = response.map((item: any) => {
       const d = new Date(item.day_slot);
       return d.toLocaleDateString("en-GB", {
@@ -28,7 +27,9 @@ export const DigitalPanelCard: React.FC<DigitalPanelCardProps> =
     });
     console.log(daySlots);
     
-    setActivePower(values);
+    setActiveEnergy(values);
+    console.log(values);
+    
     setDay(daySlots);
   }
 
@@ -44,8 +45,8 @@ export const DigitalPanelCard: React.FC<DigitalPanelCardProps> =
     labels: day,
     datasets: [
       {
-        label: 'Active Power (kW)',
-        data: activePower,
+        label: 'Active Energy (kW)',
+        data: activeEnergy,
         borderColor: 'rgba(75,192,192,1)',
         backgroundColor: 'rgba(75,192,192,0.2)',
         tension: 0.4,

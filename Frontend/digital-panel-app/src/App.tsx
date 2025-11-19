@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useParams, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import './App.css'
 import { DigitalPanelGallery } from './Components/DigitalPanelGallery/DigitalPanelGallery'
 import { HomeScreen } from './Screens/HomeScreen';

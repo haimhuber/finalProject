@@ -42,3 +42,14 @@
         return [];
       }
  }
+//  -------------------------------------- 
+ export async function getActiveEnergyData(switch_id : string){
+    try {
+        const response = await fetch(`api/activeEnergy/${switch_id}`);
+        const data = await response.json();
+        return data.data; // Return the array/object
+      } catch (err) {
+        console.error("Error fetching breaker names:", err);
+        return [];
+      }
+ }

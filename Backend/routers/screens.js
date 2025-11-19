@@ -13,9 +13,14 @@ router.get('/breakersMainData/', screenAction.breakersLiveData);
 
 router.get('/breakersNames', screenAction.breakersNames);
 
-router.get('/activePower', screenAction.activePowerData);
-
 router.get('/activePower/:switch_id', screenAction.activePowerData);
+router.get('/activeEnergy/:switch_id', screenAction.activeEnergyData);
+router.get('/activeEnergy', screenAction.activeEnergyData);
+router.get('/hi', (req, res) =>{
+    console.log("Hi");
+    
+    res.status(200).json({Params: "1"});
+});
 
 
 module.exports = router;

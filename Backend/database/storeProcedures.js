@@ -104,31 +104,73 @@ async function createSp() {
     console.log("✅ Stored Procedure 'getLiveData' created successfully");
 
      await pool.request().query(`             
-       CREATE OR ALTER PROCEDURE GetDailySample
-              @switch_id INT
-              AS
-              BEGIN
-                  SET NOCOUNT ON;
+      CREATE OR ALTER PROCEDURE GetDailySample
+            @switch_id INT
+        AS
+        BEGIN
+            SET NOCOUNT ON;
 
-                  SELECT day_slot, ActivePower, timestamp
-                  FROM (
-                      SELECT 
-                          CAST(timestamp AS DATE) AS day_slot,
-                          Switches.ActivePower,
-                          timestamp,
-                          ROW_NUMBER() OVER (
-                              PARTITION BY CAST(timestamp AS DATE)
-                              ORDER BY timestamp DESC
-                          ) AS rn
-                      FROM Switches
-                      WHERE switch_id = @switch_id
-                  ) AS t
-                  WHERE rn = 1
-                  ORDER BY day_slot ASC;
-              END
-              
+            -- Get the last 10 days (latest record per day)
+            WITH DailyLatest AS (
+                SELECT 
+                    CAST(timestamp AS DATE) AS day_slot,
+                    ActivePower,
+                    timestamp,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY CAST(timestamp AS DATE)
+                        ORDER BY timestamp DESC
+                    ) AS rn
+                FROM Switches
+                WHERE switch_id = @switch_id
+            ),
+            Last10Days AS (
+                SELECT TOP 10 day_slot, ActivePower, timestamp
+                FROM DailyLatest
+                WHERE rn = 1
+                ORDER BY day_slot DESC
+            )
+            SELECT day_slot, ActivePower, timestamp
+            FROM Last10Days
+            ORDER BY day_slot ASC;  -- return sorted oldest → newest
+        END
+                      
               `);
     console.log("✅ Stored Procedure 'GetDailySample' created successfully");
+
+    // --------------------------------------------------------------------------
+     await pool.request().query(`             
+     CREATE OR ALTER PROCEDURE GetDailySampleActiveEnergy
+            @switch_id INT
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+
+            -- Get the last 10 days (latest record per day)
+            WITH DailyLatest AS (
+                SELECT 
+                    CAST(timestamp AS DATE) AS day_slot,
+                    ActiveEnergy,
+                    timestamp,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY CAST(timestamp AS DATE)
+                        ORDER BY timestamp DESC
+                    ) AS rn
+                FROM Switches
+                WHERE switch_id = @switch_id
+            ),
+            Last10Days AS (
+                SELECT TOP 10 day_slot, ActiveEnergy, timestamp
+                FROM DailyLatest
+                WHERE rn = 1
+                ORDER BY day_slot DESC
+            )
+            SELECT day_slot, ActiveEnergy, timestamp
+            FROM Last10Days
+            ORDER BY day_slot ASC;  -- return sorted oldest → newest
+        END
+                      
+              `);
+    console.log("✅ Stored Procedure 'GetDailySampleActiveEnergy' created successfully");
 
   } catch (err) {
     console.error('❌ Error creating addBreakerData SP:', err);

@@ -35,6 +35,25 @@ const activePowerData = async (req, res) => {
 };
 
 
+//  ---------------------
+const activeEnergyData = async (req, res) => {
+    const switch_id = req.params.switch_id || 1;   // ← default = 1
+    console.log('Received request:', { switch_id });
+
+    try {
+        const getSqlData = await sqlData.getActiveEnergy(switch_id);
+        console.log('SQL Data:', getSqlData);
+
+        res.status(200).json(getSqlData);
+    } catch (err) {
+        console.error('Error fetching data:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+//  ---------------------
+
+
+
 const breakersLiveData = async (req, res) => {
     try {
         const getBreakerDataFromSql = await sqlData.getBreakersMainData();
@@ -56,4 +75,4 @@ const breakersNames = async (req, res) => {
     }
 };
 
-module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames };
+module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData };
