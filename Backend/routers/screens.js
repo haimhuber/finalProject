@@ -13,7 +13,7 @@ router.get('/breakersMainData/', authenticateJWT, screenAction.breakersLiveData)
 router.get('/breakersNames', authenticateJWT, screenAction.breakersNames);
 
 router.get('/activePower/:switch_id', authenticateJWT, screenAction.activePowerData);
-router.get('/activeEnergy/:switch_id', authenticateJWT, screenAction.activeEnergyData);
+router.get('/activeEnergy/:switch_id', screenAction.activeEnergyData);
 router.get('/activeEnergy', authenticateJWT, screenAction.activeEnergyData);
 router.post("/login", screenAction.login);
 

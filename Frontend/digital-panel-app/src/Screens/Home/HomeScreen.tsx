@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { getActivePowerData, fetchAndCombineData } from "../../Types/CombinedData";
+import { getActivePowerData, fetchAndCombineData, getActiveEnergyData } from "../../Types/CombinedData";
 
 ChartJS.register(
   CategoryScale,
@@ -40,6 +40,18 @@ export const HomeScreen: React.FC = () => {
   const [activePowerDataState, setActivePowerDataState] = useState<Record<string, number[]>>({});
   const [dayLabelsState, setDayLabelsState] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState<boolean>(true); // ✅ added loading state
+    useEffect(() => {
+    async function getEnergyData(id:string) {
+      try{
+        const getData = await getActiveEnergyData(id);
+        console.log(getData);
+      }catch(err) {
+        console.log({error: err});
+      } 
+    }
+      getEnergyData('1');
+  }, []);
+
 
   useEffect(() => {
     async function getCombinedData() {
@@ -96,6 +108,7 @@ export const HomeScreen: React.FC = () => {
 
 
   return (
+
     <div style={{alignItems: "center", display: "flex", flexWrap: "wrap", gap: "20px" }}>
       {combinedDataState.map((panel) => {
         const activePower = activePowerDataState[panel.switch_id] || [];
