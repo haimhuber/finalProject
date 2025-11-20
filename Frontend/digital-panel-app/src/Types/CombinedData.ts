@@ -29,7 +29,7 @@
         ...(breakerNamesFetched[item.switch_id - 1] || {}) // Merge extra info
       }));
       return combined;
-      console.log("Combined Data:", combined);
+      
     }
 
  export async function getActivePowerData(switch_id : string){
@@ -38,7 +38,7 @@
         const data = await response.json();
         return data.data; // Return the array/object
       } catch (err) {
-        console.error("Error fetching breaker names:", err);
+        console.error("Error fetching Active Power:", err);
         return [];
       }
  }
@@ -49,7 +49,7 @@
         const data = await response.json();
         return data.data; // Return the array/object
       } catch (err) {
-        console.error("Error fetching breaker names:", err);
+        console.error("Error fetching Active Energy:", err);
         return [];
       }
  }
