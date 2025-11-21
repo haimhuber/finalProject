@@ -6,6 +6,18 @@ import { useEffect, useState } from 'react';
 export const DigitalPanelGallery = () => {
   const [combinedDataState, setCombinedDataState] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true); // ✅ added loading state
+
+ useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
+
+    if (!token) {
+      console.log("No token found, redirecting to login...");
+      window.location.href = "/login";
+    }
+  }, []);
+
+
   useEffect(() => {
     async function initial() {
       setLoading(true); // start loading

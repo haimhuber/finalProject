@@ -5,6 +5,9 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  function signin() {
+     window.location.href = "/Signin";
+  }
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
 
@@ -16,10 +19,21 @@ const Login = () => {
 
     const data = await res.json();
 
-    if (!data.data) return alert(data.message || "Login failed");
-
-    localStorage.setItem("token", data.data);
-    window.location.href = "/";
+   if (!data.data) {
+    alert(data.message || "User or Password are invalid");
+    localStorage.removeItem("token"); // clear token on fail
+    return;
+    }
+      console.log(data.data);
+      console.log(data); 
+      localStorage.setItem("token", data.data);
+      localStorage.setItem("username", username);
+      console.log("user name:", localStorage.getItem("usermane"));
+      alert(`User: ${username} Log in`);
+      
+      
+      
+      window.location.href = "/";
   }
 
   return (
@@ -43,9 +57,10 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-
           <button type="submit">Login</button>
+           <button className="signin" type="button" onClick={signin}>Signin</button>
         </form>
+       
       </div>
     </div>
   );

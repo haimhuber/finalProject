@@ -39,3 +39,11 @@
     gap: 15px;
   }
 }
+.welcomeUser {
+  font-weight: 700;         /* bold */
+  font-size: 1.2rem;        /* slightly larger font */
+  color: #f5f5f5;           /* soft white */
+  margin: 0;                /* remove default p spacing */
+  padding: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}

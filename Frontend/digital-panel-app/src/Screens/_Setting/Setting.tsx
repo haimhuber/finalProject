@@ -12,6 +12,16 @@ export const Setting = () => {
   const [breakers, setBreakers] = useState<Breaker[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<Breaker>({ name: '', type: '', load: '' });
+  
+   useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
+
+    if (!token) {
+      console.log("No token found, redirecting to login...");
+      window.location.href = "/login";
+    }
+  }, []);
 
   useEffect(() => {
     if (configJson.breakers && Array.isArray(configJson.breakers)) {

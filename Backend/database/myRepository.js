@@ -180,11 +180,11 @@ async function userExist(userName, userPassword) {
       .execute('CheckUserExists');
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
-      return { status: 400, data: false };
+      return { status: 400, data: false, userData: result.recordset[0] };
     }
 
     console.log({ status: 200, data: result.recordset });
-    return { status: 200, data: true };
+    return { status: 200, data: true, userData: result.recordset[0] };
 
   } catch (err) {
     console.error('Error fetching Switches data:', err);

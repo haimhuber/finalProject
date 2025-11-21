@@ -8,9 +8,10 @@
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #2254bf, #4a22af);
+  animation: fadeIn 0.6s ease-in-out;
 }
 
-/* D3 SVG overlay */
+/* OPTIONAL D3 BACKGROUND LAYER */
 .login-bg {
   position: absolute;
   top: 0;
@@ -18,33 +19,34 @@
   z-index: 0;
 }
 
-/* CENTERED BOX WRAPPER */
+/* CENTER CONTAINER */
 .login-container {
   width: 100%;
   display: flex;
-  justify-content: center;
-  z-index: 1; /* above SVG */
-  position: relative;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
 }
 
 /* LOGIN CARD */
 .login-box {
-  background: rgb(199, 43, 43);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
   width: 350px;
   padding: 40px;
-  border-radius: 14px;
-  box-shadow: 0 10px 40px rgba(209, 1, 1, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
   display: flex;
   flex-direction: column;
   text-align: center;
-  z-index: 2;
-  position: relative;
+  animation: slideUp 0.7s ease;
 }
 
 /* TITLE */
 .login-box h1 {
   margin-bottom: 20px;
-  color: white;
+  color: #000000;
+  font-weight: 600;
 }
 
 /* INPUTS */
@@ -52,23 +54,71 @@
   padding: 14px;
   margin: 10px 0;
   font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: none;
+  border-radius: 10px;
+  outline: none;
+  background: rgba(255,255,255,0.9);
+  transition: 0.25s ease;
+  color: #000; /* TEXT BLACK */
 }
 
-/* BUTTON */
+.login-box input::placeholder {
+  color: #000;
+  opacity: 0.6; /* Softer placeholder */
+}
+
+.login-box input:focus {
+  box-shadow: 0 0 8px rgba(21, 20, 20, 0.6);
+}
+
+/* LOGIN BUTTON */
 .login-box button {
   margin-top: 20px;
   padding: 14px;
-  background: #000;
-  color: white;
+  background: #0d0d0d;
+  color: rgb(160, 33, 33);
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 10px;
+  font-size: 17px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: 0.25s ease;
 }
 
 .login-box button:hover {
   background: #333;
+  transform: scale(1.03);
+}
+
+/* SIGNIN BUTTON */
+.signin {
+  margin-top: 15px;
+  padding: 12px 20px;
+  background: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.signin:hover {
+  background: #e5e5e5;
+  transform: scale(1.05);
+}
+
+/* ANIMATIONS */
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
