@@ -6,16 +6,6 @@ const { log } = require('console');
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
 
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-
-const SECRET_KEY = "your_secret_key";
-
-// Hardcoded user — replace with DB later
-const userDB = {
-  username: "admin",
-  passwordHash: bcrypt.hashSync("1234", 10)
-};
 
 const homeScreen = async (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'));
@@ -76,7 +66,7 @@ const breakersLiveData = async (req, res) => {
 };
 
 const breakersNames = async (req, res) => {
-
+    console.log("Breaker Names");
     try {
         const getBreakerDataFromSql = await sqlData.getBreakersNames();
         res.status(200).json(getBreakerDataFromSql);
@@ -101,4 +91,35 @@ const login = async (req, res) => {
   res.json({ token });
 };
 
-module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login };
+
+const addingUser = async (req, res) => {
+  const { username, password } = req.body;
+    console.log({user: username, pass: password});
+    
+    if (!username || !password)
+        return res.status(401).json({ message: "Invalid username or password" });
+    try {
+        const addUserToDatabase = await sqlData.addUser(username, password);
+        res.status(200).json(addUserToDatabase);
+    } catch (err) {
+        console.error('Error  adding user:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+const checkIfUserExist = async (req, res) => {
+  const { username, password } = req.body;
+    console.log({user: username, pass: password});
+    
+    if (!username || !password)
+        return res.status(401).json({ message: "Invalid username or password" });
+    try {
+        const chekcIfUserExist = await sqlData.userExist(username, password);
+        res.status(200).json(chekcIfUserExist);
+    } catch (err) {
+        console.error('Error  adding user:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist };

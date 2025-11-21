@@ -1,5 +1,27 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import os from 'os';
+
+function getLocalIP(): string {
+  const nets = os.networkInterfaces();
+
+  for (const name of Object.keys(nets)) {
+    const ifaceList = nets[name]; // can be undefined
+
+    if (!ifaceList) continue; // <-- fix
+
+    for (const iface of ifaceList) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+
+  // fallback
+  return '127.0.0.1';
+}
+
+const localIP = getLocalIP();
 
 export default defineConfig({
   plugins: [react()],
@@ -8,7 +30,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://10.29.176.133:5500',
+        target: `http://${localIP}:5500`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

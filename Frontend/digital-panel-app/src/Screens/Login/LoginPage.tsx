@@ -16,9 +16,9 @@ const Login = () => {
 
     const data = await res.json();
 
-    if (!res.ok) return alert(data.message || "Login failed");
+    if (!data.data) return alert(data.message || "Login failed");
 
-    localStorage.setItem("token", data.token);
+    localStorage.setItem("token", data.data);
     window.location.href = "/";
   }
 

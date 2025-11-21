@@ -19,17 +19,32 @@ host =  myIp.getLocalIPs();
 app.use(
   cors({
     origin: (origin, callback) => {
-      callback(null, origin); // allow all origins dynamically
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://192.168.1.55:5173" // 👈 your local IP
+      ];
+
+      // allow requests with no origin (e.g. Postman, curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true); // allow
+      }
+
+      return callback(new Error("Not allowed by CORS"), false);
     },
     credentials: true,
   })
 );
 
+
+
 createDatabase.createDatabase();
 startModbusClient.start();
 app.use('/', screenRouters);
 
-app.listen(port, host, () => {
+app.listen(port, host,  () => {
     console.log(`Server listening at http://${host}:${port}`);
 });
 

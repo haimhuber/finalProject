@@ -92,6 +92,19 @@ async function createTables() {
     `);
     console.log({ 'Events table created (if not exists)': 200 });
 
+    // 5️⃣ Users
+    await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Users' AND xtype='U')
+        CREATE TABLE Users (
+        id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        userName VARCHAR(20) NOT NULL UNIQUE,
+        userPassword VARCHAR(255),
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+    `);
+    console.log({ 'Users table created (if not exists)': 200 });
+
   } catch (err) {
     console.error('❌ Error creating tables:', err);
     return { message: err.message, status: 500 };

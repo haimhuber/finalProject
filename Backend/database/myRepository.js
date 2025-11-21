@@ -113,22 +113,22 @@ async function getActiveEnergy(switch_id) {
 
 async function getBreakersNames() {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
-    const result = await pool.request()
-      .execute('getAllSwitchesNames');
-    if (!result.recordset || result.recordset.length === 0) {
-      console.log('No data found');
-      return { status: 200, data: [] };
+    const response = await fetch('/breakersNames');
+    
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('Server returned error:', text);
+      throw new Error(`Server error ${response.status}`);
     }
 
-    console.log({ status: 200, data: result.recordset });
-    return { status: 200, data: result.recordset };
-
+    const data = await response.json();
+    console.log('Breaker names:', data);
+    return data;
   } catch (err) {
-    console.error('Error fetching active energy:', err);
-    return { status: 500, message: err.message };
+    console.error('Error fetching breaker names:', err);
   }
 }
+
 
 async function getBreakersMainData() {
   try {
@@ -150,7 +150,47 @@ async function getBreakersMainData() {
   }
 }
 
+async function addUser(userName, userPassword) {
+  try {
+    const pool = await connectDb.connectionToSqlDB(databse);
+    const result = await pool.request()
+      .input('userName', sql.VarChar, userName)
+      .input('userPassword', sql.VarChar, userPassword)
+      .execute('AddUser');
+    if (!result.recordset || result.recordset.length === 0) {
+      console.log('No data found');
+      return { status: 200, data: [] };
+    }
+
+    console.log({ status: 200, data: result.recordset });
+    return { status: 200, data: result.recordset[0].success }; // 0 - User already exist | 1 - User created
+
+  } catch (err) {
+    console.error('Error fetching Switches data:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function userExist(userName, userPassword) {
+  try {
+    const pool = await connectDb.connectionToSqlDB(databse);
+    const result = await pool.request()
+      .input('userName', sql.VarChar, userName)
+      .input('userPassword', sql.VarChar, userPassword)
+      .execute('CheckUserExists');
+    if (!result.recordset || result.recordset.length === 0) {
+      console.log('No data found');
+      return { status: 400, data: false };
+    }
+
+    console.log({ status: 200, data: result.recordset });
+    return { status: 200, data: true };
+
+  } catch (err) {
+    console.error('Error fetching Switches data:', err);
+    return { status: 500, message: err.message };
+  }
+}
 
 
-
-module.exports = { writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy };
+module.exports = { writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist };

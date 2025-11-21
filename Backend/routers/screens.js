@@ -1,19 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const screenAction = require('../controller/screensActions');
-const authenticateJWT = require('../jsonwebtoken/jsonwebtoken'); // <-- import middleware
 
+// Public routes (no JWT)
+router.get('/test-route', (req, res) => {
+  console.log('Test route hit');
+  res.send('ok');
+});
 
-// Protect this route
-router.get('/data', authenticateJWT.authenticateToken, screenAction.dataPage);
+router.get('/breakersNames', screenAction.breakersNames);
+router.get('/breakersMainData', screenAction.breakersLiveData);
+//router.post('/login', screenAction.login);
 
-// Protect breakers data routes
-router.get('/breakersMainData/', authenticateJWT.authenticateToken, screenAction.breakersLiveData);
-router.get('/breakersNames', authenticateJWT.authenticateToken, screenAction.breakersNames);
-
-router.get('/activePower/:switch_id', authenticateJWT.authenticateToken, screenAction.activePowerData);
+// Protected routes (JWT required)
+router.get('/data', screenAction.dataPage);
+router.get('/activePower/:switch_id', screenAction.activePowerData);
 router.get('/activeEnergy/:switch_id', screenAction.activeEnergyData);
-router.post("/login", screenAction.login);
 
+router.post('/adduser', screenAction.addingUser);
+router.post('/login', screenAction.checkIfUserExist);
 
 module.exports = router;

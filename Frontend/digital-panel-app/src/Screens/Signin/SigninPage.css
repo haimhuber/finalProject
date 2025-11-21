@@ -2,20 +2,10 @@
 .login-fullscreen {
   height: 100vh;
   width: 100vw;
-  position: relative;
-  overflow: hidden;
+  background: linear-gradient(135deg, #0d0d0d, #303030);
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #2254bf, #4a22af);
-}
-
-/* D3 SVG overlay */
-.login-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
 }
 
 /* CENTERED BOX WRAPPER */
@@ -23,28 +13,24 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  z-index: 1; /* above SVG */
-  position: relative;
 }
 
 /* LOGIN CARD */
 .login-box {
-  background: rgb(199, 43, 43);
+  background: rgb(44, 36, 36);
   width: 350px;
   padding: 40px;
   border-radius: 14px;
-  box-shadow: 0 10px 40px rgba(209, 1, 1, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   text-align: center;
-  z-index: 2;
-  position: relative;
 }
 
 /* TITLE */
 .login-box h1 {
   margin-bottom: 20px;
-  color: white;
+  color: #fff;
 }
 
 /* INPUTS */

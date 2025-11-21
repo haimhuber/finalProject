@@ -55,6 +55,7 @@ async function createSp() {
       END
     `);
     console.log("✅ Stored Procedure 'addBreakerData' created successfully");
+    // ---------------------------------------------------------------------------------------
     await pool.request().query(`      
             CREATE OR ALTER PROCEDURE getActiveEnergy
                 @switch_id INT,
@@ -78,7 +79,7 @@ async function createSp() {
             END;`);
 
     console.log("✅ Stored Procedure 'getActiveEnergy' created successfully");
-
+// ---------------------------------------------------------------------------------------
     await pool.request().query(`      
            create or alter Procedure getAllSwitchesData
             @rows INT
@@ -87,7 +88,7 @@ async function createSp() {
               select TOP (@rows) * from Switches
             end`);
     console.log("✅ Stored Procedure 'getLiveSwitchesData' created successfully");
-
+// ---------------------------------------------------------------------------------------
     await pool.request().query(`             
         CREATE OR ALTER PROCEDURE getLiveData
             @liveData INT
@@ -102,7 +103,7 @@ async function createSp() {
         ORDER BY Latest.timestamp ASC;
         END;`);
     console.log("✅ Stored Procedure 'getLiveData' created successfully");
-
+// ---------------------------------------------------------------------------------------
      await pool.request().query(`             
       CREATE OR ALTER PROCEDURE GetDailySample
             @switch_id INT
@@ -167,10 +168,50 @@ async function createSp() {
             SELECT day_slot, ActiveEnergy, timestamp
             FROM Last10Days
             ORDER BY day_slot ASC;  -- return sorted oldest → newest
-        END
-                      
-              `);
+        END`);
     console.log("✅ Stored Procedure 'GetDailySampleActiveEnergy' created successfully");
+    // ---------------------------------------------------------------------------------------
+     await pool.request().query(`             
+     CREATE or alter PROCEDURE AddUser
+        @userName VARCHAR(20),
+        @userPassword VARCHAR(255)
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+
+            -- Check if username already exists
+            IF EXISTS (SELECT 1 FROM Users WHERE userName = @userName)
+            BEGIN
+                SELECT 
+                    0 AS success,
+                    'Username already exists' AS message;
+                RETURN;
+            END;
+
+            -- Insert new user
+            INSERT INTO Users (userName, userPassword)
+            VALUES (@userName, @userPassword);
+
+            SELECT
+                1 AS success,
+                'User created successfully' AS message,
+                SCOPE_IDENTITY() AS insertedId;
+        END`);
+    console.log("✅ Stored Procedure 'AddUser' created successfully");
+     // ---------------------------------------------------------------------------------------
+     await pool.request().query(`             
+    CREATE OR ALTER PROCEDURE CheckUserExists
+    @userName VARCHAR(20),
+    @userPassword VARCHAR(255)
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+            SELECT *
+            FROM Users
+            WHERE userName = @userName
+            AND userPassword = @userPassword;
+    END`);
+    console.log("✅ Stored Procedure 'CheckUserExists' created successfully");
 
   } catch (err) {
     console.error('❌ Error creating addBreakerData SP:', err);

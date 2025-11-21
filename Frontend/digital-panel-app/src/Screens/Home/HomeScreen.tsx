@@ -40,7 +40,23 @@ export const HomeScreen: React.FC = () => {
   const [activePowerDataState, setActivePowerDataState] = useState<Record<string, number[]>>({});
   const [dayLabelsState, setDayLabelsState] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState<boolean>(true); // ✅ added loading state
-    useEffect(() => {
+   let flag = false;
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      console.log("You are logged in, token:", token);
+      return;
+    if (!flag && !token) { 
+        alert("Please login first!");
+        flag = true;
+      }
+      window.location.href = "/login";
+    } else {
+      console.log("No token found, please login.");
+    }
+  })
+  
+  useEffect(() => {
     async function getEnergyData(id:string) {
       try{
         const getData = await getActiveEnergyData(id);
