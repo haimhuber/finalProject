@@ -39,7 +39,9 @@ export const HomeScreen: React.FC = () => {
   const [combinedDataState, setCombinedDataState] = useState<CombinedDataItem[]>([]);
   const [activePowerDataState, setActivePowerDataState] = useState<Record<string, number[]>>({});
   const [dayLabelsState, setDayLabelsState] = useState<Record<string, string[]>>({});
-  const [loading, setLoading] = useState<boolean>(true); // ✅ added loading state
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Check token
   useEffect(() => {
     const token = localStorage.getItem("token");
     console.log("Token:", token);
@@ -49,23 +51,24 @@ export const HomeScreen: React.FC = () => {
       window.location.href = "/login";
     }
   }, []);
-  
+
+  // Example: fetch energy data for panel '1'
   useEffect(() => {
-    async function getEnergyData(id:string) {
-      try{
+    async function getEnergyData(id: string) {
+      try {
         const getData = await getActiveEnergyData(id);
         console.log(getData);
-      }catch(err) {
-        console.log({error: err});
-      } 
+      } catch (err) {
+        console.log({ error: err });
+      }
     }
-      getEnergyData('1');
+    getEnergyData('1');
   }, []);
 
-
+  // Fetch combined data
   useEffect(() => {
     async function getCombinedData() {
-      setLoading(true); // start loading
+      setLoading(true);
       try {
         const combinedData = await fetchAndCombineData();
         setCombinedDataState(combinedData);
@@ -91,7 +94,7 @@ export const HomeScreen: React.FC = () => {
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
       } finally {
-        setLoading(false); // stop loading
+        setLoading(false);
       }
     }
 
@@ -99,95 +102,123 @@ export const HomeScreen: React.FC = () => {
   }, []);
 
   if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100vw",
+          fontSize: "1.5rem",
+          backgroundColor: "#010101",
+          color: "#fff",
+        }}
+      >
+        Loading Home data...
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh",      // full viewport height
-        width: "100vw",       // full width
-        fontSize: "1.5rem",
-        backgroundColor: "#010101ff",
+        minHeight: "100vh",
+        width: "99vw",
+        padding: "20px",
+        backgroundColor: "#f9f9f9",
       }}
     >
-      Loading Home data...
-    </div>
-  );
-}
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "20px",
+        }}
+      >
+        {combinedDataState.map((panel) => {
+          const activePower = activePowerDataState[panel.switch_id] || [];
+          const dayLabels = dayLabelsState[panel.switch_id] || [];
 
+          const lineData = {
+            labels: dayLabels,
+            datasets: [
+              {
+                label: "Active Power (kW)",
+                data: activePower,
+                borderColor: "rgba(75,192,192,1)",
+                backgroundColor: "rgba(75,192,192,0.2)",
+                tension: 0.4,
+              },
+            ],
+          };
 
-  return (
+          const pieData = {
+            labels: ["Active", "Remaining Capacity"],
+            datasets: [
+              {
+                data: [activePower[activePower.length - 1] || 0, 100 - (activePower[activePower.length - 1] || 0)],
+                backgroundColor: ["#36A2EB", "#FFCE56"],
+                borderColor: ["#36A2EB", "#FFCE56"],
+                borderWidth: 1,
+              },
+            ],
+          };
 
-    <div style={{alignItems: "center", display: "flex", flexWrap: "wrap", gap: "20px" }}>
-      {combinedDataState.map((panel) => {
-        const activePower = activePowerDataState[panel.switch_id] || [];
-        const dayLabels = dayLabelsState[panel.switch_id] || [];
-
-        const lineData = {
-          labels: dayLabels,
-          datasets: [
-            {
-              label: "Active Power (kW)",
-              data: activePower,
-              borderColor: "rgba(75,192,192,1)",
-              backgroundColor: "rgba(75,192,192,0.2)",
-              tension: 0.4,
+          const chartOptions = {
+            responsive: true,
+            plugins: {
+              legend: { position: "top" as const },
+              title: { display: true, text: `${panel.name} Active Power` },
             },
-          ],
-        };
+          };
 
-        const pieData = {
-          labels: ["Active", "Remaining Capacity"],
-          datasets: [
-            {
-              data: [activePower[activePower.length - 1] || 0, 100 - (activePower[activePower.length - 1] || 0)],
-              backgroundColor: ["#36A2EB", "#FFCE56"],
-              borderColor: ["#36A2EB", "#FFCE56"],
-              borderWidth: 1,
-            },
-          ],
-        };
+          return (
+            <div
+              key={panel.switch_id}
+              style={{
+                background: "#fff",
+                padding: "20px",
+                borderRadius: "12px",
+                boxShadow: "3px 3px 10px rgba(0,0,0,0.1)",
+                width: "350px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <h3 className="panel-title">{panel.name}</h3>
+              <h4 className="panel-subtitle" style={{ color: "#333" }}>Type: {panel.type}</h4>
+              <h4 className="panel-subtitle" style={{ color: "#333" }}>Load: {panel.load}</h4>
 
-        const chartOptions = {
-          responsive: true,
-          plugins: {
-            legend: { position: "top" as const },
-            title: { display: true, text: `${panel.name} Active Power` },
-          },
-        };
 
-        return (
-          <div
-            key={panel.switch_id}
-            style={{
-              background: "#f3f3f3",
-              padding: "20px",
-              borderRadius: "12px",
-              boxShadow: "3px 3px 10px rgba(0,0,0,0.1)",
-              width: "350px",
-            }}
-          >
-            <h3 className="panel-title">{panel.name}</h3>
-            <h4 className="panel-subtitle">Type: {panel.type}</h4>
-            <h4 className="panel-subtitle">Load: {panel.load}</h4>
+              <h4 style={{ color: panel.CommStatus ? "green" : "red" }}>
+                Com Status: {panel.CommStatus ? "OK" : "Error"}
+              </h4>
+              <h4 style={{ color: panel.Tripped ? "red" : panel.BreakerClose ? "red" : "green" }}>
+                Position: {panel.Tripped ? "Breaker Tripped!" : panel.BreakerClose ? "Close" : "Open"}
+              </h4>
 
-            <h4 style={{ color: panel.CommStatus ? "green" : "red" }}>
-              Com Status: {panel.CommStatus ? "OK" : "Error"}
-            </h4>
-            <h4 style={{ color: panel.Tripped ? "red" : panel.BreakerClose ? "red" : "green" }}>Position:
-               {panel.Tripped ? "Breaker Tripped!" : panel.BreakerClose ? "Close" : "Open"}
-            </h4>
-
-            <div style={{ marginTop: "20px" }}>
-              <Line data={lineData} options={chartOptions} />
+              <div style={{ marginTop: "20px", width: "100%" }}>
+                <Line data={lineData} options={chartOptions} />
+              </div>
+              <div style={{ marginTop: "20px", width: "100%" }}>
+                <Pie
+                  data={pieData}
+                  options={{
+                    responsive: true,
+                    plugins: { title: { display: true, text: "Current Power Distribution" } },
+                  }}
+                />
+              </div>
             </div>
-            <div style={{ marginTop: "20px" }}>
-              <Pie data={pieData} options={{ responsive: true, plugins: { title: { display: true, text: "Current Power Distribution" } } }} />
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };
