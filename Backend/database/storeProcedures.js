@@ -212,6 +212,18 @@ async function createSp() {
             AND userPassword = @userPassword;
     END`);
     console.log("✅ Stored Procedure 'CheckUserExists' created successfully");
+     // ---------------------------------------------------------------------------------------
+     await pool.request().query(`                
+        CREATE OR ALTER PROCEDURE AlertsData
+            
+        AS
+        BEGIN
+
+            SELECT *
+            FROM Alerts
+        order by Alerts.timestamp DESC
+        END`);
+    console.log("✅ Stored Procedure 'AlertsData' created successfully");
 
   } catch (err) {
     console.error('❌ Error creating addBreakerData SP:', err);

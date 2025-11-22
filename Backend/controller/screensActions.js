@@ -122,4 +122,14 @@ const checkIfUserExist = async (req, res) => {
     }
 };
 
-module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist };
+const getAlertsData = async (req, res) => {
+     try {
+        const getData = await sqlData.getAlertData();
+        res.status(200).json(getData);
+    } catch (err) {
+        console.error('Error  adding user:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+}
+
+module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData };

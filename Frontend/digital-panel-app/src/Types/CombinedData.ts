@@ -53,3 +53,14 @@
         return [];
       }
  }
+
+ export async function getAlerts(){
+    try {
+        const response = await fetch(`api/alerts`);
+        const data = await response.json();
+        return data; // Return the array/object
+      } catch (err) {
+        console.error("Error fetching Active Energy:", err);
+        return [];
+      }
+ }

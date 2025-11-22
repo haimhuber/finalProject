@@ -1,12 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const screenAction = require('../controller/screensActions');
+const email = require('../controller/email');
 
-// Public routes (no JWT)
-router.get('/test-route', (req, res) => {
-  console.log('Test route hit');
-  res.send('ok');
-});
+
 
 router.get('/breakersNames', screenAction.breakersNames);
 router.get('/breakersMainData', screenAction.breakersLiveData);
@@ -16,7 +13,8 @@ router.get('/breakersMainData', screenAction.breakersLiveData);
 router.get('/data', screenAction.dataPage);
 router.get('/activePower/:switch_id', screenAction.activePowerData);
 router.get('/activeEnergy/:switch_id', screenAction.activeEnergyData);
-
+//router.get('/email', email.sendEmail);
+router.get('/alerts', screenAction.getAlertsData);
 router.post('/adduser', screenAction.addingUser);
 router.post('/login', screenAction.checkIfUserExist);
 

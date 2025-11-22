@@ -113,19 +113,20 @@ async function getActiveEnergy(switch_id) {
 
 async function getBreakersNames() {
   try {
-    const response = await fetch('/breakersNames');
-    
-    if (!response.ok) {
-      const text = await response.text();
-      console.error('Server returned error:', text);
-      throw new Error(`Server error ${response.status}`);
+   const pool = await connectDb.connectionToSqlDB(databse);
+    const result = await pool.request()
+      .execute('getAllSwitchesNames');
+    if (!result.recordset || result.recordset.length === 0) {
+      console.log('No data found');
+      return { status: 200, data: [] };
     }
 
-    const data = await response.json();
-    console.log('Breaker names:', data);
-    return data;
+    console.log({ status: 200, data: result.recordset });
+    return { status: 200, data: result.recordset };
+
   } catch (err) {
-    console.error('Error fetching breaker names:', err);
+    console.error('Error fetching Switches data:', err);
+    return { status: 500, message: err.message };
   }
 }
 
@@ -193,4 +194,24 @@ async function userExist(userName, userPassword) {
 }
 
 
-module.exports = { writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist };
+async function getAlertData() {
+  try{
+    const pool = await connectDb.connectionToSqlDB(databse);
+    const result = await pool.request()
+     .execute('AlertsData');
+   if (!result.recordset || result.recordset.length === 0) {
+      console.log('No data found');
+      return { status: 400, data: false, userData: result.recordset[0] };
+    }
+
+    console.log({ status: 200, data: result.recordset });
+    return { status: 200, data: result.recordset };
+
+  } catch (err) {
+    console.error('Error fetching Switches data:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+
+module.exports = { writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData };

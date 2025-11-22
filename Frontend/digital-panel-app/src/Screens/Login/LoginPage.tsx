@@ -4,6 +4,7 @@ import "./LoginPage.css";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [valid, Setvalid] = useState(false);
 
   function signin() {
      window.location.href = "/Signin";
@@ -24,15 +25,10 @@ const Login = () => {
     localStorage.removeItem("token"); // clear token on fail
     return;
     }
-      console.log(data.data);
-      console.log(data); 
       localStorage.setItem("token", data.data);
       localStorage.setItem("username", username);
       console.log("user name:", localStorage.getItem("usermane"));
-      alert(`User: ${username} Log in`);
-      
-      
-      
+      Setvalid(true);
       window.location.href = "/";
   }
 

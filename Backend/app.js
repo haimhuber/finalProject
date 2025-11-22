@@ -5,16 +5,16 @@ const createDatabase = require('./database/createDatabase');
 const app = express();
 const bodyparser = require('body-parser');
 const path = require('path');
-let host = '';
 const port = 5500;
 const screenRouters = require('./routers/screens');
 const myIp = require('./ipAddress/getPcIp');
+const emailTest = require('./controller/email');
 app.use(bodyparser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const cors = require('cors');
+const ips = myIp.getLocalIPs(); // returns array
 host =  myIp.getLocalIPs();
-
 
 app.use(
   cors({
@@ -40,8 +40,9 @@ app.use(
 
 
 
-createDatabase.createDatabase();
+//createDatabase.createDatabase();
 startModbusClient.start();
+
 app.use('/', screenRouters);
 
 app.listen(port, host,  () => {
