@@ -224,6 +224,27 @@ async function createSp() {
         order by Alerts.timestamp DESC
         END`);
     console.log("✅ Stored Procedure 'AlertsData' created successfully");
+ // ---------------------------------------------------------------------------------------
+     await pool.request().query(`                
+        CREATE OR ALTER PROCEDURE UpdateAlertAck
+            @AlertId INT,
+            @AckValue INT,
+            @AckType VARCHAR(50),
+            @AckMessage VARCHAR(255),
+            @AckBy VARCHAR(100)
+                AS
+                BEGIN
+                    SET NOCOUNT ON;
+                    UPDATE Alerts
+                    SET 
+                        alert_type = @AckType,
+                        alert_message = @AckMessage,
+                        alertAck = @AckValue,
+                        ackBy = @AckBy
+                    WHERE id = @AlertId;
+        END`);
+    console.log("✅ Stored Procedure 'UpdateAlertAck' created successfully");
+
 
   } catch (err) {
     console.error('❌ Error creating addBreakerData SP:', err);

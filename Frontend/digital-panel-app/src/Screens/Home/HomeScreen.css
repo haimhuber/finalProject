@@ -1,6 +1,5 @@
 .panel-title,
 .panel-subtitle {
-  width: 100%;
   text-align: center;
-  margin: 0 0 8px 0;
+  margin-bottom: 8px;
 }

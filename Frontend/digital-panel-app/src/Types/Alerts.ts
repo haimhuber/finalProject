@@ -4,4 +4,6 @@ export interface AlertInterface {
   alert_type: string;
   alert_message: string;
   timestamp: string;
+  alertAck : number;
+  ackBy: string;
 }

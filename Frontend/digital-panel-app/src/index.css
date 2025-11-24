@@ -25,10 +25,14 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  flex-direction: column; /* stack children vertically */
   min-width: 320px;
   min-height: 100vh;
+  overflow-y: auto;       /* enable vertical scrolling */
+  align-items: center;     /* center horizontally */
+  background-color: #242424;
 }
+
 
 h1 {
   font-size: 3.2em;

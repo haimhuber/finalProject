@@ -105,15 +105,16 @@ export const HomeScreen: React.FC = () => {
     return (
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100vw",
-          fontSize: "1.5rem",
-          backgroundColor: "#010101",
-          color: "#fff",
-        }}
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "flex-start",
+  width: "99vw",
+  padding: "20px",
+  backgroundColor: "#f9f9f9",
+  overflowY: "auto",
+}}
+
+
       >
         Loading Home data...
       </div>
@@ -191,7 +192,7 @@ export const HomeScreen: React.FC = () => {
                 alignItems: "center",
               }}
             >
-              <h3 className="panel-title">{panel.name}</h3>
+              <h3 className="panel-title" style={{ color: "#333" }}>{panel.name}</h3>
               <h4 className="panel-subtitle" style={{ color: "#333" }}>Type: {panel.type}</h4>
               <h4 className="panel-subtitle" style={{ color: "#333" }}>Load: {panel.load}</h4>
 

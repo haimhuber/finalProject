@@ -8,7 +8,6 @@ import Signin from './Screens/Signin/SigninPage';
 import { useEffect, useState } from "react";
 import { Logout } from './Screens/Logout/Logout';
 import { Alerts } from './Screens/Alarms/Alerts';
-import type { AlertInterface } from './Types/Alerts';
 import { getAlerts } from './Types/CombinedData';
 
 function App() {
@@ -18,17 +17,23 @@ function App() {
   // Alert number
   useEffect(() => {
       const fetchAlerts = async () => {
+        let alertCounter = 0;
         try {
           const response = await getAlerts();
           const data = response.data;
-          setAlertsNumber(data.length);
+          for(let index = 0; index < data.length ; index ++) {
+            if (data[index].alertAck === null) {
+                ++alertCounter;
+            }
+          }
+          setAlertsNumber(alertCounter);
           
         } catch (err) {
           console.error('Failed to fetch alerts', err);
-        } 
+        }
       };
       fetchAlerts(); // initial fetch
-    }, []);
+    }, [alertsNumber]);
   
 
 
@@ -52,7 +57,7 @@ function App() {
       <nav className='navigator'>
         <Link to="/">Home</Link> | 
         <Link to="/dashboard">Dashboard</Link> | 
-        <Link to="/alerts">Alerts {alertsNumber}</Link> | 
+        <Link to="/alerts">Alerts {alertsNumber} </Link> | 
         <Link to="/settings">Settings</Link> |
         
         {/* SHOW LOGIN OR LOGOUT */}

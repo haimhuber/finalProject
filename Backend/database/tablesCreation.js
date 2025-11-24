@@ -73,6 +73,8 @@ async function createTables() {
         alarmId INT NOT NULL,
         alert_type VARCHAR(50),
         alert_message VARCHAR(255),
+        alertAck INT,
+        ackBy VARCHAR(100),
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (alarmId) REFERENCES MainData(id) ON DELETE CASCADE
       );

@@ -1,38 +1,70 @@
 import './Alerts.css';
 import { getAlerts, getBreakerNames } from '../../Types/CombinedData';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type {AlertInterface} from '../../Types/Alerts'
+
 
 export const Alerts = () => {
   const [alerts, setAlerts] = useState<AlertInterface[]>([]);
-   const [names, setNames] = useState<any[]>([]);
+  const [names, setNames] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const ackBy = localStorage.getItem('username');
 
-  // Live update every 5 seconds
-  useEffect(() => {
-    const fetchAlerts = async () => {
-      try {
-        const response = await getAlerts();
-        setAlerts(response.data ?? []);
-      } catch (err) {
-        console.error('Failed to fetch alerts', err);
-      } 
-      try {
-        const responseNames = await getBreakerNames();
-        setNames(responseNames);
-        console.log(responseNames);
-        
-      } catch (err) {
-        console.error('Failed to fetch Breakers Names', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const ackAlarm = async (alertType: string, alertMsg: string, alertId: number) => {
+  try {
+    const ackUpdate = 1;
+    const res = await fetch("api/ack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ alertType, alertMsg, alertId, ackUpdate, ackBy}),
+    });
 
-    fetchAlerts(); // initial fetch
-    const interval = setInterval(fetchAlerts, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    const data = await res.json();
+
+    if (!data.data) {
+      alert(data.message || "Alarm can't be acknowledged");
+    } else {
+      console.log(alertType, alertMsg,alertId, ackUpdate, ackBy);
+      
+      alert("Alarm acknowledged!");
+      fetchAlerts();
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong. Please try again.");
+  }
+};
+
+
+ // 1️⃣ Extract fetchAlerts so it can be called anywhere
+const fetchAlerts = async () => {
+  try {
+    const response = await getAlerts();
+    setAlerts(response.data ?? []);
+    console.log(alerts);
+    
+  } catch (err) {
+    console.error("Failed to fetch alerts", err);
+  }
+
+  try {
+    const responseNames = await getBreakerNames();
+    setNames(responseNames ?? []);
+  } catch (err) {
+    console.error("Failed to fetch Breakers Names", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// 2️⃣ Run on mount + interval
+useEffect(() => {
+  fetchAlerts(); // initial fetch
+  const intervalId = setInterval(fetchAlerts, 60000); // every 60 sec
+  return () => clearInterval(intervalId);
+}, []);
+
 
   const getRowColor = (type: string) => {
     switch (type) {
@@ -62,6 +94,8 @@ export const Alerts = () => {
                 <th>Type</th>
                 <th>Message</th>
                 <th>Timestamp</th>
+                <th>Ack</th>
+                <th>Ack Button</th>
               </tr>
             </thead>
             <tbody>
@@ -75,6 +109,26 @@ export const Alerts = () => {
                   <td>{alert.alert_type}</td>
                   <td>{alert.alert_message}</td>
                   <td>{new Date(alert.timestamp).toLocaleString()}</td>
+                 <td
+                  style={{
+                    color: alert.alertAck ? 'green' : 'red',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {alert.alertAck ? `Acknowledge By:${alert.ackBy}` : "Not Acknowledge"}
+                </td>
+                 <td>
+                  {!alert.alertAck &&
+                  <button
+                    type="button"
+                    onClick={() => {
+                      ackAlarm(alert.alert_type, alert.alert_message, alert.id);
+                    }}
+                  >
+                    Ack
+                  </button>
+                  }
+                 </td>
                 </tr>
               ))}
             </tbody>

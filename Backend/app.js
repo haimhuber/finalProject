@@ -22,7 +22,8 @@ app.use(
       const allowedOrigins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "http://192.168.1.55:5173" // 👈 your local IP
+        "http://192.168.1.55:5173",
+        "http://10.29.176.113:5173"
       ];
 
       // allow requests with no origin (e.g. Postman, curl)
@@ -40,7 +41,7 @@ app.use(
 
 
 
-//createDatabase.createDatabase();
+createDatabase.createDatabase();
 startModbusClient.start();
 
 app.use('/', screenRouters);

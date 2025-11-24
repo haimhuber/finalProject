@@ -132,4 +132,15 @@ const getAlertsData = async (req, res) => {
     }
 }
 
-module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData };
+const ackAlarm = async (req, res) => {
+  const {alertType, alertMsg, alertId, ackUpdate, ackBy } = req.body;
+    try {
+        const alarmAck = await sqlData.akcAlert(alertType, alertMsg, alertId, ackUpdate, ackBy);
+        res.status(200).json(alarmAck);
+    } catch (err) {
+        console.error('Error  adding user:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData, ackAlarm };
