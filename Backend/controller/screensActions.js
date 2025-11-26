@@ -133,14 +133,37 @@ const getAlertsData = async (req, res) => {
 }
 
 const ackAlarm = async (req, res) => {
-  const {alertType, alertMsg, alertId, ackUpdate, ackBy } = req.body;
+  const {alertType, alertMsg, alertId, ackUpdate } = req.body;
     try {
-        const alarmAck = await sqlData.akcAlert(alertType, alertMsg, alertId, ackUpdate, ackBy);
+        const alarmAck = await sqlData.akcAlert(alertType, alertMsg, alertId, ackUpdate);
         res.status(200).json(alarmAck);
     } catch (err) {
-        console.error('Error  adding user:', err);
+        console.error('Error  Ack Alert:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
-module.exports = { homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData, ackAlarm };
+
+const ackAlarmBy = async (req, res) => {
+  const {ackId, ackBy } = req.body;
+    try {
+        const alarmAckBy = await sqlData.akcAlertBy(ackId, ackBy);
+        res.status(200).json(alarmAckBy);
+    } catch (err) {
+        console.error('Error  Alert Ack By:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+
+const readAckData = async (req, res) => {
+    try {
+        const alarmAckData = await sqlData.readAllAckData();
+        res.status(200).json(alarmAckData);
+    } catch (err) {
+        console.error('Error  Fetch Ack Data:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = {readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };

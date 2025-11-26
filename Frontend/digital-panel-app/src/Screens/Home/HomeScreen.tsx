@@ -43,7 +43,7 @@ export const HomeScreen: React.FC = () => {
 
   // Check token
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     console.log("Token:", token);
 
     if (!token) {

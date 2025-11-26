@@ -7,7 +7,7 @@ const email = require('../controller/email');
 
 router.get('/breakersNames', screenAction.breakersNames);
 router.get('/breakersMainData', screenAction.breakersLiveData);
-
+router.get('/ack-data', screenAction.readAckData);
 // Protected routes (JWT required)
 router.get('/data', screenAction.dataPage);
 router.get('/activePower/:switch_id', screenAction.activePowerData);
@@ -17,5 +17,7 @@ router.get('/alerts', screenAction.getAlertsData);
 router.post('/adduser', screenAction.addingUser);
 router.post('/login', screenAction.checkIfUserExist);
 router.post('/ack', screenAction.ackAlarm);
+router.post('/ack-by', screenAction.ackAlarmBy);
+
 
 module.exports = router;

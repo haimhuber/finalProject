@@ -38,8 +38,8 @@ function App() {
 
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-     const username = localStorage.getItem("username");
+    const token = sessionStorage.getItem("token");
+     const username = sessionStorage.getItem("username");
     console.log("Token:", token);
 
     if (token) {

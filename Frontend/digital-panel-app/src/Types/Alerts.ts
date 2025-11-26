@@ -5,14 +5,42 @@ export interface AlertInterface {
   alert_message: string;
   timestamp: string;
   alertAck : number;
-  ackBy: string;
   ackTimestamp: string;
 }
 
 export interface AckTimestamp {
   id: number;
+  ackId: number;
+  ackBy: string;
   timestamp: string;
 }
+
+export function formatSqlTime(sqlTime?: string) {
+  if (!sqlTime) {
+    console.log("sqlTime is undefined or null");
+    return "--";
+  }
+
+  const parts = sqlTime.split(' ');
+  if (!parts || parts.length < 2) {
+    console.log("sqlTime malformed:", sqlTime);
+    return "--";
+  }
+
+  const [datePart, timePart] = parts;
+  console.log("Hi"); // now this will run
+
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute, second] = timePart.split(':');
+  const sec = Number(second.split('.')[0]);
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+
+  return `${pad(day)}-${pad(month)}-${year} ${pad(Number(hour))}:${pad(Number(minute))}:${pad(sec)}`;
+}
+
+
+
 
 
 

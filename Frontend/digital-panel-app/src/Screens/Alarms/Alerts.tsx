@@ -1,46 +1,30 @@
 import './Alerts.css';
 import { getAlerts, getBreakerNames, getTime } from '../../Types/CombinedData';
 import { useEffect, useState } from 'react';
-import { type AckTimestamp, type AlertInterface} from '../../Types/Alerts'
+import { formatSqlTime, type AckTimestamp, type AlertInterface} from '../../Types/Alerts'
 
 
 export const Alerts = () => {
   const [alerts, setAlerts] = useState<AlertInterface[]>([]);
   const [names, setNames] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const ackBy = localStorage.getItem('username');
-  const [ackTimeStampArray, setAckTimeStampArray] = useState<AckTimestamp[]>([]);
+  const ackBy = sessionStorage.getItem('username');
+  const [ackDataBy, setAckDataBy] = useState<AckTimestamp[]>([]);
 
-  const readAllAck = () => {
-  console.log({ array: ackTimeStampArray });
-};
+  const readAllAckData = async() => {
+    const res = await fetch('api/ack-data');
+    const req = await res.json();
+    setAckDataBy(req.data);
+    console.log(req.data);
+    
+  };
 
-  const ackTimestamp = (id: number) => {
-    const newItem = { id, timestamp: getTime() };
-    setAckTimeStampArray(prev => {
-      const updated = [...prev, newItem];
-      localStorage.setItem("ackTimes", JSON.stringify(updated));
-      return updated;
-    });
-};
-
-  useEffect(() => {
-    const saved = localStorage.getItem("ackTimes");
-    if (saved) {
-      setAckTimeStampArray(JSON.parse(saved));
-    }
-  }, []);
-
-
-
-
-  const ackAlarm = async (alertType: string, alertMsg: string, alertId: number) => {
-  try {
-    const ackUpdate = 1;
-    const res = await fetch("api/ack", {
+  const ackByFb = async(ackId : number) => {
+    try {
+    const res = await fetch("api/ack-by", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ alertType, alertMsg, alertId, ackUpdate, ackBy}),
+      body: JSON.stringify({ ackId, ackBy}),
     });
 
     const data = await res.json();
@@ -49,14 +33,29 @@ export const Alerts = () => {
       alert(data.message || "Alarm can't be acknowledged");
     } else {      
         const confiremed = window.confirm("Are you sure you want to acknowledge this alert?");
-        if (confiremed) {
-          ackTimestamp(alertId);     
+        if (confiremed) {    
           fetchAlerts();
         }
-    
-      
     }
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong. Please try again.");
+  }
 
+  };
+
+  const ackAlarm = async (alertType: string, alertMsg: string, alertId: number) => {
+  try {
+    const ackUpdate = 1;
+    const res = await fetch("api/ack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ alertType, alertMsg, alertId, ackUpdate}),
+    });
+    const data = await res.json();
+    if (!data.data) {
+      alert(data.message || "Alarm can't be acknowledged");
+    } 
   } catch (err) {
     console.error(err);
     alert("Something went wrong. Please try again.");
@@ -81,7 +80,7 @@ const fetchAlerts = async () => {
     console.error("Failed to fetch Breakers Names", err);
   } finally {
     setLoading(false);
-    readAllAck();
+    readAllAckData();
   }
 };
 
@@ -136,17 +135,30 @@ useEffect(() => {
                   <td>{alert.alert_type}</td>
                   <td>{alert.alert_message}</td>
                   <td>{new Date(alert.timestamp).toLocaleString()}</td>
-                <td className={`ack-cell ${alert.alertAck ? "acknowledged" : "not-ack"}`}>
-                  {alert.alertAck
-                    ? `✔ Ack by ${ackBy} @ ${ackTimeStampArray?.find(item => item.id === alert.id)?.timestamp || "--"}`
-                    : "❌ Not Ack"}
-                </td>
+                <td className="ack-cell">
+                    {alert.alertAck ? (
+                      <div className="ack-badge">
+                        <span className="ack-icon">✔</span>
+                        <span className="ack-text">
+                          {ackDataBy.find(item => item.ackId === alert.id)?.ackBy || "--"} 
+                          <small className="ack-time">
+                            @ {(ackDataBy.find(item => item.ackId === alert.id)?.timestamp || '')}
+                          </small>
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="not-ack-badge">
+                        ❌ Not Ack
+                      </div>
+                    )}
+                  </td>
                  <td>
                   {!alert.alertAck &&
                   <button
                     type="button"
                     onClick={() => {
                       ackAlarm(alert.alert_type, alert.alert_message, alert.id);
+                      ackByFb(alert.id);
                     }}
                   >
                     Ack

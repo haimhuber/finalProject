@@ -226,33 +226,51 @@ async function createSp() {
     console.log("✅ Stored Procedure 'AlertsData' created successfully");
  // ---------------------------------------------------------------------------------------
      await pool.request().query(`                
-        CREATE OR ALTER PROCEDURE UpdateAlertAck
+       CREATE OR ALTER PROCEDURE UpdateAlertAck
             @AlertId INT,
             @AckValue INT,
             @AckType VARCHAR(50),
-            @AckMessage VARCHAR(255),
-            @AckBy VARCHAR(100)
-                AS
-                BEGIN
-                    SET NOCOUNT ON;
-                    UPDATE Alerts
-                    SET 
-                        alert_type = @AckType,
-                        alert_message = @AckMessage,
-                        alertAck = @AckValue,
-                        ackBy = @AckBy
-                    WHERE id = @AlertId;
+            @AckMessage VARCHAR(255)
+            AS
+            BEGIN
+                SET NOCOUNT ON;
+                UPDATE Alerts
+                SET 
+                    alert_type = @AckType,
+                    alert_message = @AckMessage,
+                    alertAck = @AckValue
+                WHERE id = @AlertId;
         END`);
     console.log("✅ Stored Procedure 'UpdateAlertAck' created successfully");
+     // ---------------------------------------------------------------------------------------
+     await pool.request().query(`                
+        CREATE or alter PROCEDURE AddAckAlert
+            @ackId INT,
+            @ackBy VARCHAR(50)
+            AS
+            BEGIN
+                SET NOCOUNT ON;
+                INSERT INTO AckAlert (ackId, ackBy)
+                VALUES (@ackId, @ackBy);
+        END`);
+    console.log("✅ Stored Procedure 'AddAckAlert' created successfully");
 
+     // ---------------------------------------------------------------------------------------
+     await pool.request().query(`                
+        CREATE OR ALTER PROCEDURE ReadAllAckData
+            AS
+            BEGIN
+                SET NOCOUNT ON;
+
+                SELECT * 
+                FROM AckAlert;
+        END`);
+    console.log("✅ Stored Procedure 'ReadAllAckData' created successfully");
 
   } catch (err) {
     console.error('❌ Error creating addBreakerData SP:', err);
     return { message: err.message, status: 500 };
-  }
-  
-
-  
+  }  
 }
 
 module.exports = { createSp };

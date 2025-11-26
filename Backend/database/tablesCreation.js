@@ -81,6 +81,19 @@ async function createTables() {
     `);
     console.log({ 'Alerts table created (if not exists)': 200 });
 
+     // 3️⃣.1 Alerts Ack
+    await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Alerts' AND xtype='U')
+      create table AckAlert(
+        id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        ackId INT NOT NULL,
+        ackBy VARCHAR(50),
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (ackId) REFERENCES Alerts(id) ON DELETE CASCADE
+      );
+      `);
+    console.log({ 'Alerts Ack table created (if not exists)': 200 });
+
     // 4️⃣ Events
     await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Events' AND xtype='U')

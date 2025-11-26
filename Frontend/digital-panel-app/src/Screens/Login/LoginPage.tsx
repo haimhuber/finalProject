@@ -22,12 +22,14 @@ const Login = () => {
 
    if (!data.data) {
     alert(data.message || "User or Password are invalid");
-    localStorage.removeItem("token"); // clear token on fail
+    sessionStorage.removeItem("token"); // clear token on fail
     return;
     }
-      localStorage.setItem("token", data.data);
-      localStorage.setItem("username", username);
-      console.log("user name:", localStorage.getItem("usermane"));
+      sessionStorage.setItem("token", data.data);
+      sessionStorage.setItem("username", username);
+      console.log(username);
+      
+      console.log("user name:", sessionStorage.getItem("username"));
       Setvalid(true);
       window.location.href = "/";
   }

@@ -213,7 +213,7 @@ async function getAlertData() {
 }
 
 
-async function akcAlert(alertType, alertMsg,  alertId, ackUpdate, ackBy) {
+async function akcAlert(alertType, alertMsg,  alertId, ackUpdate) {
   try {
     const pool = await connectDb.connectionToSqlDB(databse);
 
@@ -222,7 +222,6 @@ async function akcAlert(alertType, alertMsg,  alertId, ackUpdate, ackBy) {
       .input('AckMessage', sql.VarChar, alertMsg)
       .input('AlertId', sql.Int, alertId)
       .input('AckValue', sql.Int, ackUpdate)
-      .input('AckBy', sql.VarChar, ackBy)
       .execute('UpdateAlertAck');
 
     // Check if update happened
@@ -246,5 +245,59 @@ async function akcAlert(alertType, alertMsg,  alertId, ackUpdate, ackBy) {
 }
 
 
+async function akcAlertBy(ackId, ackBy) {
+  try {
+    const pool = await connectDb.connectionToSqlDB(databse);
 
-module.exports = { writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert };
+    const result = await pool.request()
+      .input('ackId', sql.Int, ackId)
+      .input('ackBy', sql.VarChar, ackBy)
+      .execute('AddAckAlert');
+
+    // Check if update happened
+    if (result.rowsAffected[0] === 0) {
+      console.log("❌ Alert not found");
+      return { status: 404, data: false };
+    }
+
+    console.log("✅ Alert Ack updated", result.rowsAffected);
+
+    return {
+      status: 200,
+      data: true,
+      rowsAffected: result.rowsAffected[0],
+    };
+
+  } catch (err) {
+    console.error('Error Ack Alarm:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+
+
+async function readAllAckData() {
+  try {
+    const pool = await connectDb.connectionToSqlDB(databse);
+
+    const result = await pool.request()
+      .execute('ReadAllAckData');
+  
+    if (result.rowsAffected[0] === 0) {
+      console.log("❌ Alert not found");
+      return { status: 404, data: false };
+    }
+    return {
+      status: 200,
+      data: result.recordset,
+    };
+
+  } catch (err) {
+    console.error('Error Featch Ack Data:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+
+
+module.exports = {readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };
