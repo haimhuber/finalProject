@@ -14,6 +14,7 @@ function App() {
   const [alertsNumber, setAlertsNumber] = useState(0);
   const [toggle, setToggle] = useState("login");
   const [User, setUser] = useState("");
+  const alertVisToken = sessionStorage.getItem('token');
   // Alert number
   useEffect(() => {
       const fetchAlerts = async () => {
@@ -57,7 +58,7 @@ function App() {
       <nav className='navigator'>
         <Link to="/">Home</Link> | 
         <Link to="/dashboard">Dashboard</Link> | 
-        <Link to="/alerts" className="alerts-link">Alerts{alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>
+        <Link to="/alerts" className="alerts-link">Alerts{alertVisToken && alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>
 
         <Link to="/settings">Settings</Link> |
         

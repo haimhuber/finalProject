@@ -5,8 +5,8 @@ export const Logout = () => {
         const token = localStorage.getItem("token");
         const username = localStorage.getItem("username");
         alert(`User: ${username} Log out`);
-        localStorage.removeItem("token");
-        localStorage.removeItem("usermane");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("usermane");
         window.location.href = "/login";
     }, []);
   return (

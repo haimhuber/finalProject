@@ -1,3 +1,5 @@
+import { getAlerts } from "./CombinedData";
+
 export interface AlertInterface {
   id: number;
   alarmId: number;
@@ -38,6 +40,23 @@ export function formatSqlTime(sqlTime?: string) {
 
   return `${pad(day)}-${pad(month)}-${year} ${pad(Number(hour))}:${pad(Number(minute))}:${pad(sec)}`;
 }
+
+export async function alertNum() {
+  let alertCounter = 0;
+          try {
+            const response = await getAlerts();
+            const data = response.data;
+            for(let index = 0; index < data.length ; index ++) {
+              if (data[index].alertAck ===  0) {
+                  ++alertCounter;
+              }
+            }
+            return alertCounter;
+            
+          } catch (err) {
+            console.error('Failed to fetch alerts', err);
+          }
+};
 
 
 

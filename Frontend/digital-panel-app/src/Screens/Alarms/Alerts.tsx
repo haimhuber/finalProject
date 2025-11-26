@@ -35,6 +35,7 @@ export const Alerts = () => {
         const confiremed = window.confirm("Are you sure you want to acknowledge this alert?");
         if (confiremed) {    
           fetchAlerts();
+          window.location.reload();
         }
     }
   } catch (err) {
@@ -80,6 +81,7 @@ const fetchAlerts = async () => {
     console.error("Failed to fetch Breakers Names", err);
   } finally {
     setLoading(false);
+   
     readAllAckData();
   }
 };
