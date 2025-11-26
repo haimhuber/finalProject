@@ -6,4 +6,5 @@ export interface AlertInterface {
   timestamp: string;
   alertAck : number;
   ackBy: string;
+  ackTimestamp: string;
 }

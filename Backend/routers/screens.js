@@ -7,7 +7,6 @@ const email = require('../controller/email');
 
 router.get('/breakersNames', screenAction.breakersNames);
 router.get('/breakersMainData', screenAction.breakersLiveData);
-//router.post('/login', screenAction.login);
 
 // Protected routes (JWT required)
 router.get('/data', screenAction.dataPage);

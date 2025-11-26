@@ -1,5 +1,5 @@
 import './Alerts.css';
-import { getAlerts, getBreakerNames } from '../../Types/CombinedData';
+import { getAlerts, getBreakerNames, getTime } from '../../Types/CombinedData';
 import { useEffect, useState } from 'react';
 import type {AlertInterface} from '../../Types/Alerts'
 
@@ -8,9 +8,11 @@ export const Alerts = () => {
   const [alerts, setAlerts] = useState<AlertInterface[]>([]);
   const [names, setNames] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  let ackTime : AlertInterface;
   const ackBy = localStorage.getItem('username');
 
   const ackAlarm = async (alertType: string, alertMsg: string, alertId: number) => {
+    
   try {
     const ackUpdate = 1;
     const res = await fetch("api/ack", {
@@ -27,6 +29,9 @@ export const Alerts = () => {
       console.log(alertType, alertMsg,alertId, ackUpdate, ackBy);
       
       alert("Alarm acknowledged!");
+      ackTime.ackTimeStamp = getTime();
+      
+      
       fetchAlerts();
     }
 
@@ -115,7 +120,7 @@ useEffect(() => {
                     fontWeight: 'bold'
                   }}
                 >
-                  {alert.alertAck ? `Acknowledge By:${alert.ackBy}` : "Not Acknowledge"}
+                  {alert.alertAck ? `Acknowledge By:${alert.ackBy} | ${ackTime[alert.id]} ` : "Not Acknowledge"}
                 </td>
                  <td>
                   {!alert.alertAck &&
