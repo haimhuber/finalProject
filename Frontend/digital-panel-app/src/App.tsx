@@ -22,7 +22,7 @@ function App() {
           const response = await getAlerts();
           const data = response.data;
           for(let index = 0; index < data.length ; index ++) {
-            if (data[index].alertAck === null) {
+            if (data[index].alertAck ===  0) {
                 ++alertCounter;
             }
           }
@@ -57,7 +57,8 @@ function App() {
       <nav className='navigator'>
         <Link to="/">Home</Link> | 
         <Link to="/dashboard">Dashboard</Link> | 
-        <Link to="/alerts">Alerts {alertsNumber} </Link> | 
+        <Link to="/alerts" className="alerts-link">Alerts{alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>
+
         <Link to="/settings">Settings</Link> |
         
         {/* SHOW LOGIN OR LOGOUT */}

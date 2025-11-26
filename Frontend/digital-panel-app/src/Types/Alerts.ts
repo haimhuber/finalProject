@@ -8,3 +8,12 @@ export interface AlertInterface {
   ackBy: string;
   ackTimestamp: string;
 }
+
+export interface AckTimestamp {
+  id: number;
+  timestamp: string;
+}
+
+
+
+

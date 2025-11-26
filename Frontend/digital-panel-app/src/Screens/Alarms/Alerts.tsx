@@ -1,18 +1,40 @@
 import './Alerts.css';
 import { getAlerts, getBreakerNames, getTime } from '../../Types/CombinedData';
 import { useEffect, useState } from 'react';
-import type {AlertInterface} from '../../Types/Alerts'
+import { type AckTimestamp, type AlertInterface} from '../../Types/Alerts'
 
 
 export const Alerts = () => {
   const [alerts, setAlerts] = useState<AlertInterface[]>([]);
   const [names, setNames] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  let ackTime : AlertInterface;
   const ackBy = localStorage.getItem('username');
+  const [ackTimeStampArray, setAckTimeStampArray] = useState<AckTimestamp[]>([]);
+
+  const readAllAck = () => {
+  console.log({ array: ackTimeStampArray });
+};
+
+  const ackTimestamp = (id: number) => {
+    const newItem = { id, timestamp: getTime() };
+    setAckTimeStampArray(prev => {
+      const updated = [...prev, newItem];
+      localStorage.setItem("ackTimes", JSON.stringify(updated));
+      return updated;
+    });
+};
+
+  useEffect(() => {
+    const saved = localStorage.getItem("ackTimes");
+    if (saved) {
+      setAckTimeStampArray(JSON.parse(saved));
+    }
+  }, []);
+
+
+
 
   const ackAlarm = async (alertType: string, alertMsg: string, alertId: number) => {
-    
   try {
     const ackUpdate = 1;
     const res = await fetch("api/ack", {
@@ -25,14 +47,14 @@ export const Alerts = () => {
 
     if (!data.data) {
       alert(data.message || "Alarm can't be acknowledged");
-    } else {
-      console.log(alertType, alertMsg,alertId, ackUpdate, ackBy);
+    } else {      
+        const confiremed = window.confirm("Are you sure you want to acknowledge this alert?");
+        if (confiremed) {
+          ackTimestamp(alertId);     
+          fetchAlerts();
+        }
+    
       
-      alert("Alarm acknowledged!");
-      ackTime.ackTimeStamp = getTime();
-      
-      
-      fetchAlerts();
     }
 
   } catch (err) {
@@ -40,7 +62,6 @@ export const Alerts = () => {
     alert("Something went wrong. Please try again.");
   }
 };
-
 
  // 1️⃣ Extract fetchAlerts so it can be called anywhere
 const fetchAlerts = async () => {
@@ -60,6 +81,7 @@ const fetchAlerts = async () => {
     console.error("Failed to fetch Breakers Names", err);
   } finally {
     setLoading(false);
+    readAllAck();
   }
 };
 
@@ -114,13 +136,10 @@ useEffect(() => {
                   <td>{alert.alert_type}</td>
                   <td>{alert.alert_message}</td>
                   <td>{new Date(alert.timestamp).toLocaleString()}</td>
-                 <td
-                  style={{
-                    color: alert.alertAck ? 'green' : 'red',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {alert.alertAck ? `Acknowledge By:${alert.ackBy} | ${ackTime[alert.id]} ` : "Not Acknowledge"}
+                <td className={`ack-cell ${alert.alertAck ? "acknowledged" : "not-ack"}`}>
+                  {alert.alertAck
+                    ? `✔ Ack by ${ackBy} @ ${ackTimeStampArray?.find(item => item.id === alert.id)?.timestamp || "--"}`
+                    : "❌ Not Ack"}
                 </td>
                  <td>
                   {!alert.alertAck &&
