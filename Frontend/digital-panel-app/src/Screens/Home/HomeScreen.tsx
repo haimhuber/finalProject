@@ -131,6 +131,7 @@ export const HomeScreen: React.FC = () => {
         width: "99vw",
         padding: "20px",
         backgroundColor: "#f9f9f9",
+        
       }}
     >
       <div
@@ -186,8 +187,8 @@ export const HomeScreen: React.FC = () => {
                 padding: "20px",
                 borderRadius: "12px",
                 boxShadow: "3px 3px 10px rgba(0,0,0,0.1)",
-                width: "350px",
-                display: "flex",
+                width: "400px",
+                // display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
               }}
@@ -204,10 +205,10 @@ export const HomeScreen: React.FC = () => {
                 Position: {panel.Tripped ? "Breaker Tripped!" : panel.BreakerClose ? "Close" : "Open"}
               </h4>
 
-              <div style={{ marginTop: "20px", width: "100%" }}>
+              <div style={{ marginTop: "20px", width: "90%" }}>
                 <Line data={lineData} options={chartOptions} />
               </div>
-              <div style={{ marginTop: "20px", width: "100%" }}>
+              <div style={{ marginTop: "20px", width: "90%" }}>
                 <Pie
                   data={pieData}
                   options={{

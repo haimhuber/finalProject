@@ -58,17 +58,16 @@ function App() {
       <nav className='navigator'>
         <Link to="/">Home</Link> | 
         <Link to="/dashboard">Dashboard</Link> | 
-        <Link to="/alerts" className="alerts-link">Alerts{alertVisToken && alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>
+        <Link to="/alerts" className="alerts-link">Alerts{alertVisToken && alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>|
 
         <Link to="/settings">Settings</Link> |
         
         {/* SHOW LOGIN OR LOGOUT */}
         {toggle === "login" && <Link to="/login">Login</Link>}
-        {toggle === "logout" && <Link to="/logout">Logout</Link>}
+        {toggle === "logout" && <Link to="/logout">Logout</Link>} |
         {toggle === "logout" && (
-          <p className="welcomeUser">Welcome, {User}</p>
+          <p style={{ color: alertVisToken ? '#756af4' : 'red' }} className="welcomeUser">Welcome, {User}</p>
         )}
-
       </nav>
 
       <Routes>

@@ -4,7 +4,9 @@ import "./SigninPage.css";
 const Signin: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  
 
+  
   async function handleSignin(e: React.FormEvent) {
     e.preventDefault();
 
@@ -18,9 +20,7 @@ const Signin: React.FC = () => {
       const data = await res.json();
       console.log(data.data);
       
-
       if (!data.data) return alert(data.message || "User name already exist"); // data.data = 0
-
       alert("User created successfully");
       window.location.href = "/login";
     } catch (err) {
@@ -28,7 +28,6 @@ const Signin: React.FC = () => {
       alert("Something went wrong. Please try again.");
     }
   }
-
   return (
     <div className="login-fullscreen">
       <div className="login-container">

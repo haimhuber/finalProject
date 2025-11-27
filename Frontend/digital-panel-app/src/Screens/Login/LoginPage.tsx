@@ -1,25 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./LoginPage.css";
-
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [valid, Setvalid] = useState(false);
-
+  
   function signin() {
      window.location.href = "/Signin";
   }
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-
     const res = await fetch("api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password })
     });
-
     const data = await res.json();
-
    if (!data.data) {
     alert(data.message || "User or Password are invalid");
     sessionStorage.removeItem("token"); // clear token on fail

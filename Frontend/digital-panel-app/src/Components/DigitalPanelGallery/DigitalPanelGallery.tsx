@@ -8,7 +8,7 @@ export const DigitalPanelGallery = () => {
   const [loading, setLoading] = useState<boolean>(true); // ✅ added loading state
 
  useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     console.log("Token:", token);
 
     if (!token) {

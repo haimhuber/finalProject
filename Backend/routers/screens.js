@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const screenAction = require('../controller/screensActions');
-const email = require('../controller/email');
+const log = require('../controller/logData');
 
 
 
@@ -18,6 +18,7 @@ router.post('/adduser', screenAction.addingUser);
 router.post('/login', screenAction.checkIfUserExist);
 router.post('/ack', screenAction.ackAlarm);
 router.post('/ack-by', screenAction.ackAlarmBy);
+router.post('/log-data', log.writeSignLogs);
 
 
 module.exports = router;
