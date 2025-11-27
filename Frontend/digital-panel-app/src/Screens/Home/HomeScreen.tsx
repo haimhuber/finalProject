@@ -52,7 +52,7 @@ export const HomeScreen: React.FC = () => {
     }
   }, []);
 
-  // Example: fetch energy data for panel '1'
+  // Example: fetch energy data
   useEffect(() => {
     async function getEnergyData(id: string) {
       try {
@@ -65,7 +65,7 @@ export const HomeScreen: React.FC = () => {
     getEnergyData('1');
   }, []);
 
-  // Fetch combined data
+  // Fetch dashboard data
   useEffect(() => {
     async function getCombinedData() {
       setLoading(true);
@@ -105,16 +105,12 @@ export const HomeScreen: React.FC = () => {
     return (
       <div
         style={{
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "flex-start",
-  width: "99vw",
-  padding: "20px",
-  backgroundColor: "#f9f9f9",
-  overflowY: "auto",
-}}
-
-
+          width: "99vw",
+          minHeight: "100vh",
+          padding: "20px",
+          backgroundColor: "#f9f9f9",
+          overflowY: "auto",
+        }}
       >
         Loading Home data...
       </div>
@@ -124,14 +120,11 @@ export const HomeScreen: React.FC = () => {
   return (
     <div
       style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
         width: "99vw",
+        minHeight: "100vh",
         padding: "20px",
         backgroundColor: "#f9f9f9",
-        
+        overflowY: "auto",
       }}
     >
       <div
@@ -163,7 +156,10 @@ export const HomeScreen: React.FC = () => {
             labels: ["Active", "Remaining Capacity"],
             datasets: [
               {
-                data: [activePower[activePower.length - 1] || 0, 100 - (activePower[activePower.length - 1] || 0)],
+                data: [
+                  activePower[activePower.length - 1] || 0,
+                  100 - (activePower[activePower.length - 1] || 0),
+                ],
                 backgroundColor: ["#36A2EB", "#FFCE56"],
                 borderColor: ["#36A2EB", "#FFCE56"],
                 borderWidth: 1,
@@ -188,7 +184,6 @@ export const HomeScreen: React.FC = () => {
                 borderRadius: "12px",
                 boxShadow: "3px 3px 10px rgba(0,0,0,0.1)",
                 width: "400px",
-                // display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
               }}
@@ -196,7 +191,6 @@ export const HomeScreen: React.FC = () => {
               <h3 className="panel-title" style={{ color: "#333" }}>{panel.name}</h3>
               <h4 className="panel-subtitle" style={{ color: "#333" }}>Type: {panel.type}</h4>
               <h4 className="panel-subtitle" style={{ color: "#333" }}>Load: {panel.load}</h4>
-
 
               <h4 style={{ color: panel.CommStatus ? "green" : "red" }}>
                 Com Status: {panel.CommStatus ? "OK" : "Error"}
@@ -208,6 +202,7 @@ export const HomeScreen: React.FC = () => {
               <div style={{ marginTop: "20px", width: "90%" }}>
                 <Line data={lineData} options={chartOptions} />
               </div>
+
               <div style={{ marginTop: "20px", width: "90%" }}>
                 <Pie
                   data={pieData}

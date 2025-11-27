@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { Logout } from './Screens/Logout/Logout';
 import { Alerts } from './Screens/Alarms/Alerts';
 import { getAlerts } from './Types/CombinedData';
-
+import Report from "./Screens/Reports/Report";
 function App() {
   const [alertsNumber, setAlertsNumber] = useState(0);
   const [toggle, setToggle] = useState("login");
@@ -61,6 +61,7 @@ function App() {
         <Link to="/alerts" className="alerts-link">Alerts{alertVisToken && alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>|
 
         <Link to="/settings">Settings</Link> |
+        <Link to="/reports">Reports</Link> |
         
         {/* SHOW LOGIN OR LOGOUT */}
         {toggle === "login" && <Link to="/login">Login</Link>}
@@ -77,7 +78,8 @@ function App() {
         <Route path="/login" element={<Login/>} />
         <Route path="/logout" element={<Logout/>} />
         <Route path="/Signin" element={<Signin/>} />
-         <Route path="/alerts" element={<Alerts/>} />
+        <Route path="/alerts" element={<Alerts/>} />
+         <Route path="/reports" element={<Report/>} />
       </Routes>
     </BrowserRouter>
   );

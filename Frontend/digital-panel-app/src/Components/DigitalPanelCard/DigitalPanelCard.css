@@ -1,136 +1,140 @@
-/* Main card container */
+/* 3D Digital Panel Card */
 .names-card {
-  background: #f3f3f5; /* soft neutral background for neumorphism */
-  border-radius: 20px; /* slightly rounder corners */
+  background: linear-gradient(145deg, #f0f0f3, #d9d9dd);
+  border-radius: 22px;
   padding: 24px;
   width: 360px;
   font-family: 'Segoe UI', Roboto, sans-serif;
   color: #1f2937;
+  margin: 20px auto;
 
-  /* Soft 3D shadow (neumorphic style) */
-  box-shadow: 
-    8px 8px 16px rgba(0,0,0,0.15),  /* dark shadow */
-    -8px -8px 16px rgba(255,255,255,0.7); /* highlight */
+  /* Deep Neumorphic shadow */
+  box-shadow:
+    12px 12px 28px rgba(0,0,0,0.25),
+    -12px -12px 28px rgba(255,255,255,0.9);
 
-  margin: 16px auto;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  /* Subtle gradient for depth */
-  background: linear-gradient(145deg, #f3f3f5, #e0e0e3);
+  /* For tilt effect */
+  transition: 
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  position: relative;
 }
 
-/* Hover effect for “lifted” feeling */
+/* 3D HOVER TILT */
 .names-card:hover {
-  transform: translateY(-10px) scale(1.03);
-  box-shadow: 
-    12px 12px 24px rgba(0,0,0,0.2), 
-    -12px -12px 24px rgba(255,255,255,0.75);
+  transform: perspective(800px) rotateX(6deg) rotateY(6deg) scale(1.03);
+  box-shadow:
+    14px 14px 35px rgba(0,0,0,0.3),
+    -14px -14px 35px rgba(255,255,255,0.95);
 }
 
-
-/* 3D hover effect */
-.names-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 8px 8px 24px rgba(0,0,0,0.2), -8px -8px 24px rgba(255,255,255,0.8);
+/* Glass highlight reflection */
+.names-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 50%;
+  width: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.45),
+    rgba(255,255,255,0.05)
+  );
+  border-radius: 22px;
+  pointer-events: none;
 }
 
-/* Header styles */
+/* Warning / Error glow */
+.names-card.error {
+  box-shadow:
+    0 0 20px rgba(255,0,0,0.35),
+    12px 12px 28px rgba(0,0,0,0.25),
+    -12px -12px 28px rgba(255,255,255,0.9);
+  border: 2px solid rgba(255,0,0,0.5);
+}
+
+/* Title */
 .names-card h3 {
   font-size: 1.4rem;
   font-weight: 700;
-  margin-bottom: 4px;
-  color: #000000; /* ABB Red */
+  margin-bottom: 6px;
+  color: #1a1a1a;
 }
 
+/* Subtitle */
 .names-card h4 {
   font-size: 1rem;
   font-weight: 500;
   margin: 2px 0;
 }
 
-/* Com Status */
-.names-card h4 span.true {
-  color: #10b981; /* green */
-  font-weight: 600;
-}
-
-.names-card h4 span.false {
-  color: #ef4444; /* red */
-  font-weight: 600;
-}
-
 /* Live Data Section */
 .digital-live-data {
-  background: linear-gradient(135deg, #f9fafb, #e5e7eb);
-  border-radius: 12px;
+  background: linear-gradient(135deg, #ffffff, #e7e8ec);
+  border-radius: 14px;
   padding: 12px;
-  margin-top: 16px;
-  border-left: 4px solid #e30613; /* ABB red accent */
-  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.7);
+  margin-top: 18px;
+  border-left: 5px solid #e30613;
+  box-shadow:
+    inset 2px 2px 6px rgba(0,0,0,0.12),
+    inset -2px -2px 6px rgba(255,255,255,0.8);
+  transform: translateZ(20px);
 }
 
-.digital-live-data h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 8px;
+/* Tilt children inside card */
+.digital-live-data, .names-card h3, .names-card h4 {
+  transform: translateZ(25px);
 }
 
+/* Live data pulse effect */
 .digital-live-data h5 {
   font-size: 0.95rem;
-  margin: 2px 0;
+  margin: 4px 0;
+  animation: livePulse 2.2s infinite ease-in-out;
 }
 
-/* Protection Data Section */
-.digital-data {
-  background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
-  border-radius: 12px;
-  padding: 12px;
-  margin-top: 16px;
-  border-left: 4px solid #1f2937; /* dark gray accent */
-  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.7);
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px 12px;
+@keyframes livePulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.75; }
+  100% { opacity: 1; }
 }
 
-.digital-data h5 {
-  font-size: 0.9rem;
-  margin: 2px 0;
-  display: flex;
-  justify-content: space-between;
+/* Warning Emoji Glow */
+.names-card .alert-icon {
+  font-size: 28px;
+  animation: glowWarning 1.5s infinite alternate;
 }
 
-/* Boolean status styling */
-.digital-data h5 span.true {
-  color: #10b981; 
-  font-weight: 600;
+@keyframes glowWarning {
+  0%   { filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); }
+  100% { filter: drop-shadow(0 0 12px rgba(255,0,0,0.6)); }
 }
 
-.digital-data h5 span.false {
-  color: #ef4444; 
-  font-weight: 600;
-}
-
-/* Optional: subtle divider between sections */
-.names-card h4, .digital-live-data h3 {
-  border-bottom: 1px solid #d1d5db;
-  padding-bottom: 2px;
-  margin-bottom: 6px;
-}
-
-/* Rounded bars for live voltage/current visualization (optional) */
-.live-bar {
-  height: 8px;
-  border-radius: 4px;
-  margin: 2px 0 6px 0;
-  background: #e5e7eb;
-  position: relative;
-}
-
-.live-bar-fill {
-  height: 100%;
-  border-radius: 4px;
+/* Button */
+.names-card button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
   background: #e30613;
-  width: 50%; /* dynamically set via inline style for each value */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 
+    3px 3px 8px rgba(0,0,0,0.15),
+    -3px -3px 8px rgba(255,255,255,0.7);
+  transition: 0.25s;
+}
+
+.names-card button:hover {
+  background: #c10510;
+  transform: translateY(-3px);
+  box-shadow:
+    6px 6px 12px rgba(0,0,0,0.25),
+    -6px -6px 12px rgba(255,255,255,0.9);
 }

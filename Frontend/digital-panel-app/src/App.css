@@ -1,81 +1,173 @@
-/* App.css or LoginPage.css */
+/* ===========================
+   3D NAVBAR — PREMIUM DESIGN
+   =========================== */
+
 .navigator {
   display: flex;
-  justify-content: center;    /* center the links horizontally */
-  align-items: center;        /* center vertically */
-  gap: 30px;                  /* space between links */
-  padding: 15px 0;
-  background-color: #121212;  /* dark modern background */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 18px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  justify-content: center;
+  align-items: center;
+  gap: 26px;
+  padding: 18px 22px;
+
+  background: linear-gradient(145deg, #1b1b1c, #121212);
+  border-radius: 18px;
+  margin-bottom: 22px;
+
+  /* Deep 3D + soft inner reflection */
+  box-shadow:
+    8px 8px 20px rgba(0,0,0,0.55),
+    -6px -6px 14px rgba(255,255,255,0.06),
+    inset 2px 2px 4px rgba(255,255,255,0.08),
+    inset -2px -2px 4px rgba(0,0,0,0.55);
+
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
+
+/* ===========================
+   NAV LINKS — 3D BUTTONS
+   =========================== */
 
 .navigator a {
   text-decoration: none;
-  color: #ffffff;
-  padding: 10px 20px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  color: #e0e0e0;
+  padding: 10px 16px;
+  border-radius: 10px;
+
+  background: linear-gradient(145deg, #202020, #151515);
+  box-shadow:
+    4px 4px 10px rgba(0,0,0,0.5),
+    -4px -4px 10px rgba(255,255,255,0.04);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
 }
 
+/* Hover Lift */
 .navigator a:hover {
-  background-color: #1f1f1f;
-  color: #00bfff;            /* nice modern blue hover */
-  transform: scale(1.05);    /* subtle zoom on hover */
+  transform: translateY(-4px);
+  background: linear-gradient(145deg, #2c2c2d, #191919);
+  box-shadow:
+    6px 6px 14px rgba(0,0,0,0.6),
+    -4px -4px 12px rgba(255,255,255,0.08);
+  color: #00bfff;
 }
 
+/* Active Link Glow */
 .navigator a.active {
-  background-color: #00bfff;
-  color: #fff;
-  font-weight: 600;
+  background: linear-gradient(145deg, #007acc, #005a92);
+  color: white;
+  box-shadow:
+    0 0 12px rgba(0,153,255,0.5),
+    inset 2px 2px 6px rgba(0,0,0,0.35),
+    inset -2px -2px 6px rgba(255,255,255,0.15);
 }
 
-/* Responsive: stack vertically on small screens */
-@media (max-width: 600px) {
-  .navigator {
-    flex-direction: column;
-    gap: 15px;
-  }
-}
-.welcomeUser {
-  font-weight: 700;         /* bold */
-  font-size: 1.2rem;        /* slightly larger font */
-  color: #f5f5f5;           /* soft white */
-  margin: 0;                /* remove default p spacing */
-  padding: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
+/* ===========================
+   ALERT BADGE
+   =========================== */
 
 .alerts-link {
   position: relative;
   text-decoration: none;
-  font-size: 18px;
   font-weight: bold;
-  padding-right: 12px;
 }
 
 .alerts-badge {
   position: absolute;
-  top: -8px;
+  top: -7px;
   right: -10px;
-  background-color: rgb(172, 31, 31);
+  background-color: #c42121;
   color: white;
   border-radius: 50%;
   padding: 2px 7px;
   font-size: 12px;
   font-weight: bold;
-  min-width: 18px;
-  text-align: center;
+
+  box-shadow: 0 0 10px rgba(255,0,0,0.7);
+  animation: alertPulse 1.6s infinite;
 }
 
-.alerts-badge {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+@keyframes alertPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); }
   100% { transform: scale(1); }
+}
+
+/* ===========================
+   3D WELCOME BADGE
+   =========================== */
+
+.welcomeUser {
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 8px 18px;
+  border-radius: 12px;
+  color: #dfe3ff;
+
+  background: linear-gradient(145deg, #1d1d1e, #141414);
+  border: 1px solid rgba(255,255,255,0.06);
+
+  /* Industrial 3D Plate */
+  box-shadow:
+    4px 4px 12px rgba(0,0,0,0.55),
+    -4px -4px 12px rgba(255,255,255,0.05),
+    inset 2px 2px 4px rgba(0,0,0,0.58),
+    inset -2px -2px 4px rgba(255,255,255,0.08);
+
+  text-shadow:
+    0 0 4px rgba(100,100,255,0.4),
+    0 0 8px rgba(120,120,255,0.25);
+
+  transition: 0.3s ease;
+}
+
+/* Hover lift */
+.welcomeUser:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    6px 6px 17px rgba(0,0,0,0.6),
+    -4px -4px 14px rgba(255,255,255,0.08),
+    inset 1px 1px 3px rgba(255,255,255,0.1),
+    inset -1px -1px 3px rgba(0,0,0,0.5);
+}
+
+/* Error Mode (no token) */
+.welcomeUser.error {
+  background: linear-gradient(145deg, #3a1010, #240505);
+  color: #ffbdbd;
+
+  box-shadow:
+    3px 3px 8px rgba(0,0,0,0.6),
+    -3px -3px 8px rgba(255,255,255,0.05),
+    inset 2px 2px 5px rgba(0,0,0,0.7),
+    inset -2px -2px 5px rgba(255,80,80,0.2);
+
+  text-shadow:
+    0 0 6px rgba(255,0,0,0.5),
+    0 0 12px rgba(255,50,50,0.3);
+}
+
+/* ===========================
+   MOBILE
+   =========================== */
+
+@media (max-width: 700px) {
+  .navigator {
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 14px 16px;
+  }
+
+  .navigator a {
+    padding: 8px 14px;
+  }
+
+  .welcomeUser {
+    margin-top: 8px;
+  }
 }

@@ -18,21 +18,24 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
 
 body {
   margin: 0;
-  display: flex;
-  flex-direction: column; /* stack children vertically */
+  padding: 0;
+
+  /* ❗ FIXED: removed flex layout that was blocking scrolling */
   min-width: 320px;
   min-height: 100vh;
-  overflow-y: auto;       /* enable vertical scrolling */
-  align-items: center;     /* center horizontally */
+
+  overflow-y: auto;     /* allow scrolling */
+  overflow-x: hidden;   /* prevent horizontal page shift */
+
   background-color: #242424;
 }
-
 
 h1 {
   font-size: 3.2em;
@@ -50,9 +53,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -69,4 +74,16 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* FINAL OVERRIDE TO RESTORE SCROLL */
+html, body, #root {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+#root {
+  display: block !important;
 }
