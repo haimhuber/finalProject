@@ -1,0 +1,126 @@
+/* ===========================
+   REPORT TABLE — SPACIOUS STYLE
+   =========================== */
+
+.report-table {
+  width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0 10px; /* vertical spacing between rows */
+  margin-top: 30px;
+}
+
+/* Header */
+.report-table thead th {
+  padding: 16px 20px;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  background: #0f0f17; 
+  color: white;
+  text-align: left;
+}
+
+/* Body rows */
+.report-table tbody tr {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.1),
+    0 4px 8px rgba(0,0,0,0.08);
+  height: 60px; /* row height */
+}
+
+/* Cells */
+.report-table td {
+  padding: 18px 24px; /* MUCH more space */
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #222;
+}
+
+/* Rounded row edges */
+.report-table tbody tr td:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.report-table tbody tr td:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* Timestamp column formatting */
+.report-table .timestamp-cell {
+  font-family: "Segoe UI", monospace;
+  white-space: nowrap;
+}
+
+/* ===========================
+   3D NEUMORPHIC ACTION BUTTON
+   =========================== */
+.report-btn {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+
+  padding: 16px 34px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+
+  border-radius: 14px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+
+  color: #eaeaff;
+  background: linear-gradient(145deg, #1b1b1c, #121212);
+
+  /* Deep 3D layers */
+  box-shadow:
+    8px 8px 20px rgba(0,0,0,0.55),
+    -8px -8px 20px rgba(255,255,255,0.06),
+    inset 2px 2px 6px rgba(0,0,0,0.7),
+    inset -2px -2px 6px rgba(255,255,255,0.1);
+
+  transition: 
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.3s ease;
+  
+  z-index: 3000;
+}
+
+/* Hover — Lift + Shine */
+.report-btn:hover {
+  transform: translateY(-6px) scale(1.05);
+  background: linear-gradient(145deg, #232324, #151515);
+
+  box-shadow:
+    14px 14px 28px rgba(0,0,0,0.65),
+    -10px -10px 24px rgba(255,255,255,0.08),
+    inset 1px 1px 3px rgba(255,255,255,0.12),
+    inset -1px -1px 3px rgba(0,0,0,0.5);
+}
+
+/* Active press — realistic push */
+.report-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow:
+    3px 3px 8px rgba(0,0,0,0.7),
+    -2px -2px 6px rgba(255,255,255,0.06),
+    inset 3px 3px 8px rgba(0,0,0,0.7),
+    inset -3px -3px 8px rgba(255,255,255,0.1);
+}
+
+/* Subtle breathing animation */
+@keyframes breatheButton {
+  0% { transform: scale(1); box-shadow: 8px 8px 20px rgba(0,0,0,0.55), -8px -8px 20px rgba(255,255,255,0.06); }
+  50% { transform: scale(1.015); box-shadow: 10px 10px 24px rgba(0,0,0,0.6), -10px -10px 24px rgba(255,255,255,0.08); }
+  100% { transform: scale(1); box-shadow: 8px 8px 20px rgba(0,0,0,0.55), -8px -8px 20px rgba(255,255,255,0.06); }
+}
+
+.report-btn {
+  animation: breatheButton 4s infinite ease-in-out;
+}
+

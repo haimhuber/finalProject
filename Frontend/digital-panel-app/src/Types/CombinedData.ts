@@ -77,4 +77,3 @@
   return ackTimestamp;
  }
 
- 
