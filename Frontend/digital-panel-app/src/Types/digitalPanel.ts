@@ -1,4 +1,21 @@
 
+export const breakerDataList = {
+    V12: "V12",
+    V23: "V23",
+    V31: "V31",
+    I1: "I1",
+    I2: "I2",
+    I3: "I3",
+    Frequency: "Frequency",
+    PowerFactor: "PowerFactor",
+    ActivePower: "ActivePower",
+    ReactivePower: "ReactivePower",
+    ApparentPower: "ApparentPower",
+    NominalCurrent: "NominalCurrent",
+    ActiveEnergy: "ActiveEnergy"
+}
+
+
 export type DigitalPanelCardProps = {
     switch_id: string;
     name: string;

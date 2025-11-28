@@ -103,17 +103,22 @@ export const HomeScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          width: "99vw",
-          minHeight: "100vh",
-          padding: "20px",
-          backgroundColor: "#f9f9f9",
-          overflowY: "auto",
-        }}
-      >
-        Loading Home data...
-      </div>
+     <div
+      style={{
+        width: "99vw",
+        minHeight: "100vh",
+        padding: "20px",
+        backgroundColor: "#000000ff",
+
+        display: "flex",            // make container flexbox
+        justifyContent: "center",   // center horizontally
+        alignItems: "center",       // center vertically
+        fontSize: "24px",
+        color: "white",
+      }}
+    >
+      Loading Home data...
+</div>
     );
   }
 

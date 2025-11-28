@@ -166,4 +166,16 @@ const readAckData = async (req, res) => {
     }
 };
 
-module.exports = {readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
+
+const reportData = async (req, res) => {
+  const {breakerName, startTime, endTime } = req.body;
+    try {
+        const report = await sqlData.reportPowerData(breakerName, startTime, endTime);
+        res.status(200).json(report);
+    } catch (err) {
+        console.error('Error  Getting Report Data:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = {reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };

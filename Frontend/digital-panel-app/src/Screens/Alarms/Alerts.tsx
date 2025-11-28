@@ -35,7 +35,7 @@ export const Alerts = () => {
         const confiremed = window.confirm("Are you sure you want to acknowledge this alert?");
         if (confiremed) {    
           fetchAlerts();
-          window.location.reload();
+          //window.location.reload();
         }
     }
   } catch (err) {

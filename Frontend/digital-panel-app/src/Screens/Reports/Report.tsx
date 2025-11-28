@@ -4,6 +4,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { getAlerts, getBreakerNames } from "../../Types/CombinedData";
 import type { AlertInterface } from "../../Types/Alerts";
+import { breakerDataList, type BreakerData, type DigitalPanelCardProps } from '../../Types/digitalPanel';
 
 const Report = () => {
   const reportRef = useRef<HTMLDivElement | null>(null);
@@ -62,49 +63,70 @@ const Report = () => {
   };
   const [showAlert, setShowAlert] = useState(false);
   const [showSwitchData, SetshowSwitchData] = useState(false);
-  const [myNumber, setMyNumber] = useState<number>(0);
   const [breakerList, setBreakerList] = useState<string[]>([]);
   const [selectedBreaker, setSelectedBreaker] = useState("");
-
+  const breakerData = breakerDataList;
+  const [breakerDataPick, setBbreakerDataPick] = useState("");
 
 useEffect(() => {
   async function fetchNames() {
-    const req = await getBreakerNames();
-    setBreakerList(req);  // <-- this is the array
+    try {
+      const req = await getBreakerNames();
+      setBreakerList(req);  // <-- this is the array
+    } catch(err) {
+      console.error("Error msg", err);
+    }    
   }
   fetchNames();
 }, []);
 
+function setAlert() {
+  setShowAlert(!showAlert);
+}
 
-  function setAlert() {
-    setShowAlert(!showAlert);
-  }
-  function setSwitchData(id : string) {
-    if (!id) {
-      alert(`Breaker not selected `);
+  async function setSwitchData(id : string , data : string) {
+    if (!id || ! data) {
+      alert(`Please pick all relevant data `);
       return;
+    } else {
+      try {
+
+      }catch(err) {
+        console.error({"Error msg" : err});
+        
+      }
     }
-    
-    
     SetshowSwitchData(!showSwitchData);
   }
 
 return (
   <div>
-    <button type="button" onClick={setAlert}>Alert</button> 
-    <button type="button" onClick={() => setSwitchData(selectedBreaker)}>Switch Breaker</button>
+    <button className="btn-3d btn-alert" type="button" onClick={setAlert}>Alert</button> |
+    <button  className="btn-3d btn-switch" type="button" onClick={() => setSwitchData(selectedBreaker, breakerDataPick) }>Switch Breaker</button>
       <select
-      value={selectedBreaker}
-      onChange={(e) => setSelectedBreaker(e.target.value)}
-    >
+  value={selectedBreaker}
+  onChange={(e) => setSelectedBreaker(e.target.value)}
+  className="select-3d"
+>
       <option value="">Select Breaker</option>
-
       {breakerList.map((curr) => (
         <option key={curr.id} value={curr.id}>
           {curr.name}
         </option>
       ))}
     </select>
+
+    <select
+      value={breakerDataPick}
+      onChange={(e) => setBbreakerDataPick(e.target.value)}
+      className="select-3d"
+    >
+      <option value="">Breaker Data</option>
+      <option value={breakerData.ActiveEnergy}>{breakerData.ActiveEnergy}</option>
+      <option value={breakerData.ActivePower}>{breakerData.ActivePower}</option>
+    </select>
+
+
     {showAlert && (
       <div className="report-screen">
         <div className="report-container" ref={reportRef}>

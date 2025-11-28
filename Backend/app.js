@@ -1,10 +1,8 @@
 const startModbusClient = require('./modbusClient/checkConnection');
 const express = require('express');
-const createTables = require('./database/tablesCreation');
 const createDatabase = require('./database/createDatabase');
 const app = express();
 const bodyparser = require('body-parser');
-const path = require('path');
 const port = 5500;
 const screenRouters = require('./routers/screens');
 const myIp = require('./ipAddress/getPcIp');
@@ -41,11 +39,8 @@ app.use(
   })
 );
 
-
-
 createDatabase.createDatabase();
 startModbusClient.start();
-
 app.use('/', screenRouters);
 
 app.listen(port, host,  () => {
