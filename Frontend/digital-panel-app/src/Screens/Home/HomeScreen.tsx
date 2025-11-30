@@ -14,6 +14,8 @@ import {
 } from "chart.js";
 import { getActivePowerData, fetchAndCombineData, getActiveEnergyData, breakersPosition } from "../../Types/CombinedData";
 
+
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -40,8 +42,23 @@ export const HomeScreen: React.FC = () => {
   const [activePowerDataState, setActivePowerDataState] = useState<Record<string, number[]>>({});
   const [dayLabelsState, setDayLabelsState] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState<boolean>(true);
-  const [openSwitches, setOpenSwitches] = useState<string[]>([]);
-  const [closeSwitches, setCloseSwitches] = useState<string[]>([]);
+  const [openSwitches, setOpenSwitches] = useState<number>();
+  const [closeSwitches, setCloseSwitches] = useState<number>();
+
+
+  const breakersPieData = {
+    labels: ["Closed", "Open"],
+    datasets: [
+      {
+        data: [closeSwitches || 0, openSwitches || 0],
+        backgroundColor: ["#00C49F", "#FF8042"],
+        borderColor: ["#00C49F", "#FF8042"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+
 
   // Check token
   useEffect(() => {
@@ -96,14 +113,23 @@ export const HomeScreen: React.FC = () => {
         // Count breajer status
         try {
           const req = await breakersPosition();
-          const res = req;
-          console.log({positions: res});
-          
+          const res = req.data;
 
-        } catch(err) {
-          console.error({Error_msg : err});
-          
+          let counterClose = 0;
+          let counterOpen = 0;
+
+          for (let index = 0; index < res.length; index++) {
+            if (res[index].BreakerClose) counterClose++;
+            else if (res[index].BreakerOpen) counterOpen++;
+          }
+
+          setCloseSwitches(counterClose);
+          setOpenSwitches(counterOpen);
+
+        } catch (err) {
+          console.error({ Error_msg: err });
         }
+
 
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
@@ -115,26 +141,24 @@ export const HomeScreen: React.FC = () => {
     getCombinedData();
   }, []);
 
-
-
   if (loading) {
     return (
-     <div
-      style={{
-        width: "99vw",
-        minHeight: "100vh",
-        padding: "20px",
-        backgroundColor: "#000000ff",
+      <div
+        style={{
+          width: "99vw",
+          minHeight: "100vh",
+          padding: "20px",
+          backgroundColor: "#000000ff",
 
-        display: "flex",            // make container flexbox
-        justifyContent: "center",   // center horizontally
-        alignItems: "center",       // center vertically
-        fontSize: "24px",
-        color: "white",
-      }}
-    >
-      Loading Home data...
-</div>
+          display: "flex",            // make container flexbox
+          justifyContent: "center",   // center horizontally
+          alignItems: "center",       // center vertically
+          fontSize: "24px",
+          color: "white",
+        }}
+      >
+        Loading Home data...
+      </div>
     );
   }
 
@@ -148,13 +172,27 @@ export const HomeScreen: React.FC = () => {
         overflowY: "auto",
       }}
     >
-       <div className='headLine'> Digital Panel Home Screen: Site Ceasarea</div>
+      <div className='headLine'> Digital Panel Home Screen: Site Ceasarea</div>
+      <div style={{ width: "300px", margin: "auto" }}>
+        <Pie
+          data={breakersPieData}
+          options={{
+            responsive: true,
+            plugins: {
+              legend: { position: "top" },
+              title: { display: true, text: "Breaker Status Distribution" }
+            }
+          }}
+        />
+      </div>
+
       <div
         style={{
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "center",
           gap: "20px",
+          margin: "20px"
         }}
       >
         {combinedDataState.map((panel) => {

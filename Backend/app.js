@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const cors = require('cors');
 const ips = myIp.getLocalIPs(); // returns array
-host =  myIp.getLocalIPs();
+host = myIp.getLocalIPs();
 
 app.use(
   cors({
@@ -20,7 +20,7 @@ app.use(
       const allowedOrigins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "http://192.168.1.55:5173",
+        "http://192.168.1.89:5173",
         "http://10.29.176.113:5173",
         "http://172.20.10.3:5173",
         "http://192.168.73.139:5173",
@@ -44,8 +44,8 @@ createDatabase.createDatabase();
 startModbusClient.start();
 app.use('/', screenRouters);
 
-app.listen(port, host,  () => {
-    console.log(`Server listening at http://${host}:${port}`);
+app.listen(port, host, () => {
+  console.log(`Server listening at http://${host}:${port}`);
 });
 
 

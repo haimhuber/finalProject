@@ -4,8 +4,8 @@ require('dotenv').config();
 
 async function connectionToSqlDB(database) {
     const config = {
-        server: "localhost\\ABB_2019",
-        user: 'abb',
+        server: "localhost",
+        user: 'sa10',
         password: '1234',
         database: database,
         options: {
