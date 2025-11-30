@@ -266,11 +266,30 @@ async function createSp() {
                 FROM AckAlert;
         END`);
     console.log("✅ Stored Procedure 'ReadAllAckData' created successfully");
+ // ---------------------------------------------------------------------------------------
+    await pool.request().query(`                
+        CREATE OR ALTER PROCEDURE GetLatestSwitches
+            AS
+            BEGIN
+                SET NOCOUNT ON;
+
+                SELECT TOP 21 
+                    BreakerClose, 
+                    BreakerOpen, 
+                    timestamp
+                FROM Switches
+                ORDER BY timestamp DESC;
+            END`);
+    console.log("✅ Stored Procedure 'GetLatestSwitches' created successfully");
+
 
   } catch (err) {
     console.error('❌ Error creating addBreakerData SP:', err);
     return { message: err.message, status: 500 };
   }  
+
+  
+ 
 }
 
 module.exports = { createSp };

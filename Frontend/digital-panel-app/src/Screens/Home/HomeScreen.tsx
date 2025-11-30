@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { getActivePowerData, fetchAndCombineData, getActiveEnergyData } from "../../Types/CombinedData";
+import { getActivePowerData, fetchAndCombineData, getActiveEnergyData, breakersPosition } from "../../Types/CombinedData";
 
 ChartJS.register(
   CategoryScale,
@@ -40,6 +40,8 @@ export const HomeScreen: React.FC = () => {
   const [activePowerDataState, setActivePowerDataState] = useState<Record<string, number[]>>({});
   const [dayLabelsState, setDayLabelsState] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [openSwitches, setOpenSwitches] = useState<string[]>([]);
+  const [closeSwitches, setCloseSwitches] = useState<string[]>([]);
 
   // Check token
   useEffect(() => {
@@ -91,6 +93,18 @@ export const HomeScreen: React.FC = () => {
 
         setActivePowerDataState(activePowerMap);
         setDayLabelsState(dayLabelsMap);
+        // Count breajer status
+        try {
+          const req = await breakersPosition();
+          const res = req;
+          console.log({positions: res});
+          
+
+        } catch(err) {
+          console.error({Error_msg : err});
+          
+        }
+
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
       } finally {
@@ -100,6 +114,8 @@ export const HomeScreen: React.FC = () => {
 
     getCombinedData();
   }, []);
+
+
 
   if (loading) {
     return (
@@ -132,6 +148,7 @@ export const HomeScreen: React.FC = () => {
         overflowY: "auto",
       }}
     >
+       <div className='headLine'> Digital Panel Home Screen: Site Ceasarea</div>
       <div
         style={{
           display: "flex",

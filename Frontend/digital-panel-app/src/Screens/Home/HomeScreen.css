@@ -6,3 +6,17 @@
 .test{
   overflow-y: auto; /* scroll if content overflows */
 }
+
+.headLine {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 10px 0;
+  background: linear-gradient(90deg, #1f1f1f, #3a3a3a);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  letter-spacing: 1px;
+}

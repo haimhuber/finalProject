@@ -324,5 +324,27 @@ async function reportPowerData(breakerName, startTime, endTime) {
   }
 }
 
+async function breakerSwtichStatus() {
+  try {
+    const pool = await connectDb.connectionToSqlDB(databse);
 
-module.exports = {reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };
+    const result = await pool.request()
+      .execute('GetLatestSwitches');
+  
+    if (result.rowsAffected[0] === 0) {
+      console.log("❌ Alert not found");
+      return { status: 404, data: false };
+    }
+    return {
+      status: 200,
+      data: result.recordset,
+    };
+
+  } catch (err) {
+    console.error('Error Featch Ack Data:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+
+module.exports = {breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };

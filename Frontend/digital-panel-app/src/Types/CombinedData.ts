@@ -77,3 +77,15 @@
   return ackTimestamp;
  }
 
+
+ export async function breakersPosition() {
+  try{ 
+    const req = await fetch('api/breakerspositions');
+    const res = await req.json();
+    return res;
+  } catch(err) {
+    console.error({ServerMsg : err});
+  }
+  
+ }
+

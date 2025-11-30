@@ -178,4 +178,15 @@ const reportData = async (req, res) => {
     }
 };
 
-module.exports = {reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
+
+const breakersPositionStatus = async (req, res) => {
+    try {
+        const response = await sqlData.breakerSwtichStatus();
+        res.status(200).json(response);
+    } catch (err) {
+        console.error('Error Getting Switch Position Data:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = {breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
