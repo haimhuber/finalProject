@@ -22,6 +22,7 @@ router.post('/ack', screenAction.ackAlarm);
 router.post('/ack-by', screenAction.ackAlarmBy);
 router.post('/report', screenAction.reportData);
 router.post('/audit', screenAction.auditTrail);
+router.get('/audit', screenAction.auditTrailData);
 
 
 

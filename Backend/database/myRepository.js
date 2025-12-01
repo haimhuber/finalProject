@@ -372,5 +372,27 @@ async function AuditTrail(userName, type) {
   }
 }
 
+async function auditTrailData() {
+  try {
+    const pool = await connectDb.connectionToSqlDB(databse);
 
-module.exports = { AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };
+    const result = await pool.request()
+      .execute('ReadAllAuditTrail');
+
+    if (result.rowsAffected[0] === 0) {
+      console.log("❌ Table not found");
+      return { status: 404, data: false };
+    }
+    return {
+      status: 200,
+      data: result.recordset,
+    };
+
+  } catch (err) {
+    console.error('Error Featch Ack Data:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+
+module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };

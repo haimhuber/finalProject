@@ -196,11 +196,10 @@ const breakersPositionStatus = async (req, res) => {
 };
 
 
-
 const auditTrail = async (req, res) => {
-    const { userName, type } = req.body;
+    const { usernameAudit, type } = req.body;
     try {
-        const audit = await sqlData.AuditTrail(userName, type);
+        const audit = await sqlData.AuditTrail(usernameAudit, type);
         res.status(200).json(audit); // Return -> true / false
     } catch (err) {
         console.error('Error  inserting audit trail:', err);
@@ -208,4 +207,15 @@ const auditTrail = async (req, res) => {
     }
 };
 
-module.exports = { auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
+
+const auditTrailData = async (req, res) => {
+    try {
+        const auditData = await sqlData.auditTrailData();
+        res.status(200).json(auditData); // Return -> true / false
+    } catch (err) {
+        console.error('Error  getting audit trail data:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };

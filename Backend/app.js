@@ -41,7 +41,7 @@ app.use(
 );
 
 createDatabase.createDatabase();
-startModbusClient.start();
+//startModbusClient.start();
 app.use('/', screenRouters);
 
 app.listen(port, host, () => {

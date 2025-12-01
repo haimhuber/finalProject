@@ -301,6 +301,18 @@ async function createSp() {
                 SCOPE_IDENTITY() AS insertedId;
         END`);
         console.log("✅ Stored Procedure 'AddUserAudit' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`                
+        CREATE OR ALTER PROCEDURE ReadAllAuditTrail
+            AS
+            BEGIN
+                SET NOCOUNT ON;
+
+                SELECT * 
+                FROM UserAuditTrail
+                Order by username;
+        END`);
+        console.log("✅ Stored Procedure 'ReadAllAuditTrail' created successfully");
 
 
     } catch (err) {
