@@ -283,6 +283,25 @@ async function createSp() {
             END`);
         console.log("✅ Stored Procedure 'GetLatestSwitches' created successfully");
 
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`                
+        CREATE OR ALTER PROCEDURE AddUserAudit
+            @userName VARCHAR(20),
+            @type VARCHAR(20)
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+
+            INSERT INTO UserAuditTrail (userName, type)
+            VALUES (@userName, @type);
+
+            SELECT 
+                1 AS success,
+                'Audit entry recorded successfully' AS message,
+                SCOPE_IDENTITY() AS insertedId;
+        END`);
+        console.log("✅ Stored Procedure 'AddUserAudit' created successfully");
+
 
     } catch (err) {
         console.error('❌ Error creating addBreakerData SP:', err);

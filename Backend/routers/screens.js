@@ -21,6 +21,7 @@ router.post('/login', screenAction.checkIfUserExist);
 router.post('/ack', screenAction.ackAlarm);
 router.post('/ack-by', screenAction.ackAlarmBy);
 router.post('/report', screenAction.reportData);
+router.post('/audit', screenAction.auditTrail);
 
 
 

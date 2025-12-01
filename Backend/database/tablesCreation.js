@@ -81,7 +81,7 @@ async function createTables() {
     `);
     console.log({ 'Alerts table created (if not exists)': 200 });
 
-     // 3️⃣.1 Alerts Ack
+    // 3️⃣.1 Alerts Ack
     await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Alerts' AND xtype='U')
       create table AckAlert(
@@ -119,6 +119,16 @@ async function createTables() {
 
     `);
     console.log({ 'Users table created (if not exists)': 200 });
+    // 6️⃣ Users Audit Trail
+    await pool.request().query(`
+    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='UserAuditTrail' AND xtype='U')
+        CREATE TABLE UserAuditTrail (
+        id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        userName VARCHAR(20) NOT NULL UNIQUE,
+        type VARCHAR(20),
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+      );`);
+    console.log({ 'UserAuditTrail table created (if not exists)': 200 });
 
   } catch (err) {
     console.error('❌ Error creating tables:', err);

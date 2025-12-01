@@ -250,7 +250,6 @@ async function akcAlert(alertType, alertMsg, alertId, ackUpdate) {
   }
 }
 
-
 async function akcAlertBy(ackId, ackBy) {
   try {
     const pool = await connectDb.connectionToSqlDB(databse);
@@ -279,8 +278,6 @@ async function akcAlertBy(ackId, ackBy) {
     return { status: 500, message: err.message };
   }
 }
-
-
 
 async function readAllAckData() {
   try {
@@ -352,5 +349,28 @@ async function breakerSwtichStatus() {
   }
 }
 
+async function AuditTrail(userName, type) {
+  try {
+    const pool = await connectDb.connectionToSqlDB(databse);
 
-module.exports = { breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };
+    const result = await pool.request()
+      .input('userName', sql.VarChar, userName)
+      .input('type', sql.VarChar, type)
+      .execute('AddUserAudit');
+
+    if (!result.recordset || result.recordset.length === 0) {
+      return { status: 404, data: false };
+    }
+    return {
+      status: 200,
+      data: true,
+    };
+
+  } catch (err) {
+    console.error('Error inserting Audit trail:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+
+module.exports = { AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };

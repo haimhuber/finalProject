@@ -195,4 +195,17 @@ const breakersPositionStatus = async (req, res) => {
     }
 };
 
-module.exports = { breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
+
+
+const auditTrail = async (req, res) => {
+    const { userName, type } = req.body;
+    try {
+        const audit = await sqlData.AuditTrail(userName, type);
+        res.status(200).json(audit); // Return -> true / false
+    } catch (err) {
+        console.error('Error  inserting audit trail:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = { auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
