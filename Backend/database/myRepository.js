@@ -3,6 +3,7 @@ const sql = require('mssql');
 const databse = 'DigitalPanel';
 const path = require('path');
 const fs = require('fs');
+const { log } = require('console');
 const configPath = path.join(__dirname, '../config.json');
 const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 
@@ -24,7 +25,7 @@ async function writeBreakerData(data, tableIndex) {
       .input('I2', data[4] / 10.0)
       .input('I3', data[5] / 10.0)
       .input('Frequency', data[6] / 10.0)
-      .input('PowerFactor', data[7] / 1000.0 )
+      .input('PowerFactor', data[7] / 1000.0)
       .input('ActivePower', data[8] / 10.0)
       .input('ReactivePower', data[9] / 10.0)
       .input('ApparentPower', data[10] / 10.0)
@@ -63,7 +64,7 @@ async function getActivePower(switch_id) {
     if (!switch_id) {
       throw new Error('Missing required parameters: switch_id, startTime, endTime');
     }
-  
+
     const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
       .input('switch_id', sql.Int, switch_id)
@@ -88,7 +89,7 @@ async function getActiveEnergy(switch_id) {
     if (!switch_id) {
       throw new Error('Missing required parameters: switch_id, startTime, endTime');
     }
-  
+
     const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
       .input('switch_id', sql.Int, switch_id)
@@ -113,7 +114,7 @@ async function getActiveEnergy(switch_id) {
 
 async function getBreakersNames() {
   try {
-   const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
       .execute('getAllSwitchesNames');
     if (!result.recordset || result.recordset.length === 0) {
@@ -151,19 +152,25 @@ async function getBreakersMainData() {
   }
 }
 
-async function addUser(userName, userPassword) {
+async function addUser(userData) {
   try {
     const pool = await connectDb.connectionToSqlDB(databse);
+    console.log({ userData: userData });
+
     const result = await pool.request()
-      .input('userName', sql.VarChar, userName)
-      .input('userPassword', sql.VarChar, userPassword)
+      .input('userName', sql.VarChar, userData.username)
+      .input('userPassword', sql.VarChar, userData.password)
+      .input('userEmail', sql.VarChar, userData.email)
       .execute('AddUser');
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
       return { status: 200, data: [] };
     }
-    console.log({ status: 200, data: result.recordset });
-    return { status: 200, data: result.recordset[0].success }; // 0 - User already exist | 1 - User created
+    console.log(result.recordset[0]);
+
+    if (!result.recordset[0].success) return { status: 404, msg: "username already exist! User not created" };
+
+    return { status: 200, msg: "User created!", data: true };
 
   } catch (err) {
     console.error('Error fetching Switches data:', err);
@@ -171,12 +178,11 @@ async function addUser(userName, userPassword) {
   }
 }
 
-async function userExist(userName, userPassword) {
+async function userExist(userName) {
   try {
     const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
       .input('userName', sql.VarChar, userName)
-      .input('userPassword', sql.VarChar, userPassword)
       .execute('CheckUserExists');
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
@@ -194,11 +200,11 @@ async function userExist(userName, userPassword) {
 
 
 async function getAlertData() {
-  try{
+  try {
     const pool = await connectDb.connectionToSqlDB(databse);
     const result = await pool.request()
-     .execute('AlertsData');
-   if (!result.recordset || result.recordset.length === 0) {
+      .execute('AlertsData');
+    if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
       return { status: 400, data: false, userData: result.recordset[0] };
     }
@@ -213,7 +219,7 @@ async function getAlertData() {
 }
 
 
-async function akcAlert(alertType, alertMsg,  alertId, ackUpdate) {
+async function akcAlert(alertType, alertMsg, alertId, ackUpdate) {
   try {
     const pool = await connectDb.connectionToSqlDB(databse);
 
@@ -282,7 +288,7 @@ async function readAllAckData() {
 
     const result = await pool.request()
       .execute('ReadAllAckData');
-  
+
     if (result.rowsAffected[0] === 0) {
       console.log("❌ Alert not found");
       return { status: 404, data: false };
@@ -304,11 +310,11 @@ async function reportPowerData(breakerName, startTime, endTime) {
     const pool = await connectDb.connectionToSqlDB(databse);
 
     const result = await pool.request()
-     .input('switch_id', sql.VarChar, breakerName)
-     .input('startTime', sql.DateTime, startTime)
-     .input('endTime', sql.DateTime, endTime)
-     .execute('ReportPowerData');
-  
+      .input('switch_id', sql.VarChar, breakerName)
+      .input('startTime', sql.DateTime, startTime)
+      .input('endTime', sql.DateTime, endTime)
+      .execute('ReportPowerData');
+
     if (result.rowsAffected[0] === 0) {
       console.log("❌ Alert not found");
       return { status: 404, data: false };
@@ -330,7 +336,7 @@ async function breakerSwtichStatus() {
 
     const result = await pool.request()
       .execute('GetLatestSwitches');
-  
+
     if (result.rowsAffected[0] === 0) {
       console.log("❌ Alert not found");
       return { status: 404, data: false };
@@ -347,4 +353,4 @@ async function breakerSwtichStatus() {
 }
 
 
-module.exports = {breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };
+module.exports = { breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };

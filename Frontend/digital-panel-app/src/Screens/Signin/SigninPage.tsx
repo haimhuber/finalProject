@@ -4,9 +4,10 @@ import "./SigninPage.css";
 const Signin: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  
+  const [email, setEmail] = useState("");
 
-  
+
+
   async function handleSignin(e: React.FormEvent) {
     e.preventDefault();
 
@@ -14,12 +15,11 @@ const Signin: React.FC = () => {
       const res = await fetch("api/adduser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, email }),
       });
-
       const data = await res.json();
-      console.log(data.data);
-      
+      console.log(data);
+
       if (!data.data) return alert(data.message || "User name already exist"); // data.data = 0
       alert("User created successfully");
       window.location.href = "/login";
@@ -47,6 +47,13 @@ const Signin: React.FC = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
 

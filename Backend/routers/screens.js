@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const screenAction = require('../controller/screensActions');
-const log = require('../controller/logData');
 
 
 router.get('', (req, res) => {
-    res.status(200).json({Msg : "Hello! Welcome to my api!"});
+    res.status(200).json({ Msg: "Hello! Welcome to my api!" });
 });
 router.get('/breakersNames', screenAction.breakersNames);
 router.get('/breakersMainData', screenAction.breakersLiveData);
@@ -19,7 +18,6 @@ router.get('/breakerspositions', screenAction.breakersPositionStatus);
 router.get('/alerts', screenAction.getAlertsData);
 router.post('/adduser', screenAction.addingUser);
 router.post('/login', screenAction.checkIfUserExist);
-router.post('/logdata', log.writeSignLogs); // Need to tsest again!
 router.post('/ack', screenAction.ackAlarm);
 router.post('/ack-by', screenAction.ackAlarmBy);
 router.post('/report', screenAction.reportData);

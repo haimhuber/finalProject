@@ -5,6 +5,8 @@ const sqlData = require('../database/myRepository');
 const { log } = require('console');
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 
 const homeScreen = async (req, res) => {
@@ -78,28 +80,30 @@ const breakersNames = async (req, res) => {
 
 
 const login = async (req, res) => {
-  const { username, password } = req.body;
+    const { username, password } = req.body;
 
-  if (username !== userDB.username)
-    return res.status(401).json({ message: "Invalid username" });
+    if (username !== userDB.username)
+        return res.status(401).json({ message: "Invalid username" });
 
-  const match = await bcrypt.compare(password, userDB.passwordHash);
-  if (!match) return res.status(401).json({ message: "Invalid password" });
+    const match = await bcrypt.compare(password, userDB.passwordHash);
+    if (!match) return res.status(401).json({ message: "Invalid password" });
 
-  const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "1h" });
+    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "1h" });
 
-  res.json({ token });
+    res.json({ token });
 };
 
 
 const addingUser = async (req, res) => {
-  const { username, password } = req.body;
-    console.log({user: username, pass: password});
-    
-    if (!username || !password)
+    const { username, password, email } = req.body;
+    const userData = { username, password, email };
+
+    if (!username || !password || !email)
         return res.status(401).json({ message: "Invalid username or password" });
     try {
-        const addUserToDatabase = await sqlData.addUser(username, password);
+        const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+        userData.password = hashedPassword;
+        const addUserToDatabase = await sqlData.addUser(userData);
         res.status(200).json(addUserToDatabase);
     } catch (err) {
         console.error('Error  adding user:', err);
@@ -108,14 +112,16 @@ const addingUser = async (req, res) => {
 };
 
 const checkIfUserExist = async (req, res) => {
-  const { username, password } = req.body;
-    console.log({user: username, pass: password});
-    
+    const { username, password } = req.body;
     if (!username || !password)
         return res.status(401).json({ message: "Invalid username or password" });
     try {
-        const chekcIfUserExist = await sqlData.userExist(username, password);
-        res.status(200).json(chekcIfUserExist);
+        const chekcIfUserExist = await sqlData.userExist(username);
+        //chekcIfUserExist.userData.userPassword
+        const enctypedPassword = await bcrypt.compare(password, chekcIfUserExist.userData.userPassword);
+        if (enctypedPassword) res.status(200).json({ msg: "Password ok -> login finished", data: true });
+        else res.status(404).json({ msg: "Password mismatch" });
+
     } catch (err) {
         console.error('Error  adding user:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
@@ -123,7 +129,7 @@ const checkIfUserExist = async (req, res) => {
 };
 
 const getAlertsData = async (req, res) => {
-     try {
+    try {
         const getData = await sqlData.getAlertData();
         res.status(200).json(getData);
     } catch (err) {
@@ -133,7 +139,7 @@ const getAlertsData = async (req, res) => {
 }
 
 const ackAlarm = async (req, res) => {
-  const {alertType, alertMsg, alertId, ackUpdate } = req.body;
+    const { alertType, alertMsg, alertId, ackUpdate } = req.body;
     try {
         const alarmAck = await sqlData.akcAlert(alertType, alertMsg, alertId, ackUpdate);
         res.status(200).json(alarmAck);
@@ -145,7 +151,7 @@ const ackAlarm = async (req, res) => {
 
 
 const ackAlarmBy = async (req, res) => {
-  const {ackId, ackBy } = req.body;
+    const { ackId, ackBy } = req.body;
     try {
         const alarmAckBy = await sqlData.akcAlertBy(ackId, ackBy);
         res.status(200).json(alarmAckBy);
@@ -168,7 +174,7 @@ const readAckData = async (req, res) => {
 
 
 const reportData = async (req, res) => {
-  const {breakerName, startTime, endTime } = req.body;
+    const { breakerName, startTime, endTime } = req.body;
     try {
         const report = await sqlData.reportPowerData(breakerName, startTime, endTime);
         res.status(200).json(report);
@@ -189,4 +195,4 @@ const breakersPositionStatus = async (req, res) => {
     }
 };
 
-module.exports = {breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData , login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
+module.exports = { breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };

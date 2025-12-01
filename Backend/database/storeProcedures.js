@@ -3,9 +3,9 @@ const checkDelete = require('./deleteTables');
 const database = 'DigitalPanel';
 
 async function createSp() {
-  try {
-    const pool = await connectDb.connectionToSqlDB(database);
-    await pool.request().query(`
+    try {
+        const pool = await connectDb.connectionToSqlDB(database);
+        await pool.request().query(`
       CREATE or alter PROCEDURE addBreakerData
         @switch_id INT,
         @V12 FLOAT,
@@ -54,9 +54,9 @@ async function createSp() {
         );
       END
     `);
-    console.log("✅ Stored Procedure 'addBreakerData' created successfully");
-    // ---------------------------------------------------------------------------------------
-    await pool.request().query(`      
+        console.log("✅ Stored Procedure 'addBreakerData' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`      
             CREATE OR ALTER PROCEDURE getActiveEnergy
                 @switch_id INT,
                 @startTime DATETIME,
@@ -78,18 +78,18 @@ async function createSp() {
                     S.timestamp;
             END;`);
 
-    console.log("✅ Stored Procedure 'getActiveEnergy' created successfully");
-// ---------------------------------------------------------------------------------------
-    await pool.request().query(`      
+        console.log("✅ Stored Procedure 'getActiveEnergy' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`      
            create or alter Procedure getAllSwitchesData
             @rows INT
             as 
               begin
               select TOP (@rows) * from Switches
             end`);
-    console.log("✅ Stored Procedure 'getLiveSwitchesData' created successfully");
-// ---------------------------------------------------------------------------------------
-    await pool.request().query(`             
+        console.log("✅ Stored Procedure 'getLiveSwitchesData' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`             
         CREATE OR ALTER PROCEDURE getLiveData
             @liveData INT
         AS
@@ -102,9 +102,9 @@ async function createSp() {
         ) AS Latest
         ORDER BY Latest.timestamp ASC;
         END;`);
-    console.log("✅ Stored Procedure 'getLiveData' created successfully");
-// ---------------------------------------------------------------------------------------
-     await pool.request().query(`             
+        console.log("✅ Stored Procedure 'getLiveData' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`             
       CREATE OR ALTER PROCEDURE GetDailySample
             @switch_id INT
         AS
@@ -136,10 +136,10 @@ async function createSp() {
         END
                       
               `);
-    console.log("✅ Stored Procedure 'GetDailySample' created successfully");
+        console.log("✅ Stored Procedure 'GetDailySample' created successfully");
 
-    // --------------------------------------------------------------------------
-     await pool.request().query(`             
+        // --------------------------------------------------------------------------
+        await pool.request().query(`             
      CREATE OR ALTER PROCEDURE GetDailySampleActiveEnergy
             @switch_id INT
         AS
@@ -169,51 +169,52 @@ async function createSp() {
             FROM Last10Days
             ORDER BY day_slot ASC;  -- return sorted oldest → newest
         END`);
-    console.log("✅ Stored Procedure 'GetDailySampleActiveEnergy' created successfully");
-    // ---------------------------------------------------------------------------------------
-     await pool.request().query(`             
-     CREATE or alter PROCEDURE AddUser
-        @userName VARCHAR(20),
-        @userPassword VARCHAR(255)
-        AS
-        BEGIN
-            SET NOCOUNT ON;
-
-            -- Check if username already exists
-            IF EXISTS (SELECT 1 FROM Users WHERE userName = @userName)
+        console.log("✅ Stored Procedure 'GetDailySampleActiveEnergy' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`             
+        CREATE or alter PROCEDURE AddUser
+            @userName VARCHAR(20),
+            @userPassword VARCHAR(255),
+            @userEmail VARCHAR(255)
+            AS
             BEGIN
-                SELECT 
-                    0 AS success,
-                    'Username already exists' AS message;
-                RETURN;
-            END;
+                SET NOCOUNT ON;
 
-            -- Insert new user
-            INSERT INTO Users (userName, userPassword)
-            VALUES (@userName, @userPassword);
+                -- Check if username already exists
+                IF EXISTS (SELECT 1 FROM Users WHERE userName = @userName)
+                BEGIN
+                    SELECT 
+                        0 AS success,
+                        'Username already exists' AS message;
+                    RETURN;
+                END;
 
-            SELECT
-                1 AS success,
-                'User created successfully' AS message,
-                SCOPE_IDENTITY() AS insertedId;
-        END`);
-    console.log("✅ Stored Procedure 'AddUser' created successfully");
-     // ---------------------------------------------------------------------------------------
-     await pool.request().query(`             
-    CREATE OR ALTER PROCEDURE CheckUserExists
-    @userName VARCHAR(20),
-    @userPassword VARCHAR(255)
-        AS
-        BEGIN
-            SET NOCOUNT ON;
-            SELECT *
-            FROM Users
-            WHERE userName = @userName
-            AND userPassword = @userPassword;
-    END`);
-    console.log("✅ Stored Procedure 'CheckUserExists' created successfully");
-     // ---------------------------------------------------------------------------------------
-     await pool.request().query(`                
+                -- Insert new user
+                INSERT INTO Users (userName, userPassword, email)
+                VALUES (@userName, @userPassword, @userEmail);
+
+                SELECT
+                    1 AS success,
+                    'User created successfully' AS message,
+                    SCOPE_IDENTITY() AS insertedId;
+            END`);
+        console.log("✅ Stored Procedure 'AddUser' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`             
+            CREATE OR ALTER PROCEDURE CheckUserExists
+                @userName VARCHAR(20)
+            AS
+            BEGIN
+                SET NOCOUNT ON;
+
+                SELECT userPassword
+                FROM Users
+                WHERE userName = @userName;
+            END
+            `);
+        console.log("✅ Stored Procedure 'CheckUserExists' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`                
         CREATE OR ALTER PROCEDURE AlertsData
             
         AS
@@ -223,9 +224,9 @@ async function createSp() {
             FROM Alerts
         order by Alerts.timestamp DESC
         END`);
-    console.log("✅ Stored Procedure 'AlertsData' created successfully");
- // ---------------------------------------------------------------------------------------
-     await pool.request().query(`                
+        console.log("✅ Stored Procedure 'AlertsData' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`                
        CREATE OR ALTER PROCEDURE UpdateAlertAck
             @AlertId INT,
             @AckValue INT,
@@ -241,9 +242,9 @@ async function createSp() {
                     alertAck = @AckValue
                 WHERE id = @AlertId;
         END`);
-    console.log("✅ Stored Procedure 'UpdateAlertAck' created successfully");
-     // ---------------------------------------------------------------------------------------
-     await pool.request().query(`                
+        console.log("✅ Stored Procedure 'UpdateAlertAck' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`                
         CREATE or alter PROCEDURE AddAckAlert
             @ackId INT,
             @ackBy VARCHAR(50)
@@ -253,10 +254,10 @@ async function createSp() {
                 INSERT INTO AckAlert (ackId, ackBy)
                 VALUES (@ackId, @ackBy);
         END`);
-    console.log("✅ Stored Procedure 'AddAckAlert' created successfully");
+        console.log("✅ Stored Procedure 'AddAckAlert' created successfully");
 
-     // ---------------------------------------------------------------------------------------
-     await pool.request().query(`                
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`                
         CREATE OR ALTER PROCEDURE ReadAllAckData
             AS
             BEGIN
@@ -265,9 +266,9 @@ async function createSp() {
                 SELECT * 
                 FROM AckAlert;
         END`);
-    console.log("✅ Stored Procedure 'ReadAllAckData' created successfully");
- // ---------------------------------------------------------------------------------------
-    await pool.request().query(`                
+        console.log("✅ Stored Procedure 'ReadAllAckData' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`                
         CREATE OR ALTER PROCEDURE GetLatestSwitches
             AS
             BEGIN
@@ -280,16 +281,16 @@ async function createSp() {
                 FROM Switches
                 ORDER BY timestamp DESC;
             END`);
-    console.log("✅ Stored Procedure 'GetLatestSwitches' created successfully");
+        console.log("✅ Stored Procedure 'GetLatestSwitches' created successfully");
 
 
-  } catch (err) {
-    console.error('❌ Error creating addBreakerData SP:', err);
-    return { message: err.message, status: 500 };
-  }  
+    } catch (err) {
+        console.error('❌ Error creating addBreakerData SP:', err);
+        return { message: err.message, status: 500 };
+    }
 
-  
- 
+
+
 }
 
 module.exports = { createSp };
