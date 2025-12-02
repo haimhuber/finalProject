@@ -79,19 +79,19 @@ const breakersNames = async (req, res) => {
 };
 
 
-const login = async (req, res) => {
-    const { username, password } = req.body;
+// const login = async (req, res) => {
+//     const { username, password } = req.body;
 
-    if (username !== userDB.username)
-        return res.status(401).json({ message: "Invalid username" });
+//     if (username !== userDB.username)
+//         return res.status(401).json({ message: "Invalid username" });
 
-    const match = await bcrypt.compare(password, userDB.passwordHash);
-    if (!match) return res.status(401).json({ message: "Invalid password" });
+//     const match = await bcrypt.compare(password, userDB.passwordHash);
+//     if (!match) return res.status(401).json({ message: "Invalid password" });
 
-    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "1h" });
+//     const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "1h" });
 
-    res.json({ token });
-};
+//     res.json({ token });
+// };
 
 
 const addingUser = async (req, res) => {

@@ -1,124 +1,130 @@
-/* FULL SCREEN BACKGROUND */
+/* ==== GENERAL LAYOUT ==== */
 .login-fullscreen {
-  height: 100vh;
   width: 100vw;
-  position: relative;
-  overflow: hidden;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f0f0f, #1c1c1c);
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #2254bf, #4a22af);
-  animation: fadeIn 0.6s ease-in-out;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* OPTIONAL D3 BACKGROUND LAYER */
-.login-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
-}
-
-/* CENTER CONTAINER */
+/* ==== LOGIN CONTAINER CARD ==== */
 .login-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 1;
-}
-
-/* LOGIN CARD */
-.login-box {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  width: 350px;
+  background: #ffffff10;
+  backdrop-filter: blur(10px);
   padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  animation: slideUp 0.7s ease;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+  width: 380px;
+  animation: fadeIn 0.7s ease;
+  border: 1px solid #ffffff20;
 }
 
-/* TITLE */
-.login-box h1 {
-  margin-bottom: 20px;
-  color: #000000;
+/* ==== TITLES ==== */
+.login-box h1,
+.auth-box h2 {
+  text-align: center;
+  color: white;
+  margin-bottom: 25px;
   font-weight: 600;
 }
 
-/* INPUTS */
-.login-box input {
+/* ==== INPUT FIELDS ==== */
+.login-box input,
+.auth-box input {
+  width: 100%;
   padding: 14px;
-  margin: 10px 0;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  border: 1px solid #ffffff33;
+  background: #ffffff15;
+  color: white;
   font-size: 16px;
-  border: none;
-  border-radius: 10px;
   outline: none;
-  background: rgba(255,255,255,0.9);
   transition: 0.25s ease;
-  color: #000; /* TEXT BLACK */
 }
 
-.login-box input::placeholder {
-  color: #000;
-  opacity: 0.6; /* Softer placeholder */
+.login-box input:focus,
+.auth-box input:focus {
+  border-color: #e30613;
+  background: #ffffff25;
+  box-shadow: 0 0 10px #e3061344;
 }
 
-.login-box input:focus {
-  box-shadow: 0 0 8px rgba(21, 20, 20, 0.6);
-}
-
-/* LOGIN BUTTON */
-.login-box button {
-  margin-top: 20px;
+/* ==== BUTTONS ==== */
+button {
+  width: 100%;
   padding: 14px;
-  background: #0d0d0d;
-  color: rgb(160, 33, 33);
+  margin-top: 10px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 17px;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.25s ease;
+  transition: 0.25s ease-out;
 }
 
-.login-box button:hover {
-  background: #333;
-  transform: scale(1.03);
+/* ==== LOGIN BUTTON ==== */
+button[type="submit"] {
+  background: #e30613;
+  color: white;
+  box-shadow: 0 5px 0 #9c0710;
 }
 
-/* SIGNIN BUTTON */
+button[type="submit"]:hover {
+  background: #f0101b;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #9c0710;
+}
+
+/* ==== SECONDARY BUTTON ==== */
 .signin {
-  margin-top: 15px;
-  padding: 12px 20px;
-  background: #ffffff;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: 0.25s ease;
+  background: #ffffff20;
+  color: white;
+  box-shadow: 0 5px 0 #333;
 }
 
 .signin:hover {
-  background: #e5e5e5;
-  transform: scale(1.05);
+  background: #ffffff35;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #333;
 }
 
-/* ANIMATIONS */
-@keyframes slideUp {
-  from {
-    transform: translateY(40px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+/* ==== AUTH BOX ==== */
+.auth-box {
+  text-align: center;
+  animation: slideIn 0.5s ease;
 }
 
+.auth-box input {
+  text-align: center;
+  letter-spacing: 3px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* ==== ANIMATIONS ==== */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+    transform: translateY(+20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(+15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -4,6 +4,8 @@ const min = 1;
 const max = 10;
 let tempStore = [];
 const sendEmail = async (req, res) => {
+    const emailTo = req.body.email;
+    if (!emailTo) return { Server_msg: "Email is required" };
     for (let index = 0; index < 6; index++) {
         tempStore[index] = Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -14,16 +16,16 @@ const sendEmail = async (req, res) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'haimhuber90@gmail.com',
-            pass: 'gdobkjqguxezvmnv'
+            user: process.env.EMAIL,
+            pass: process.env.PASS
         }
     });
 
     // הגדרת ההודעה
     const mailOptions = {
         from: 'haimhuber90@gmail.com',
-        to: 'haimhuber90@gmail.com' , //req.params.email
-        subject: 'Crossfit power house',
+        to: emailTo, //req.params.email
+        subject: `Auth Code ${new Date().toISOString()}`,
         text: `This is your verification code: ${verificationCode}`
     };
 
@@ -38,5 +40,6 @@ const sendEmail = async (req, res) => {
     });
 
 }
+
 
 module.exports.sendEmail = sendEmail;

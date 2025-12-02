@@ -89,3 +89,21 @@ export async function breakersPosition() {
 
 }
 
+export async function sendEmail(email: string) {
+  try {
+    const res = await fetch("api/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.status === 200) {
+      return { Succsess: true, code: data.code };
+    } else if (data.status === 404) {
+      return { Succsess: false, code: "N/A" };
+    }
+  } catch (err) {
+    console.error({ ServerError: err });
+  }
+}
+

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const screenAction = require('../controller/screensActions');
+const sendMail = require('../controller/email');
 
 
 router.get('', (req, res) => {
@@ -23,6 +24,7 @@ router.post('/ack-by', screenAction.ackAlarmBy);
 router.post('/report', screenAction.reportData);
 router.post('/audit', screenAction.auditTrail);
 router.get('/audit', screenAction.auditTrailData);
+router.post('/email', sendMail.sendEmail);
 
 
 
