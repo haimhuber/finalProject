@@ -4,10 +4,10 @@ require('dotenv').config();
 
 async function connectionToSqlDB(database) {
     const config = {
-        server: "localhost",
-        user: 'sa10',
-        password: '1234',
-        database: database,
+        server: process.env.SERVER,
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE,
         options: {
             encrypt: false, // אם אתה לא ב-Azure
             trustServerCertificate: true

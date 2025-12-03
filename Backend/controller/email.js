@@ -25,7 +25,7 @@ const sendEmail = async (req, res) => {
     const mailOptions = {
         from: 'haimhuber90@gmail.com',
         to: emailTo, //req.params.email
-        subject: `Auth Code ${new Date().toISOString()}`,
+        subject: `Digital Panel: Auth Code`,
         text: `This is your verification code: ${verificationCode}`
     };
 

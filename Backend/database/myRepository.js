@@ -1,6 +1,5 @@
 const connectDb = require('./db');
 const sql = require('mssql');
-const databse = 'DigitalPanel';
 const path = require('path');
 const fs = require('fs');
 const { log } = require('console');
@@ -65,7 +64,7 @@ async function getActivePower(switch_id) {
       throw new Error('Missing required parameters: switch_id, startTime, endTime');
     }
 
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
       .input('switch_id', sql.Int, switch_id)
       .execute('GetDailySample');           // call the SP that returns formatted time
@@ -90,7 +89,7 @@ async function getActiveEnergy(switch_id) {
       throw new Error('Missing required parameters: switch_id, startTime, endTime');
     }
 
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
       .input('switch_id', sql.Int, switch_id)
       .execute('GetDailySampleActiveEnergy');           // call the SP that returns formatted time
@@ -114,7 +113,7 @@ async function getActiveEnergy(switch_id) {
 
 async function getBreakersNames() {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
       .execute('getAllSwitchesNames');
     if (!result.recordset || result.recordset.length === 0) {
@@ -134,7 +133,7 @@ async function getBreakersNames() {
 
 async function getBreakersMainData() {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
       .input('liveData', sql.Int, config.breakers.length)
       .execute('getLiveData');
@@ -154,7 +153,7 @@ async function getBreakersMainData() {
 
 async function addUser(userData) {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
     console.log({ userData: userData });
 
     const result = await pool.request()
@@ -180,7 +179,7 @@ async function addUser(userData) {
 
 async function userExist(userName) {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
       .input('userName', sql.VarChar, userName)
       .execute('CheckUserExists');
@@ -189,7 +188,7 @@ async function userExist(userName) {
       return { status: 400, data: false, userData: result.recordset[0] };
     }
 
-    console.log({ status: 200, data: result.recordset });
+    console.log({ status: 200, data: result.recordset[0] });
     return { status: 200, data: true, userData: result.recordset[0] };
 
   } catch (err) {
@@ -201,7 +200,7 @@ async function userExist(userName) {
 
 async function getAlertData() {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
       .execute('AlertsData');
     if (!result.recordset || result.recordset.length === 0) {
@@ -221,7 +220,7 @@ async function getAlertData() {
 
 async function akcAlert(alertType, alertMsg, alertId, ackUpdate) {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
 
     const result = await pool.request()
       .input('AckType', sql.VarChar, alertType)
@@ -252,7 +251,7 @@ async function akcAlert(alertType, alertMsg, alertId, ackUpdate) {
 
 async function akcAlertBy(ackId, ackBy) {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
 
     const result = await pool.request()
       .input('ackId', sql.Int, ackId)
@@ -281,7 +280,7 @@ async function akcAlertBy(ackId, ackBy) {
 
 async function readAllAckData() {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
 
     const result = await pool.request()
       .execute('ReadAllAckData');
@@ -304,7 +303,7 @@ async function readAllAckData() {
 
 async function reportPowerData(breakerName, startTime, endTime) {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
 
     const result = await pool.request()
       .input('switch_id', sql.VarChar, breakerName)
@@ -329,7 +328,7 @@ async function reportPowerData(breakerName, startTime, endTime) {
 
 async function breakerSwtichStatus() {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
 
     const result = await pool.request()
       .execute('GetLatestSwitches');
@@ -351,7 +350,7 @@ async function breakerSwtichStatus() {
 
 async function AuditTrail(userName, type) {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
 
     const result = await pool.request()
       .input('userName', sql.VarChar, userName)
@@ -374,7 +373,7 @@ async function AuditTrail(userName, type) {
 
 async function auditTrailData() {
   try {
-    const pool = await connectDb.connectionToSqlDB(databse);
+    const pool = await connectDb.connectionToSqlDB();
 
     const result = await pool.request()
       .execute('ReadAllAuditTrail');

@@ -207,7 +207,7 @@ async function createSp() {
             BEGIN
                 SET NOCOUNT ON;
 
-                SELECT userPassword
+                SELECT userPassword, email
                 FROM Users
                 WHERE userName = @userName;
             END
@@ -310,7 +310,7 @@ async function createSp() {
 
                 SELECT * 
                 FROM UserAuditTrail
-                Order by username;
+                Order by timestamp DESC;
         END`);
         console.log("✅ Stored Procedure 'ReadAllAuditTrail' created successfully");
 

@@ -8,6 +8,47 @@ const Login = () => {
   const [code, setCode] = useState("");
   const [emailCode, setEmailCode] = useState<number>(0);
   const [showAuth, setShowAuth] = useState(false);
+  const [disabledBtn, setDisabledBtn] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [countDown, setCountDown] = useState(30);
+
+
+
+  function handleSendAgain() {
+    setDisabledBtn(true);
+    setCountDown(30); // reset countdown
+  }
+
+  useEffect(() => {
+    let timer: any;
+
+    if (disabledBtn && countDown > 0) {
+      timer = setInterval(() => {
+        setCountDown(prev => prev - 1);
+      }, 1000);
+    }
+
+    if (countDown === 0) {
+      setDisabledBtn(false); // enable button again
+    }
+
+    return () => clearInterval(timer);
+  }, [disabledBtn, countDown]);
+
+  async function resendEmail() {
+    try {
+      const request = await sendEmail(userEmail);
+      if (request?.Succsess) {
+        setEmailCode(request.code);
+      } else {
+        alert("Cannot send verification code");
+      }
+    } catch (err) {
+      console.error("Email sending error:", err);
+      alert("Failed to send email");
+    }
+  }
+
 
   function signin() {
     window.location.href = "/Signin";
@@ -33,9 +74,9 @@ const Login = () => {
 
       // ---- Login Success ----
       setShowAuth(true);
-
+      setUserEmail(data.userEmail);
       try {
-        const request = await sendEmail("haim.huber@il.abb.com");
+        const request = await sendEmail(data.userEmail);
         if (request?.Succsess) {
           setEmailCode(request.code);
         } else {
@@ -131,9 +172,18 @@ const Login = () => {
             <button
               className="signin"
               type="button"
-              onClick={() => verificationCode(Number(code))}
+              onClick={() => { verificationCode(Number(code)) }}
             >
               Verify
+            </button>
+
+            <button
+              disabled={disabledBtn}
+              className={`signin ${disabledBtn ? "disabled" : "enabled"}`}
+              type="button"
+              onClick={() => { handleSendAgain(); resendEmail() }}
+            >
+              Send again : {disabledBtn ? "Disabled" : "Enabled"} {disabledBtn ? `${countDown}s` : ""}
             </button>
           </div>
         )}

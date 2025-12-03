@@ -117,9 +117,8 @@ const checkIfUserExist = async (req, res) => {
         return res.status(401).json({ message: "Invalid username or password" });
     try {
         const chekcIfUserExist = await sqlData.userExist(username);
-        //chekcIfUserExist.userData.userPassword
         const enctypedPassword = await bcrypt.compare(password, chekcIfUserExist.userData.userPassword);
-        if (enctypedPassword) res.status(200).json({ msg: "Password ok -> login finished", data: true });
+        if (enctypedPassword) res.status(200).json({ msg: "Password ok -> login finished", data: true, userEmail: chekcIfUserExist.userData.email });
         else res.status(404).json({ msg: "Password mismatch" });
 
     } catch (err) {
@@ -218,4 +217,4 @@ const auditTrailData = async (req, res) => {
     }
 };
 
-module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, login, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
+module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
