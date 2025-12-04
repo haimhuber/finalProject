@@ -88,6 +88,22 @@ export const Setting = () => {
     fetchData();
   }, []);
 
+  function formatTimestampUTC(ts: string) {
+      const date = new Date(ts);
+
+      const day = String(date.getUTCDate()).padStart(2, "0");
+      const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+      const year = date.getUTCFullYear();
+
+      const hours = String(date.getUTCHours()).padStart(2, "0");
+      const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+      const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+
+      return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+    }
+
+
+
   return (
     <div className="abb-container">
 
@@ -192,8 +208,10 @@ export const Setting = () => {
                   <td>{i + 1}</td>
                   <td>{row.userName}</td>
                   <td>{row.type}</td>
-                  <td>{row.timestamp}</td>
+                  <td>{formatTimestampUTC(row.timestamp)}</td>
+
                 </tr>
+
               ))}
             </tbody>
           </table>
