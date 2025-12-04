@@ -83,7 +83,7 @@ async function createTables() {
 
     // 3️⃣.1 Alerts Ack
     await pool.request().query(`
-      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Alerts' AND xtype='U')
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='AckAlert' AND xtype='U')
       create table AckAlert(
         id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
         ackId INT NOT NULL,
@@ -114,6 +114,7 @@ async function createTables() {
         id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
         userName VARCHAR(20) NOT NULL UNIQUE,
         userPassword VARCHAR(255),
+        email VARCHAR(100),
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
       );
 

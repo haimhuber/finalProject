@@ -20,7 +20,7 @@ app.use(
       const allowedOrigins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "http://192.168.1.89:5173",
+        "http://192.168.1.148:5173",
         "http://10.29.176.113:5173",
         "http://172.20.10.3:5173",
         "http://192.168.73.139:5173",
@@ -41,7 +41,7 @@ app.use(
 );
 
 createDatabase.createDatabase();
-//startModbusClient.start();
+startModbusClient.start();
 app.use('/', screenRouters);
 
 app.listen(port, host, () => {

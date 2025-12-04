@@ -107,6 +107,21 @@ export const Alerts = () => {
     }
   };
 
+  function formatTimestampUTC(ts: string) {
+      const date = new Date(ts);
+
+      const day = String(date.getUTCDate()).padStart(2, "0");
+      const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+      const year = date.getUTCFullYear();
+
+      const hours = String(date.getUTCHours()).padStart(2, "0");
+      const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+      const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+
+      return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+    }
+
+
   return (
     <div className="alerts-page">
       <h1>Live Alerts Dashboard</h1>
@@ -144,7 +159,10 @@ export const Alerts = () => {
                         <span className="ack-text">
                           {ackDataBy.find(item => item.ackId === alert.id)?.ackBy || "--"}
                           <small className="ack-time">
-                            @ {(ackDataBy.find(item => item.ackId === alert.id)?.timestamp || '')}
+                            @ {(() => {
+                                const ack = ackDataBy.find(item => item.ackId === alert.id);
+                                return ack ? formatTimestampUTC(ack.timestamp) : "";
+                              })()}
                           </small>
                         </span>
                       </div>
