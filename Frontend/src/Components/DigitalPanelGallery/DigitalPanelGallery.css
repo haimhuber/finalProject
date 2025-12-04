@@ -1,0 +1,41 @@
+/* ====== ABB DIGITAL PANEL GRID ====== */
+
+.digital-panel-gallery {
+  display: grid;
+
+  /* פריסה אוטומטית לפי רוחב מסך */
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+
+  gap: 22px;
+  padding: 20px;
+
+  max-width: 1600px;
+  margin: 20px auto;
+  /* מרכז הכל */
+}
+
+/* כל כרטיס ממורכז */
+.single-card {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* מסך טעינה שלא מסתיר את ה-NAV */
+.loading-screen {
+  width: 100%;
+  height: calc(100vh - 70px);
+  /* מביא בחשבון את ה־NAV שלך */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #0d0e10;
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 600;
+
+  margin-top: 70px;
+  /* דוחף את הטעינה מתחת ל-NAV */
+}

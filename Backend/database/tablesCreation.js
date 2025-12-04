@@ -125,7 +125,7 @@ async function createTables() {
     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='UserAuditTrail' AND xtype='U')
         CREATE TABLE UserAuditTrail (
         id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-        userName VARCHAR(20) NOT NULL UNIQUE,
+        userName VARCHAR(20) NOT NULL,
         type VARCHAR(20),
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
       );`);

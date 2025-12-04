@@ -1,0 +1,89 @@
+/* WRAPPER */
+.home-wrapper {
+  width: 100%;
+  padding: 20px;
+  background: #111;
+  min-height: calc(100vh - 60px);
+  color: white;
+}
+
+/* TITLE */
+.home-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #e5e7eb;
+}
+
+/* TOP PIE CENTER */
+.home-top-pie {
+  width: 240px;
+  margin: 0 auto 30px auto;
+}
+
+/* GRID OF CARDS */
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* CARD STYLING */
+.abb-card {
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 14px;
+  color: #111;
+  border: 1px solid #d1d5db;
+  box-shadow:
+    2px 2px 6px rgba(0, 0, 0, 0.1),
+    -1px -1px 4px rgba(255, 255, 255, 0.6);
+}
+
+.abb-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.abb-card h4 {
+  margin: 2px 0;
+  font-size: 0.85rem;
+}
+
+.ok {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.error {
+  color: #059669;
+  font-weight: 700;
+}
+
+/* LINE CHART */
+.line-small {
+  height: 150px;
+  margin-top: 12px;
+}
+
+/* LOADING SCREEN */
+.home-loading {
+  width: 100%;
+  min-height: calc(100vh - 100px);
+  /* משאיר מקום ל־NAV גם אם הוא גדול */
+  padding-top: 40px;
+  /* רווח נעים מתחת ל-NAV */
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  background: #111;
+  color: white;
+  font-size: 26px;
+  font-weight: 600;
+}
