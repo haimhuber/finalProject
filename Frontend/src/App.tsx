@@ -24,103 +24,127 @@ function App() {
   return (
 
     <BrowserRouter>
-      <div className="peak-status-bar">
-        <div className="status-logo">
-          <div className="nav-logo-circle">
-            <span className="nav-logo-text">ABB</span>
+      <div className="app-layout">
+        <nav className='sidebar-nav'>
+          <div className="sidebar-logo">
+            <div className="sidebar-logo-circle">
+              <span className="sidebar-logo-text">ABB</span>
+            </div>
+            <span className="sidebar-title">Digital Panel</span>
           </div>
-        </div>
-        <div className="status-content">
-          <div className="peak-item">🕐 {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</div>
-          <div className="peak-item">
-            {(() => {
-              const now = new Date();
-              const hour = now.getHours();
-              const month = now.getMonth() + 1;
-              const dayOfWeek = now.getDay(); // 0=Sunday, 6=Saturday
-              
-              // Summer: June-September (6-9)
-              if (month >= 6 && month <= 9) {
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Sun-Thu
-                  if (hour >= 17 && hour < 23) return 'PEAK - ₪1.69/kWh';
+
+          <div className="sidebar-status">
+            <div className="status-item">📅 {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} 🕐 {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</div>
+            <div className="status-item">
+              {(() => {
+                const now = new Date();
+                const hour = now.getHours();
+                const month = now.getMonth() + 1;
+                const dayOfWeek = now.getDay();
+
+                if (month === 12 || month === 1 || month === 2) {
+                  if (hour >= 17 && hour < 22) return 'Current Rate - ₪1.21/kWh';
+                  return 'Rate - ₪0.46/kWh';
                 }
-                return 'OFF-PEAK - ₪0.53/kWh';
-              }
-              
-              // Winter: December-February (12,1,2)
-              if (month === 12 || month === 1 || month === 2) {
-                if (hour >= 17 && hour < 22) return 'PEAK - ₪1.21/kWh';
-                return 'OFF-PEAK - ₪0.46/kWh';
-              }
-              
-              // Spring/Autumn: March-May, October-November (3-5, 10-11)
-              if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Sun-Thu
-                if (hour >= 7 && hour < 17) return 'PEAK - ₪0.50/kWh';
-              }
-              return 'OFF-PEAK - ₪0.45/kWh';
-            })()} 
-          </div>
-          <div className="peak-item">
-            {(() => {
-              const now = new Date();
-              const month = now.getMonth() + 1;
-              const dayOfWeek = now.getDay();
-              
-              // Summer: June-September
-              if (month >= 6 && month <= 9) {
+
+                if (month >= 6 && month <= 9) {
+                  if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    if (hour >= 17 && hour < 23) return 'Current Rate - ₪1.69/kWh';
+                  }
+                  return 'Rate - ₪0.53/kWh';
+                }
+
                 if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                  return 'PEAK: 17:00-23:00 | OFF-PEAK: All other hours';
+                  if (hour >= 7 && hour < 17) return 'Current Rate - ₪0.50/kWh';
+                }
+                return 'Rate - ₪0.45/kWh';
+              })()}
+            </div>
+            <div className="status-item">
+              {(() => {
+                const now = new Date();
+                const month = now.getMonth() + 1;
+                const dayOfWeek = now.getDay();
+
+                if (month === 12 || month === 1 || month === 2) {
+                  return (
+                    <>
+                      <div>PEAK: 17:00-22:00</div>
+                      <div>OFF: All other hours</div>
+                    </>
+                  );
+
+                }
+
+                if (month >= 6 && month <= 9) {
+                  if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    return (
+                      <>
+                        <div>PEAK: 17:00-22:00</div>
+                        <div>OFF: All other hours</div>
+                      </>
+                    );
+
+                  } else {
+                    return 'OFF-PEAK: All day (Weekend)';
+                  }
+                }
+
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                  return (
+                    <>
+                      <div>PEAK: 17:00-22:00</div>
+                      <div>OFF: All other hours</div>
+                    </>
+                  );
+
                 } else {
                   return 'OFF-PEAK: All day (Weekend)';
                 }
-              }
-              
-              // Winter: December-February
-              if (month === 12 || month === 1 || month === 2) {
-                return 'PEAK: 17:00-22:00 | OFF-PEAK: All other hours';
-              }
-              
-              // Spring/Autumn
-              if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                return 'PEAK: 07:00-17:00 | OFF-PEAK: All other hours';
-              } else {
-                return 'OFF-PEAK: All day (Weekend)';
-              }
-            })()} 
+              })()}
+            </div>
+            <div className="status-season">{season}</div>
           </div>
-          <p className="season-clean">{season}</p>
+
+          <div className="nav-links">
+            <Link to="/" className="nav-link">📊 Dashboard</Link>
+            <Link to="/alerts" className="nav-link alerts-link">
+              🚨 Alerts
+              {token && alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}
+            </Link>
+            <Link to="/reports" className="nav-link">📈 Reports</Link>
+            <Link to="/billing" className="nav-link">💰 Billing</Link>
+            <Link to="/settings" className="nav-link">⚙️ Settings</Link>
+          </div>
+
+          <div className="nav-footer">
+            {isAuthenticated && (
+              <div className="user-info">
+                <span className="user-name">{user}</span>
+                <Link to="/logout" className="logout-link">Logout</Link>
+              </div>
+            )}
+            {!isAuthenticated && <Link to="/login" className="nav-link">🔐 Login</Link>}
+          </div>
+        </nav>
+
+        <div className="main-content">
+          <Suspense fallback={<div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<HomeScreen />} />
+
+              <Route path="/settings" element={<Setting />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/logout" element={<Logout />} />
+              <Route path="/Signin" element={<Signin />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/alerts" element={<Alerts />} />
+              <Route path="/reports" element={<Report />} />
+              <Route path="/billing" element={<Billing />} />
+            </Routes>
+          </Suspense>
         </div>
       </div>
-      <nav className='navigator'>
-        <Link to="/">Dashboard</Link>
-        <Link to="/alerts" className="alerts-link">Alerts{token && alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>
-        <Link to="/settings">Settings</Link>
-        <Link to="/reports">Reports</Link>
-        <Link to="/billing">Billing</Link>
-        
-        <div className="nav-divider"></div>
-        
-        {!isAuthenticated && <Link to="/login">Login</Link>}
-        {isAuthenticated && <Link to="/logout">Logout</Link>}
-        {isAuthenticated && (
-          <span className="welcomeUser">Welcome, {user}</span>
-        )}
-      </nav>
-
-      <Suspense fallback={<div style={{padding: '20px', textAlign: 'center'}}>Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<HomeScreen />} />
-
-          <Route path="/settings" element={<Setting />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/logout" element={<Logout />} />
-          <Route path="/Signin" element={<Signin />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/alerts" element={<Alerts />} />
-          <Route path="/reports" element={<Report />} />
-          <Route path="/billing" element={<Billing />} />
-        </Routes>
-      </Suspense>
     </BrowserRouter>
   );
 }

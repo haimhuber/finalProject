@@ -10,6 +10,11 @@ export const Setting = () => {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [pendingAction, setPendingAction] = useState<string>('');
+  const [adminPassword, setAdminPassword] = useState<string>('');
+
+
 
   // AUTH
   useEffect(() => {
@@ -30,11 +35,9 @@ export const Setting = () => {
   // SHOW SECTION
   const toggleAudit = () => {
     if (!auditTrail) {
-      const adminPassword = prompt('Enter admin password to access Audit Trail:');
-      if (adminPassword !== 'AbbDp2025!') {
-        alert('Invalid admin password!');
-        return;
-      }
+      setPendingAction('audit');
+      setShowPasswordModal(true);
+      return;
     }
     
     setAuditTrail((prev) => !prev);
@@ -46,11 +49,9 @@ export const Setting = () => {
   
   const toggleUserManagement = () => {
     if (!userManagement) {
-      const adminPassword = prompt('Enter admin password to access User Management:');
-      if (adminPassword !== 'AbbDp2025!') {
-        alert('Invalid admin password!');
-        return;
-      }
+      setPendingAction('users');
+      setShowPasswordModal(true);
+      return;
     }
     
     setUserManagement((prev) => !prev);
@@ -59,6 +60,8 @@ export const Setting = () => {
       fetchUsers();
     }
   }
+  
+
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -322,6 +325,85 @@ export const Setting = () => {
         </div>
       )}
 
+
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="modal-overlay" onClick={() => {
+          setShowPasswordModal(false);
+          setPendingAction('');
+          setAdminPassword('');
+        }}>
+          <div className="password-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Admin Authentication</h3>
+              <button className="close-btn" onClick={() => {
+                setShowPasswordModal(false);
+                setPendingAction('');
+                setAdminPassword('');
+              }}>×</button>
+            </div>
+            <div className="auth-section">
+              <p>Enter admin password to continue:</p>
+              <input
+                type="password"
+                placeholder="Admin Password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    if (adminPassword === 'AbbDp2025!') {
+                      if (pendingAction === 'audit') {
+                        setAuditTrail(true);
+                        setUserManagement(false);
+                        fetchAuditData();
+                      } else if (pendingAction === 'users') {
+                        setUserManagement(true);
+                        setAuditTrail(false);
+                        fetchUsers();
+                      }
+                      setShowPasswordModal(false);
+                      setPendingAction('');
+                      setAdminPassword('');
+                    } else {
+                      alert('Invalid admin password!');
+                      setAdminPassword('');
+                    }
+                  }
+                }}
+                autoFocus
+              />
+              <div className="modal-actions">
+                <button className="save-btn" onClick={() => {
+                  if (adminPassword === 'AbbDp2025!') {
+                    if (pendingAction === 'audit') {
+                      setAuditTrail(true);
+                      setUserManagement(false);
+                      fetchAuditData();
+                    } else if (pendingAction === 'users') {
+                      setUserManagement(true);
+                      setAuditTrail(false);
+                      fetchUsers();
+                    }
+                    setShowPasswordModal(false);
+                    setPendingAction('');
+                    setAdminPassword('');
+                  } else {
+                    alert('Invalid admin password!');
+                    setAdminPassword('');
+                  }
+                }}>Authenticate</button>
+                <button className="cancel-btn" onClick={() => {
+                  setShowPasswordModal(false);
+                  setPendingAction('');
+                  setAdminPassword('');
+                }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+

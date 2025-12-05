@@ -197,6 +197,111 @@
   font-size: 0.85rem;
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.password-modal {
+  width: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.password-modal .modal-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.password-modal .modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.password-modal .close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.password-modal .close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.password-modal .auth-section {
+  padding: 2rem;
+}
+
+.password-modal .auth-section p {
+  margin-bottom: 1rem;
+  color: #666;
+  text-align: center;
+}
+
+.password-modal .auth-section input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.password-modal .auth-section input:focus {
+  outline: none;
+  border-color: #E31E24;
+}
+
+.password-modal .modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.password-modal .save-btn {
+  background: #E31E24;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 1;
+  font-weight: 600;
+}
+
+.password-modal .cancel-btn {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 1;
+  font-weight: 600;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .billing-header {

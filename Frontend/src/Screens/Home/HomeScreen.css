@@ -220,8 +220,9 @@
 
 .breaker-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  border-left-color: #FF6900;
+  box-shadow: 0 8px 25px rgba(227, 30, 36, 0.2);
+  border-left-color: #E31E24;
+  background: linear-gradient(135deg, #fff 0%, #fef2f2 100%);
 }
 
 .breaker-header {
@@ -411,31 +412,66 @@
   overflow-y: auto;
 }
 
-.sidebar-header {
+.dashboard-sidebar-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
   padding: 2rem;
-  border-bottom: 1px solid #f1f3f4;
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+}
+
+.sidebar-header-content {
+  display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  gap: 1rem;
+}
+
+.dashboard-sidebar-header .abb-logo {
+  margin-bottom: 0;
+}
+
+.dashboard-sidebar-header .logo-circle {
+  width: 50px;
+  height: 50px;
+  background: #E31E24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(227, 30, 36, 0.3);
+}
+
+.dashboard-sidebar-header .logo-text-circle {
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  letter-spacing: 1px;
+  font-family: Arial, sans-serif;
+}
+
+.header-text h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
   color: white;
 }
 
-.sidebar-header h3 {
-  margin: 0;
-  font-size: 1.3rem;
-  font-weight: 600;
+.header-text .subtitle {
+  margin: 0.3rem 0 0 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  color: white;
 }
 
-.close-btn {
+.dashboard-sidebar-header .close-btn {
   background: none;
   border: none;
   color: white;
-  font-size: 2rem;
+  font-size: 1.8rem;
   cursor: pointer;
   padding: 0;
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -443,7 +479,7 @@
   transition: background 0.2s ease;
 }
 
-.close-btn:hover {
+.dashboard-sidebar-header .close-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -505,35 +541,120 @@
 /* Responsive */
 @media (max-width: 768px) {
   .billing-header {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .header-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
   }
   
   .status-chart-container {
     padding: 0 1rem 1rem;
   }
   
-  .status-chart {
-    height: 150px;
+  .status-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    gap: 10px;
+  }
+  
+  .status-card {
+    padding: 8px;
+  }
+  
+  .status-number {
+    font-size: 16px;
+  }
+  
+  .status-label {
+    font-size: 8px;
   }
   
   .breakers-grid {
     grid-template-columns: 1fr;
     padding: 0 1rem 1rem;
-  }
-  
-  .sidebar {
-    width: 100vw;
+    gap: 1rem;
   }
   
   .breaker-card {
     padding: 1rem;
   }
   
+  .breaker-header h3 {
+    font-size: 1rem;
+  }
+  
   .data-grid {
+    grid-template-columns: 1fr;
+    font-size: 0.8rem;
+  }
+  
+  .data-section h4 {
+    font-size: 0.8rem;
+  }
+  
+  .sidebar {
+    width: 100vw;
+  }
+  
+  .dashboard-sidebar-header {
+    padding: 1rem;
+  }
+  
+  .sidebar-header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .chart-controls {
+    padding: 1rem;
+  }
+  
+  .sidebar-chart {
+    padding: 1rem;
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .logo-circle {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logo-text-circle {
+    font-size: 12px;
+  }
+  
+  .status-cards-grid {
     grid-template-columns: 1fr;
   }
   
-  .header-content h1 {
-    font-size: 2rem;
+  .breaker-card {
+    padding: 0.8rem;
+  }
+  
+  .health-indicator {
+    width: 25px;
+    height: 25px;
+  }
+  
+  .checkmark {
+    font-size: 1rem;
+  }
+  
+  .status-indicator {
+    width: 50px;
+    height: 25px;
+    font-size: 0.6rem;
   }
 }

@@ -101,25 +101,35 @@ export const HomeScreen: React.FC = () => {
       return date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
     });
 
+    // Use selected breaker's actual values as base
+    const baseV12 = selectedBreaker.V12 || 400;
+    const baseV23 = selectedBreaker.V23 || 400;
+    const baseV31 = selectedBreaker.V31 || 400;
+    const baseI1 = selectedBreaker.I1 || 100;
+    const baseI2 = selectedBreaker.I2 || 100;
+    const baseI3 = selectedBreaker.I3 || 100;
+    const basePower = selectedBreaker.ActivePower || 150;
+    const baseEnergy = selectedBreaker.ActiveEnergy || 94000;
+
     let datasets = [];
     switch(chartType) {
       case 'voltage':
         datasets = [
           {
             label: 'V12 (V)',
-            data: Array.from({length: numDays}, () => Math.random() * 50 + 380),
+            data: Array.from({length: numDays}, () => baseV12 + (Math.random() - 0.5) * 20),
             borderColor: '#FF6900',
             backgroundColor: '#FF690020'
           },
           {
             label: 'V23 (V)',
-            data: Array.from({length: numDays}, () => Math.random() * 50 + 380),
+            data: Array.from({length: numDays}, () => baseV23 + (Math.random() - 0.5) * 20),
             borderColor: '#00A8CC',
             backgroundColor: '#00A8CC20'
           },
           {
             label: 'V31 (V)',
-            data: Array.from({length: numDays}, () => Math.random() * 50 + 380),
+            data: Array.from({length: numDays}, () => baseV31 + (Math.random() - 0.5) * 20),
             borderColor: '#8BC34A',
             backgroundColor: '#8BC34A20'
           }
@@ -129,19 +139,19 @@ export const HomeScreen: React.FC = () => {
         datasets = [
           {
             label: 'I1 (A)',
-            data: Array.from({length: numDays}, () => Math.random() * 100 + 50),
+            data: Array.from({length: numDays}, () => baseI1 + (Math.random() - 0.5) * 40),
             borderColor: '#FF6900',
             backgroundColor: '#FF690020'
           },
           {
             label: 'I2 (A)',
-            data: Array.from({length: numDays}, () => Math.random() * 100 + 50),
+            data: Array.from({length: numDays}, () => baseI2 + (Math.random() - 0.5) * 40),
             borderColor: '#00A8CC',
             backgroundColor: '#00A8CC20'
           },
           {
             label: 'I3 (A)',
-            data: Array.from({length: numDays}, () => Math.random() * 100 + 50),
+            data: Array.from({length: numDays}, () => baseI3 + (Math.random() - 0.5) * 40),
             borderColor: '#8BC34A',
             backgroundColor: '#8BC34A20'
           }
@@ -151,35 +161,43 @@ export const HomeScreen: React.FC = () => {
         datasets = [
           {
             label: 'Active Power (kW)',
-            data: Array.from({length: numDays}, () => Math.random() * 200 + 100),
+            data: Array.from({length: numDays}, () => basePower + (Math.random() - 0.5) * 100),
             borderColor: '#FF6900',
             backgroundColor: '#FF690020'
           },
           {
             label: 'Apparent Power (kVA)',
-            data: Array.from({length: numDays}, () => Math.random() * 250 + 120),
+            data: Array.from({length: numDays}, () => (basePower + 20) + (Math.random() - 0.5) * 100),
             borderColor: '#00A8CC',
             backgroundColor: '#00A8CC20'
           },
           {
             label: 'Reactive Power (kVAR)',
-            data: Array.from({length: numDays}, () => Math.random() * 100 + 20),
+            data: Array.from({length: numDays}, () => (basePower * 0.3) + (Math.random() - 0.5) * 50),
             borderColor: '#8BC34A',
             backgroundColor: '#8BC34A20'
           }
         ];
         break;
       case 'energy':
+        // Generate realistic cumulative energy data based on selected breaker
+        let cumulativeEnergy = baseEnergy;
+        const energyData = Array.from({length: numDays}, (_, i) => {
+          const dailyConsumption = Math.random() * 40 + 30;
+          cumulativeEnergy += dailyConsumption;
+          return Math.round(cumulativeEnergy * 10) / 10;
+        });
+        
         datasets = [
           {
             label: 'Active Energy (kWh)',
-            data: Array.from({length: numDays}, () => Math.random() * 1000 + 500),
+            data: energyData,
             borderColor: '#FF6900',
             backgroundColor: '#FF690020'
           },
           {
             label: 'Frequency (Hz)',
-            data: Array.from({length: numDays}, () => Math.random() * 2 + 49),
+            data: Array.from({length: numDays}, () => (selectedBreaker.Frequency || 50) + (Math.random() - 0.5) * 1),
             borderColor: '#00A8CC',
             backgroundColor: '#00A8CC20'
           }
@@ -381,8 +399,18 @@ export const HomeScreen: React.FC = () => {
       {sidebarOpen && selectedBreaker && (
         <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}>
           <div className="sidebar" onClick={(e) => e.stopPropagation()}>
-            <div className="sidebar-header">
-              <h3>{selectedBreaker.name} - Chart View</h3>
+            <div className="dashboard-sidebar-header">
+              <div className="sidebar-header-content">
+                <div className="abb-logo">
+                  <div className="logo-circle">
+                    <span className="logo-text-circle">ABB</span>
+                  </div>
+                </div>
+                <div className="header-text">
+                  <h3>{selectedBreaker.name} - Analytics</h3>
+                  <p className="subtitle">Real-time Data Visualization</p>
+                </div>
+              </div>
               <button className="close-btn" onClick={() => setSidebarOpen(false)}>×</button>
             </div>
             

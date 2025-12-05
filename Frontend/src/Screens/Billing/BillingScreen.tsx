@@ -21,6 +21,38 @@ export const BillingScreen = () => {
   const [dateRange, setDateRange] = useState<string>('custom');
   const [consumptionData, setConsumptionData] = useState<ConsumptionData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showTariffModal, setShowTariffModal] = useState<boolean>(false);
+  const [adminPassword, setAdminPassword] = useState<string>('');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [tariffRates, setTariffRates] = useState({
+    summer: { peak: 1.69, offPeak: 0.53, peakHours: '17:00-23:00' },
+    winter: { peak: 1.21, offPeak: 0.46, peakHours: '17:00-22:00' },
+    springAutumn: { peak: 0.50, offPeak: 0.45, peakHours: '07:00-17:00' }
+  });
+  const [efficiencyBase, setEfficiencyBase] = useState(50);
+  const [efficiencyMultiplier, setEfficiencyMultiplier] = useState(2);
+
+  // Load tariff and efficiency settings
+  useEffect(() => {
+    fetchTariffSettings();
+  }, []);
+
+  const fetchTariffSettings = async () => {
+    try {
+      const response = await fetch('http://localhost:5500/api/tariff-rates');
+      if (response.ok) {
+        const result = await response.json();
+        const rates = result.data || [];
+        if (rates.length > 0) {
+          setEfficiencyBase(rates[0].efficiencyBase || 50);
+          setEfficiencyMultiplier(rates[0].efficiencyMultiplier || 2);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching tariff settings:', err);
+    }
+  };
 
   // Initialize dates
   useEffect(() => {
@@ -51,7 +83,7 @@ export const BillingScreen = () => {
     setLoading(true);
     setConsumptionData([]); // איפוס הנתונים
     try {
-      const response = await fetch(`http://localhost:3000/consumption-billing/${selectedBreaker}?start=${startDate}&end=${endDate}`);
+      const response = await fetch(`http://localhost:5500/api/consumption-billing/${selectedBreaker}?start=${startDate}&end=${endDate}`);
       const result = await response.json();
       
       if (result.status === 200 && result.data) {
@@ -269,6 +301,39 @@ export const BillingScreen = () => {
   
   const selectedBreakerInfo = breakerOptions.find(b => b.value === selectedBreaker);
 
+  const handleAdminAuth = () => {
+    if (adminPassword === 'AbbDp2025!') {
+      setIsAuthenticated(true);
+      setAdminPassword('');
+      setShowPasswordModal(false);
+      setShowTariffModal(true);
+    } else {
+      alert('Invalid admin password!');
+      setAdminPassword('');
+    }
+  };
+
+  const handleSaveTariffs = async () => {
+    try {
+      const response = await fetch('http://localhost:5500/api/efficiency-settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          efficiencyBase,
+          efficiencyMultiplier
+        })
+      });
+      if (response.ok) {
+        alert('Settings saved successfully!');
+        fetchRealData(); // Refresh the data
+      }
+    } catch (err) {
+      alert('Error saving settings');
+    }
+    setShowTariffModal(false);
+    setIsAuthenticated(false);
+  };
+
   const exportToPDF = () => {
     try {
       const doc = new jsPDF();
@@ -449,6 +514,15 @@ export const BillingScreen = () => {
             {loading ? 'Loading...' : 'Refresh Data'}
           </button>
         </div>
+        
+        <div className="control-card">
+          <button 
+            className="tariff-btn" 
+            onClick={() => setShowPasswordModal(true)}
+          >
+            Tariff Settings
+          </button>
+        </div>
       </div>
 
       <div className="metrics-grid">
@@ -580,7 +654,7 @@ export const BillingScreen = () => {
                     day: 'numeric',
                     year: 'numeric'
                   })}</td>
-                  <td className="consumption-value">{item.daily_consumption.toFixed(1)}</td>
+                  <td className="consumption-value">{Math.round(item.daily_consumption * 10) / 10}</td>
                   <td className="cost-value">₪{item.daily_cost.toFixed(2)}</td>
                   <td>
                     <span className="rate-badge standard">
@@ -620,11 +694,11 @@ export const BillingScreen = () => {
                       <div className="efficiency-bar">
                         <div 
                           className="efficiency-fill" 
-                          style={{width: `${Math.min(100, (50 - item.daily_consumption) * 2 + 50)}%`}}
+                          style={{width: `${Math.min(100, Math.max(0, (efficiencyBase - item.daily_consumption) * efficiencyMultiplier + 50))}%`}}
                         ></div>
                       </div>
                       <span className="efficiency-text">
-                        {Math.round(Math.min(100, (50 - item.daily_consumption) * 2 + 50))}%
+                        {Math.round(Math.min(100, (efficiencyBase - item.daily_consumption) * efficiencyMultiplier + 50))}%
                       </span>
                     </div>
                   </td>
@@ -645,6 +719,145 @@ export const BillingScreen = () => {
           </table>
         </div>
       </div>
+
+      {/* Tariff Settings Sidebar */}
+      {showTariffModal && (
+        <div className="tariff-overlay" onClick={() => {
+          setShowTariffModal(false);
+          setAdminPassword('');
+          setIsAuthenticated(false);
+        }}>
+          <div className="tariff-sidebar" onClick={(e) => e.stopPropagation()}>
+            <div className="tariff-header">
+              <div className="tariff-header-content">
+                <div className="abb-logo">
+                  <div className="logo-circle">
+                    <span className="logo-text-circle">ABB</span>
+                  </div>
+                </div>
+                <div className="header-text">
+                  <h3>Tariff Management</h3>
+                  <p className="subtitle">Electricity Rate Configuration</p>
+                </div>
+              </div>
+              <button className="close-btn" onClick={() => {
+                setShowTariffModal(false);
+                setAdminPassword('');
+                setIsAuthenticated(false);
+              }}>×</button>
+            </div>
+            
+            <div className="tariff-settings">
+              <div className="tariff-section">
+                <h4>Summer (June-September)</h4>
+                <div className="rate-inputs">
+                  <label>Peak Rate (₪/kWh):</label>
+                  <input type="number" step="0.01" defaultValue={tariffRates.summer.peak} />
+                  <label>Off-Peak Rate (₪/kWh):</label>
+                  <input type="number" step="0.01" defaultValue={tariffRates.summer.offPeak} />
+                  <label>Peak Hours:</label>
+                  <input type="text" defaultValue={tariffRates.summer.peakHours} />
+                </div>
+              </div>
+              
+              <div className="tariff-section">
+                <h4>Winter (December-February)</h4>
+                <div className="rate-inputs">
+                  <label>Peak Rate (₪/kWh):</label>
+                  <input type="number" step="0.01" defaultValue={tariffRates.winter.peak} />
+                  <label>Off-Peak Rate (₪/kWh):</label>
+                  <input type="number" step="0.01" defaultValue={tariffRates.winter.offPeak} />
+                  <label>Peak Hours:</label>
+                  <input type="text" defaultValue={tariffRates.winter.peakHours} />
+                </div>
+              </div>
+              
+              <div className="tariff-section">
+                <h4>Spring/Autumn</h4>
+                <div className="rate-inputs">
+                  <label>Peak Rate (₪/kWh):</label>
+                  <input type="number" step="0.01" defaultValue={tariffRates.springAutumn.peak} />
+                  <label>Off-Peak Rate (₪/kWh):</label>
+                  <input type="number" step="0.01" defaultValue={tariffRates.springAutumn.offPeak} />
+                  <label>Peak Hours:</label>
+                  <input type="text" defaultValue={tariffRates.springAutumn.peakHours} />
+                </div>
+              </div>
+              
+              <div className="tariff-section">
+                <h4>Efficiency Settings</h4>
+                <div className="rate-inputs">
+                  <label>Base Consumption (kWh/day):</label>
+                  <input 
+                    type="number" 
+                    value={efficiencyBase} 
+                    onChange={(e) => setEfficiencyBase(Number(e.target.value))}
+                    min="1" 
+                    max="200"
+                    id="efficiencyBase"
+                  />
+                  <label>Efficiency Multiplier:</label>
+                  <input 
+                    type="number" 
+                    value={efficiencyMultiplier}
+                    onChange={(e) => setEfficiencyMultiplier(Number(e.target.value))}
+                    min="0.1" 
+                    max="10" 
+                    step="0.1"
+                    id="efficiencyMultiplier"
+                  />
+                  <small style={{color: '#666', fontSize: '0.8rem'}}>Formula: ({document.getElementById('efficiencyBase')?.value || 50} - consumption) × {document.getElementById('efficiencyMultiplier')?.value || 2} + 50</small>
+                </div>
+              </div>
+              
+              <div className="modal-actions">
+                <button className="save-btn" onClick={handleSaveTariffs}>Save Changes</button>
+                <button className="cancel-btn" onClick={() => {
+                  setShowTariffModal(false);
+                  setAdminPassword('');
+                  setIsAuthenticated(false);
+                }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="tariff-overlay" onClick={() => {
+          setShowPasswordModal(false);
+          setAdminPassword('');
+        }}>
+          <div className="password-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Admin Authentication</h3>
+              <button className="close-btn" onClick={() => {
+                setShowPasswordModal(false);
+                setAdminPassword('');
+              }}>×</button>
+            </div>
+            <div className="auth-section">
+              <p>Enter admin password to access Tariff Settings:</p>
+              <input
+                type="password"
+                placeholder="Admin Password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAdminAuth()}
+                autoFocus
+              />
+              <div className="modal-actions">
+                <button className="save-btn" onClick={handleAdminAuth}>Authenticate</button>
+                <button className="cancel-btn" onClick={() => {
+                  setShowPasswordModal(false);
+                  setAdminPassword('');
+                }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

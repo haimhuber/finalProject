@@ -187,6 +187,293 @@
   cursor: not-allowed;
 }
 
+.tariff-btn {
+  width: 100%;
+  padding: 0.8rem 1.2rem;
+  background: #E31E24;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-top: 1.7rem;
+}
+
+.tariff-btn:hover {
+  background: #c41e22;
+}
+
+.tariff-settings {
+  padding: 1.5rem;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.tariff-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.tariff-section h4 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.rate-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.rate-inputs label {
+  font-weight: 600;
+  color: #5a6c7d;
+  font-size: 0.9rem;
+}
+
+.rate-inputs input {
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.auth-section {
+  padding: 1.5rem;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.auth-section p {
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.auth-section input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.auth-section button {
+  background: #E31E24;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-top: 1px solid #eee;
+  margin-top: 1rem;
+}
+
+.save-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 1;
+  font-weight: 600;
+}
+
+.cancel-btn {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 1;
+  font-weight: 600;
+}
+
+.tariff-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tariff-sidebar {
+  width: 450px;
+  height: 100vh;
+  background: white;
+  box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.tariff-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.tariff-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tariff-header .abb-logo {
+  margin-bottom: 0;
+}
+
+.tariff-header .logo-circle {
+  width: 50px;
+  height: 50px;
+  background: #E31E24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(227, 30, 36, 0.3);
+}
+
+.tariff-header .logo-text-circle {
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  letter-spacing: 1px;
+  font-family: Arial, sans-serif;
+}
+
+.header-text h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: white;
+}
+
+.header-text .subtitle {
+  margin: 0.3rem 0 0 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  color: white;
+}
+
+.tariff-header .close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.tariff-header .close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.password-modal {
+  width: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.password-modal .modal-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.password-modal .modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.password-modal .close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.password-modal .close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.password-modal .auth-section {
+  padding: 2rem;
+}
+
+.password-modal .auth-section p {
+  margin-bottom: 1rem;
+  color: #666;
+  text-align: center;
+}
+
+.password-modal .auth-section input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.password-modal .auth-section input:focus {
+  outline: none;
+  border-color: #E31E24;
+}
+
+.password-modal .modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0;
+  padding: 0;
+  border: none;
+}
+
 .breaker-type {
   display: block;
   margin-top: 0.5rem;
@@ -500,17 +787,60 @@
   }
 }
 
+@media (max-width: 480px) {
+  .logo-circle {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logo-text-circle {
+    font-size: 12px;
+  }
+  
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .control-card {
+    padding: 1rem;
+  }
+  
+  .metric-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .data-table {
+    font-size: 0.7rem;
+  }
+  
+  .tariff-header {
+    padding: 0.8rem;
+  }
+}
+
 @media (max-width: 768px) {
   .billing-header {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .header-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
   }
   
   .billing-controls {
     flex-direction: column;
     padding: 1rem;
+    gap: 1rem;
   }
   
   .control-card {
@@ -521,6 +851,21 @@
   .metrics-grid {
     grid-template-columns: 1fr;
     padding: 0 1rem 1rem;
+    gap: 1rem;
+  }
+  
+  .metric-card {
+    padding: 1rem;
+  }
+  
+  .metric-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+  
+  .metric-content h3 {
+    font-size: 1.5rem;
   }
   
   .charts-section {
@@ -532,7 +877,40 @@
     margin: 1rem;
   }
   
-  .header-content h1 {
-    font-size: 2rem;
+  .table-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .data-table {
+    font-size: 0.8rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem;
+  }
+  
+  .tariff-sidebar {
+    width: 100vw;
+  }
+  
+  .tariff-header {
+    padding: 1rem;
+  }
+  
+  .tariff-header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .tariff-settings {
+    padding: 1rem;
+  }
+  
+  .tariff-section {
+    margin-bottom: 1.5rem;
   }
 }
