@@ -123,7 +123,7 @@ async function createTables() {
     // 6️⃣ Users Audit Trail
     await pool.request().query(`
     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='UserAuditTrail' AND xtype='U')
-        CREATE TABLE UserAuditTrail (
+         CREATE TABLE UserAuditTrail (
         id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
         userName VARCHAR(20) NOT NULL,
         type VARCHAR(20),
