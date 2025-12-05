@@ -674,7 +674,7 @@ async function getTariffRates() {
   }
 }
 
-async function updateTariffRate(season, peakRate, offPeakRate, peakHours, weekdaysOnly, updatedBy) {
+async function updateTariffRate(season, peakRate, offPeakRate, peakHours, weekdaysOnly, efficiencyBase, efficiencyMultiplier, updatedBy) {
   try {
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
@@ -683,6 +683,8 @@ async function updateTariffRate(season, peakRate, offPeakRate, peakHours, weekda
       .input('offPeakRate', sql.Decimal(10,4), offPeakRate)
       .input('peakHours', sql.VarChar, peakHours)
       .input('weekdaysOnly', sql.Bit, weekdaysOnly)
+      .input('efficiencyBase', sql.Decimal(10,2), efficiencyBase)
+      .input('efficiencyMultiplier', sql.Decimal(10,2), efficiencyMultiplier)
       .input('updatedBy', sql.VarChar, updatedBy)
       .execute('UpdateTariffRate');
 
@@ -710,4 +712,20 @@ async function updateTariffRatesOnly(season, peakRate, offPeakRate, updatedBy) {
   }
 }
 
-module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser, getTariffRates, updateTariffRate, updateTariffRatesOnly };
+async function updateEfficiencySettings(efficiencyBase, efficiencyMultiplier, updatedBy) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('efficiencyBase', sql.Decimal(10,2), efficiencyBase)
+      .input('efficiencyMultiplier', sql.Decimal(10,2), efficiencyMultiplier)
+      .input('updatedBy', sql.VarChar, updatedBy)
+      .execute('UpdateEfficiencySettings');
+
+    return { status: 200, data: result.recordset[0] };
+  } catch (err) {
+    console.error('Error updating efficiency settings:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser, getTariffRates, updateTariffRate, updateTariffRatesOnly, updateEfficiencySettings };

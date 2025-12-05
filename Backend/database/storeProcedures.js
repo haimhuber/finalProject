@@ -777,6 +777,8 @@ async function createSp() {
             @offPeakRate DECIMAL(10,4),
             @peakHours VARCHAR(50),
             @weekdaysOnly BIT,
+            @efficiencyBase DECIMAL(10,2) = NULL,
+            @efficiencyMultiplier DECIMAL(10,2) = NULL,
             @updatedBy VARCHAR(50)
         AS
         BEGIN
@@ -785,6 +787,8 @@ async function createSp() {
                 offPeakRate = @offPeakRate,
                 peakHours = @peakHours,
                 weekdaysOnly = @weekdaysOnly,
+                efficiencyBase = ISNULL(@efficiencyBase, efficiencyBase),
+                efficiencyMultiplier = ISNULL(@efficiencyMultiplier, efficiencyMultiplier),
                 createdBy = @updatedBy,
                 timestamp = CURRENT_TIMESTAMP
             WHERE season = @season AND isActive = 1;
@@ -818,6 +822,28 @@ async function createSp() {
                 SELECT 0 AS success, 'Tariff not found' AS message;
         END`);
         console.log("✅ Stored Procedure 'UpdateTariffRatesOnly' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE UpdateEfficiencySettings
+            @efficiencyBase DECIMAL(10,2),
+            @efficiencyMultiplier DECIMAL(10,2),
+            @updatedBy VARCHAR(50)
+        AS
+        BEGIN
+            UPDATE TariffRates 
+            SET efficiencyBase = @efficiencyBase,
+                efficiencyMultiplier = @efficiencyMultiplier,
+                createdBy = @updatedBy,
+                timestamp = CURRENT_TIMESTAMP
+            WHERE isActive = 1;
+            
+            IF @@ROWCOUNT > 0
+                SELECT 1 AS success, 'Efficiency settings updated successfully' AS message;
+            ELSE
+                SELECT 0 AS success, 'No active tariffs found' AS message;
+        END`);
+        console.log("✅ Stored Procedure 'UpdateEfficiencySettings' created successfully");
 
     } catch (error) {
         console.error('❌ Error creating stored procedures:', error);

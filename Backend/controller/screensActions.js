@@ -403,11 +403,11 @@ const getTariffRates = async (req, res) => {
 };
 
 const updateTariffRate = async (req, res) => {
-    const { season, peakRate, offPeakRate, peakHours, weekdaysOnly } = req.body;
+    const { season, peakRate, offPeakRate, peakHours, weekdaysOnly, efficiencyBase, efficiencyMultiplier } = req.body;
     const updatedBy = req.headers['current-user'] || 'Admin';
     
     try {
-        const result = await sqlData.updateTariffRate(season, peakRate, offPeakRate, peakHours, weekdaysOnly, updatedBy);
+        const result = await sqlData.updateTariffRate(season, peakRate, offPeakRate, peakHours, weekdaysOnly, efficiencyBase, efficiencyMultiplier, updatedBy);
         res.status(200).json(result);
     } catch (err) {
         console.error('Error updating tariff rate:', err);
@@ -428,4 +428,17 @@ const updateTariffRatesOnly = async (req, res) => {
     }
 };
 
-module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy, batchActivePowerData, batchActiveEnergyData, consumptionBilling, checkDataExists, getLiveDataTest, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, deleteUser, forgotPassword, resetPassword, getTariffRates, updateTariffRate, updateTariffRatesOnly };
+const updateEfficiencySettings = async (req, res) => {
+    const { efficiencyBase, efficiencyMultiplier } = req.body;
+    const updatedBy = req.headers['current-user'] || 'Admin';
+    
+    try {
+        const result = await sqlData.updateEfficiencySettings(efficiencyBase, efficiencyMultiplier, updatedBy);
+        res.status(200).json(result);
+    } catch (err) {
+        console.error('Error updating efficiency settings:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy, batchActivePowerData, batchActiveEnergyData, consumptionBilling, checkDataExists, getLiveDataTest, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, deleteUser, forgotPassword, resetPassword, getTariffRates, updateTariffRate, updateTariffRatesOnly, updateEfficiencySettings };

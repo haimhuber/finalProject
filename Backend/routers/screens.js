@@ -40,6 +40,7 @@ router.post('/email', sendMail.sendEmail);
 router.get('/tariff-rates', screenAction.getTariffRates);
 router.put('/tariff-rates', screenAction.updateTariffRate);
 router.patch('/tariff-rates', screenAction.updateTariffRatesOnly);
+router.patch('/efficiency-settings', screenAction.updateEfficiencySettings);
 
 
 
