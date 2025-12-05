@@ -1,240 +1,249 @@
-/* ===========================
-   REPORT TABLE — SPACIOUS STYLE
-   =========================== */
-
-.report-table {
-  width: 100%;
-  border-collapse: separate !important;
-  border-spacing: 0 10px; /* vertical spacing between rows */
-  margin-top: 30px;
+/* ABB-Style Reports Screen */
+.billing-screen {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Header */
-.report-table thead th {
-  padding: 16px 20px;
-  font-size: 1.05rem;
-  letter-spacing: 0.5px;
-  font-weight: 700;
-  background: #0f0f17; 
+/* Header Section */
+.billing-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: white;
+  padding: 2rem 2rem 3rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.header-content {
   text-align: left;
 }
 
-/* Body rows */
-.report-table tbody tr {
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow:
-    0 2px 4px rgba(0,0,0,0.1),
-    0 4px 8px rgba(0,0,0,0.08);
-  height: 60px; /* row height */
+.header-content h1 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.5px;
 }
 
-/* Cells */
-.report-table td {
-  padding: 18px 24px; /* MUCH more space */
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #222;
+.subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 300;
 }
 
-/* Rounded row edges */
-.report-table tbody tr td:first-child {
-  border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
+.abb-logo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
-.report-table tbody tr td:last-child {
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
+.logo-circle {
+  width: 60px;
+  height: 60px;
+  background: #E31E24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(227, 30, 36, 0.3);
 }
 
-/* Timestamp column formatting */
-.report-table .timestamp-cell {
-  font-family: "Segoe UI", monospace;
-  white-space: nowrap;
+.logo-text-circle {
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  letter-spacing: 1px;
+  font-family: Arial, sans-serif;
 }
 
-/* ===========================
-   3D NEUMORPHIC ACTION BUTTON
-   =========================== */
-.report-btn {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
-
-  padding: 16px 34px;
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-
-  border-radius: 14px;
-  border: none;
-  outline: none;
-  cursor: pointer;
-
-  color: #eaeaff;
-  background: linear-gradient(145deg, #1b1b1c, #121212);
-
-  /* Deep 3D layers */
-  box-shadow:
-    8px 8px 20px rgba(0,0,0,0.55),
-    -8px -8px 20px rgba(255,255,255,0.06),
-    inset 2px 2px 6px rgba(0,0,0,0.7),
-    inset -2px -2px 6px rgba(255,255,255,0.1);
-
-  transition: 
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    background 0.3s ease;
-  
-  z-index: 3000;
+/* Controls Section */
+.billing-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 2rem;
+  margin-top: -2rem;
+  position: relative;
+  z-index: 10;
+  overflow-x: auto;
 }
 
-/* Hover — Lift + Shine */
-.report-btn:hover {
-  transform: translateY(-6px) scale(1.05);
-  background: linear-gradient(145deg, #232324, #151515);
-
-  box-shadow:
-    14px 14px 28px rgba(0,0,0,0.65),
-    -10px -10px 24px rgba(255,255,255,0.08),
-    inset 1px 1px 3px rgba(255,255,255,0.12),
-    inset -1px -1px 3px rgba(0,0,0,0.5);
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 160px;
 }
 
-/* Active press — realistic push */
-.report-btn:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow:
-    3px 3px 8px rgba(0,0,0,0.7),
-    -2px -2px 6px rgba(255,255,255,0.06),
-    inset 3px 3px 8px rgba(0,0,0,0.7),
-    inset -3px -3px 8px rgba(255,255,255,0.1);
+.control-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Subtle breathing animation */
-@keyframes breatheButton {
-  0% { transform: scale(1); box-shadow: 8px 8px 20px rgba(0,0,0,0.55), -8px -8px 20px rgba(255,255,255,0.06); }
-  50% { transform: scale(1.015); box-shadow: 10px 10px 24px rgba(0,0,0,0.6), -10px -10px 24px rgba(255,255,255,0.08); }
-  100% { transform: scale(1); box-shadow: 8px 8px 20px rgba(0,0,0,0.55), -8px -8px 20px rgba(255,255,255,0.06); }
-}
-
-.report-btn {
-  animation: breatheButton 4s infinite ease-in-out;
-}
-
-/* 3D Button Base */
-.btn-3d {
-  background: linear-gradient(145deg, #ffffff, #e6e6e6);
-  border: none;
-  outline: none;
-  padding: 10px 22px;
-  margin: 6px;
-  border-radius: 12px;
-  font-size: 15px;
+.control-btn {
+  padding: 0.8rem 1.2rem;
+  background: white;
+  color: #2c3e50;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  color: #333;
-  box-shadow: 
-    4px 4px 10px rgba(0,0,0,0.25),
-    -4px -4px 10px rgba(255,255,255,0.9);
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
 }
 
-/* Hover – button lifts up */
-.btn-3d:hover {
-  transform: translateY(-3px);
-  box-shadow: 
-    6px 6px 14px rgba(0,0,0,0.28),
-    -6px -6px 14px rgba(255,255,255,0.95);
+.control-btn:hover {
+  border-color: #FF6900;
+  color: #FF6900;
 }
 
-/* Active – button pressed */
-.btn-3d:active {
-  transform: translateY(1px);
-  box-shadow:
-    2px 2px 6px rgba(0,0,0,0.25),
-    -2px -2px 6px rgba(255,255,255,0.9);
-}
-
-/* PDF Button Color Variant */
-.btn-pdf {
-  background: linear-gradient(145deg, #ff4747, #d93636);
+.control-btn.active {
+  background: #FF6900;
   color: white;
+  border-color: #FF6900;
 }
 
-.btn-pdf:hover {
-  background: linear-gradient(145deg, #ff5c5c, #d13a3a);
+.control-select {
+  padding: 0.8rem;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: white;
+  color: #2c3e50;
+  transition: border-color 0.2s ease;
 }
 
-/* Alert Button Variant */
-.btn-alert {
-  background: linear-gradient(145deg, #e25467, #3d7fd1);
-  color: white;
-}
-
-.btn-alert:hover {
-  background: linear-gradient(145deg, #dc6666, #326bb6);
-}
-
-/* Switch Button Variant */
-.btn-switch {
-  background: linear-gradient(145deg, #47d18b, #33a86b);
-  color: white;
-}
-
-.btn-switch:hover {
-  background: linear-gradient(145deg, #58e09b, #2e915c);
-}
-
-/* 3D Select Box */
-.select-3d {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  background: linear-gradient(145deg, #ffffff, #e6e6e6);
-  border: none;
+.control-select:focus {
   outline: none;
-  padding: 10px 16px;
-  margin: 6px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  color: #3080cb;
+  border-color: #FF6900;
+  box-shadow: 0 0 0 3px rgba(255, 105, 0, 0.1);
+}
+
+.export-btn {
+  padding: 0.8rem 1.2rem;
+  background: #FF6900;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 
-    4px 4px 10px rgba(0,0,0,0.25),
-    -4px -4px 10px rgba(255,255,255,0.9);
-
-  transition: all 0.2s ease-in-out;
-  width: 200px;
+  transition: background 0.2s ease;
+  font-size: 0.9rem;
 }
 
-/* Hover – slightly lifted */
-.select-3d:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    6px 6px 14px rgba(0,0,0,0.25),
-    -6px -6px 14px rgba(255,255,255,1);
+.export-btn:hover {
+  background: #e55a00;
 }
 
-/* Focus – glowing border */
-.select-3d:focus {
-  box-shadow:
-    0 0 0 3px rgba(88, 163, 255, 0.5),
-    4px 4px 10px rgba(0,0,0,0.2),
-    -4px -4px 10px rgba(255,255,255,0.9);
-  transform: translateY(-1px);
+/* Data Table Section */
+.data-table-section {
+  margin: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  overflow: hidden;
 }
 
-/* ▼ Custom arrow */
-.select-3d {
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23444' height='20' width='20' viewBox='0 0 20 20'><polygon points='0,0 20,0 10,15'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 14px;
+.table-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f3f4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
+.table-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-weight: 600;
+}
 
+.table-info {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background: #f8f9fa;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.data-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f3f4;
+  color: #5a6c7d;
+}
+
+.data-table tr:hover {
+  background: #f8f9fa;
+}
+
+.rate-badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.rate-badge.peak {
+  background: #ffebee;
+  color: #e53935;
+}
+
+.rate-badge.standard {
+  background: #e3f2fd;
+  color: #1e88e5;
+}
+
+.rate-badge.off-peak {
+  background: #e8f5e8;
+  color: #43a047;
+}
+
+.timestamp-cell {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .billing-header {
+    padding: 1.5rem;
+  }
+  
+  .billing-controls {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .control-group {
+    min-width: unset;
+  }
+  
+  .data-table-section {
+    margin: 1rem;
+  }
+  
+  .header-content h1 {
+    font-size: 2rem;
+  }
+}

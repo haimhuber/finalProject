@@ -131,6 +131,45 @@ async function createTables() {
       );`);
     console.log({ 'UserAuditTrail table created (if not exists)': 200 });
 
+    // 7️⃣ LiveData table for current data
+    await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='LiveData' AND xtype='U')
+      CREATE TABLE LiveData (
+        switch_id INT PRIMARY KEY,
+        V12 FLOAT NOT NULL,
+        V23 FLOAT NOT NULL,
+        V31 FLOAT NOT NULL,
+        I1 FLOAT NOT NULL,
+        I2 FLOAT NOT NULL,
+        I3 FLOAT NOT NULL,
+        Frequency FLOAT NOT NULL,
+        PowerFactor FLOAT NOT NULL,
+        ActivePower FLOAT NOT NULL,
+        ReactivePower FLOAT NOT NULL,
+        ApparentPower FLOAT NOT NULL,
+        NominalCurrent FLOAT NOT NULL,
+        ActiveEnergy FLOAT NOT NULL,
+        CommStatus BIT NOT NULL,
+        ProtectionTrip BIT NOT NULL,
+        ProtectionInstTrip BIT NOT NULL,
+        ProtectionI_Enabled BIT NOT NULL,
+        ProtectionS_Enabled BIT NOT NULL,
+        ProtectionL_Enabled BIT NOT NULL,
+        ProtectionG_Trip BIT NOT NULL,
+        ProtectionI_Trip BIT NOT NULL,
+        ProtectionS_Trip BIT NOT NULL,
+        ProtectionL_Trip BIT NOT NULL,
+        TripDisconnected BIT NOT NULL,
+        Tripped BIT NOT NULL,
+        Undefined BIT NOT NULL,
+        BreakerClose BIT NOT NULL,
+        BreakerOpen BIT NOT NULL,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (switch_id) REFERENCES MainData(id) ON DELETE CASCADE
+      );
+    `);
+    console.log({ 'LiveData table created (if not exists)': 200 });
+
   } catch (err) {
     console.error('❌ Error creating tables:', err);
     return { message: err.message, status: 500 };

@@ -7,43 +7,47 @@ import {
   LinearScale,
   PointElement,
   LineElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend,
+  ArcElement,
 } from "chart.js";
-import { getBatchActivePowerData, getActivePowerData, fetchAndCombineData, breakersPosition } from "../../Types/CombinedData";
+import { fetchAndCombineData } from "../../Types/CombinedData";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  ArcElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement
 );
 
 export const HomeScreen: React.FC = () => {
   const [combinedDataState, setCombinedDataState] = useState<any[]>([]);
-  const [activePowerMap, setActivePowerMap] = useState<Record<string, number[]>>({});
-  const [dayLabelsMap, setDayLabelsMap] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
+  const [selectedBreaker, setSelectedBreaker] = useState<any>(null);
+  const [chartType, setChartType] = useState<string>('voltage');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+  const [dateRange, setDateRange] = useState<string>('7');
 
-  const [openCnt, setOpenCnt] = useState(0);
-  const [closeCnt, setCloseCnt] = useState(0);
+  const totalBreakers = combinedDataState.length;
+  const closedBreakers = combinedDataState.filter(b => b.BreakerClose && !b.Tripped).length;
+  const openBreakers = combinedDataState.filter(b => !b.BreakerClose && !b.Tripped).length;
+  const trippedBreakers = combinedDataState.filter(b => b.Tripped).length;
+  const commErrorBreakers = combinedDataState.filter(b => !b.CommStatus).length;
 
-  const breakersPieData = useMemo(() => ({
-    labels: ["Closed", "Open"],
-    datasets: [
-      {
-        data: [closeCnt, openCnt],
-        backgroundColor: ["#00C49F", "#FF8042"],
-        borderWidth: 0,
-      },
-    ],
-  }), [closeCnt, openCnt]);
+  // Initialize dates
+  useEffect(() => {
+    const today = new Date();
+    const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    setStartDate(lastWeek.toISOString().split('T')[0]);
+    setEndDate(today.toISOString().split('T')[0]);
+  }, []);
 
   // CHECK TOKEN
   useEffect(() => {
@@ -55,123 +59,383 @@ export const HomeScreen: React.FC = () => {
   useEffect(() => {
     async function load() {
       setLoading(true);
-
       try {
-        // טען נתונים בסיסיים עם timeout
         const combined = await fetchAndCombineData();
         setCombinedDataState(combined);
-        
-        // ספור פאנלים פתוחים/סגורים
-        let closed = 0, open = 0;
-        combined.forEach((panel: any) => {
-          if (panel.BreakerClose) closed++;
-          else open++;
-        });
-        setCloseCnt(closed);
-        setOpenCnt(open);
-        
-        setLoading(false); // הסר loading מוקדם יותר
-
-        // טען גרפים ברקע
-        const pwr: any = {};
-        const labels: any = {};
-
-        // יצירת נתוני דמה לגרפים
-        combined.forEach((panel: any) => {
-          // נתוני דמה ל-10 ימים
-          const dummyPower = Array.from({length: 10}, () => Math.random() * 100 + 50);
-          const dummyLabels = Array.from({length: 10}, (_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (9 - i));
-            return date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
-          });
-          
-          pwr[panel.switch_id] = dummyPower;
-          labels[panel.switch_id] = dummyLabels;
-        });
-
-        setActivePowerMap(pwr);
-        setDayLabelsMap(labels);
-
+        setLoading(false);
       } catch (err) {
         console.error(err);
         setLoading(false);
       }
     }
-
     load();
   }, []);
 
-  // LOADING SCREEN
+  const handleBreakerClick = (breaker: any) => {
+    setSelectedBreaker(breaker);
+    setSidebarOpen(true);
+  };
+
+  const handleDateRangeChange = (value: string) => {
+    setDateRange(value);
+    if (value !== 'custom') {
+      const today = new Date();
+      const days = parseInt(value);
+      const start = new Date(today.getTime() - (days - 1) * 24 * 60 * 60 * 1000);
+      setStartDate(start.toISOString().split('T')[0]);
+      setEndDate(today.toISOString().split('T')[0]);
+    }
+  };
+
+  const generateChartData = () => {
+    if (!selectedBreaker) return { labels: [], datasets: [] };
+    
+    // Calculate days between start and end date
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const daysDiff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const numDays = Math.min(Math.max(daysDiff, 1), 30); // Limit to 30 days max
+    
+    const labels = Array.from({length: numDays}, (_, i) => {
+      const date = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
+      return date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
+    });
+
+    let datasets = [];
+    switch(chartType) {
+      case 'voltage':
+        datasets = [
+          {
+            label: 'V12 (V)',
+            data: Array.from({length: numDays}, () => Math.random() * 50 + 380),
+            borderColor: '#FF6900',
+            backgroundColor: '#FF690020'
+          },
+          {
+            label: 'V23 (V)',
+            data: Array.from({length: numDays}, () => Math.random() * 50 + 380),
+            borderColor: '#00A8CC',
+            backgroundColor: '#00A8CC20'
+          },
+          {
+            label: 'V31 (V)',
+            data: Array.from({length: numDays}, () => Math.random() * 50 + 380),
+            borderColor: '#8BC34A',
+            backgroundColor: '#8BC34A20'
+          }
+        ];
+        break;
+      case 'current':
+        datasets = [
+          {
+            label: 'I1 (A)',
+            data: Array.from({length: numDays}, () => Math.random() * 100 + 50),
+            borderColor: '#FF6900',
+            backgroundColor: '#FF690020'
+          },
+          {
+            label: 'I2 (A)',
+            data: Array.from({length: numDays}, () => Math.random() * 100 + 50),
+            borderColor: '#00A8CC',
+            backgroundColor: '#00A8CC20'
+          },
+          {
+            label: 'I3 (A)',
+            data: Array.from({length: numDays}, () => Math.random() * 100 + 50),
+            borderColor: '#8BC34A',
+            backgroundColor: '#8BC34A20'
+          }
+        ];
+        break;
+      case 'power':
+        datasets = [
+          {
+            label: 'Active Power (kW)',
+            data: Array.from({length: numDays}, () => Math.random() * 200 + 100),
+            borderColor: '#FF6900',
+            backgroundColor: '#FF690020'
+          },
+          {
+            label: 'Apparent Power (kVA)',
+            data: Array.from({length: numDays}, () => Math.random() * 250 + 120),
+            borderColor: '#00A8CC',
+            backgroundColor: '#00A8CC20'
+          },
+          {
+            label: 'Reactive Power (kVAR)',
+            data: Array.from({length: numDays}, () => Math.random() * 100 + 20),
+            borderColor: '#8BC34A',
+            backgroundColor: '#8BC34A20'
+          }
+        ];
+        break;
+      case 'energy':
+        datasets = [
+          {
+            label: 'Active Energy (kWh)',
+            data: Array.from({length: numDays}, () => Math.random() * 1000 + 500),
+            borderColor: '#FF6900',
+            backgroundColor: '#FF690020'
+          },
+          {
+            label: 'Frequency (Hz)',
+            data: Array.from({length: numDays}, () => Math.random() * 2 + 49),
+            borderColor: '#00A8CC',
+            backgroundColor: '#00A8CC20'
+          }
+        ];
+        break;
+      default:
+        datasets = [];
+    }
+
+    datasets.forEach(dataset => {
+      dataset.borderWidth = 3;
+      dataset.fill = false;
+      dataset.tension = 0.4;
+    });
+
+    return {
+      labels,
+      datasets
+    };
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { 
+        display: true,
+        position: 'top' as const
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: '#E5E5E5' },
+        ticks: { color: '#666666' }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#666666' }
+      }
+    }
+  };
+
   if (loading) {
     return (
-      <div className="home-wrapper">
-        <h2 className="home-title">Digital Panel Home Screen – Site Ceasarea</h2>
-        <div className="home-top-pie" style={{height: '300px', background: '#f0f0f0', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-          Loading chart...
-        </div>
-        <div className="home-grid">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="abb-card" style={{background: '#f0f0f0', minHeight: '200px'}}>
-              <div style={{height: '20px', background: '#ddd', margin: '10px 0', borderRadius: '4px'}}></div>
-              <div style={{height: '15px', background: '#ddd', margin: '10px 0', borderRadius: '4px', width: '70%'}}></div>
-              <div style={{height: '100px', background: '#ddd', margin: '10px 0', borderRadius: '4px'}}></div>
+      <div className="billing-screen">
+        <div className="billing-header">
+          <div className="header-content">
+            <div className="abb-logo">
+              <div className="logo-circle">
+                <span className="logo-text-circle">ABB</span>
+              </div>
             </div>
-          ))}
+            <h1>Digital Panel Dashboard</h1>
+            <p className="subtitle">ABB Smart Power Digital Solutions - Site Caesarea</p>
+          </div>
         </div>
+        <div style={{padding: '2rem', textAlign: 'center', fontSize: '1.2rem'}}>Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="home-wrapper">
-
-      <h2 className="home-title">Digital Panel Home Screen – Site Ceasarea</h2>
-
-      {/* PIE TOP */}
-      <div className="home-top-pie">
-        <Pie data={breakersPieData} />
-      </div>
-
-      {/* CARDS GRID */}
-      <div className="home-grid">
-        {combinedDataState.map((panel) => {
-          const lineData = {
-            labels: dayLabelsMap[panel.switch_id],
-            datasets: [
-              {
-                label: "Active Power (kW)",
-                data: activePowerMap[panel.switch_id],
-                borderColor: "#4bc0c0",
-                backgroundColor: "rgba(75,192,192,0.25)",
-                tension: 0.35,
-              }
-            ]
-          };
-
-          return (
-            <div className="abb-card" key={panel.switch_id}>
-              <h3>{panel.name}</h3>
-              <h4>Type: {panel.type}</h4>
-              <h4>Load: {panel.load}</h4>
-
-              <h4 className={panel.CommStatus ? "error" : "ok"}>
-                Com Status: {panel.CommStatus ? "OK" : "Error"}
-              </h4>
-
-              <h4 className={panel.Tripped ? "error" : panel.BreakerClose ? "ok" : "error"}>
-                Position: {panel.Tripped ? "Tripped!" : panel.BreakerClose ? "Close" : "Open"}
-              </h4>
-
-              <div className="line-small">
-                <Line data={lineData} options={{ maintainAspectRatio: false }} />
-              </div>
-
+    <div className="billing-screen">
+      <div className="billing-header">
+        <div className="header-content">
+          <div className="abb-logo">
+            <div className="logo-circle">
+              <span className="logo-text-circle">ABB</span>
             </div>
-          );
-        })}
+          </div>
+          <h1>Digital Panel Dashboard</h1>
+          <p className="subtitle">ABB Smart Power Digital Solutions - Site Caesarea</p>
+        </div>
       </div>
 
+      <div className="status-chart-container">
+        <div className="status-chart-wrapper">
+          <h2>Breakers Status Overview</h2>
+          <div className="status-cards-grid">
+            <div className="status-card closed">
+              <div className="status-emoji">🔒</div>
+              <div className="status-number">{closedBreakers}</div>
+              <div className="status-label">Closed</div>
+            </div>
+            
+            <div className="status-card open">
+              <div className="status-emoji">🔓</div>
+              <div className="status-number">{openBreakers}</div>
+              <div className="status-label">Open</div>
+            </div>
+            
+            <div className="status-card comm-error">
+              <div className="status-emoji">📡</div>
+              <div className="status-number">{commErrorBreakers}</div>
+              <div className="status-label">Comm Error</div>
+            </div>
+            
+            <div className="status-card tripped">
+              <div className="status-emoji">⚠️</div>
+              <div className="status-number">{trippedBreakers}</div>
+              <div className="status-label">Tripped</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="breakers-grid">
+        {combinedDataState.map((breaker) => (
+          <div 
+            key={breaker.switch_id} 
+            className="breaker-card"
+            onClick={() => handleBreakerClick(breaker)}
+          >
+            <div className="breaker-header">
+              <h3>{breaker.name}</h3>
+              <div className="status-container">
+                {breaker.CommStatus && !breaker.Tripped ? (
+                  <div className="health-indicator">
+                    <span className="checkmark">✓</span>
+                  </div>
+                ) : (
+                  <div className={`status-indicator ${
+                    !breaker.CommStatus ? 'comm-error' : 'tripped'
+                  }`}>
+                    <span className="status-text">
+                      {!breaker.CommStatus ? 'COMM ERR' : 'TRIPPED'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="breaker-info">
+              <div className="info-row">
+                <span>Type:</span>
+                <span>{breaker.type}</span>
+              </div>
+              <div className="info-row">
+                <span>Load:</span>
+                <span>{breaker.load}</span>
+              </div>
+              <div className="info-row">
+                <span>Position:</span>
+                <span className={breaker.Tripped ? 'status-error' : breaker.BreakerClose ? 'status-ok' : 'status-error'}>
+                  {breaker.Tripped ? 'Tripped' : breaker.BreakerClose ? 'Closed' : 'Open'}
+                </span>
+              </div>
+              <div className="info-row">
+                <span>Comm:</span>
+                <span className={breaker.CommStatus ? 'status-ok' : 'status-error'}>
+                  {breaker.CommStatus ? 'OK' : 'Error'}
+                </span>
+              </div>
+            </div>
+
+            <div className="breaker-data">
+              <div className="data-section">
+                <h4>Voltages</h4>
+                <div className="data-grid">
+                  <span>V12: {breaker.V12 || 0}V</span>
+                  <span>V23: {breaker.V23 || 0}V</span>
+                  <span>V31: {breaker.V31 || 0}V</span>
+                </div>
+              </div>
+              
+              <div className="data-section">
+                <h4>Currents</h4>
+                <div className="data-grid">
+                  <span>I1: {breaker.I1 || 0}A</span>
+                  <span>I2: {breaker.I2 || 0}A</span>
+                  <span>I3: {breaker.I3 || 0}A</span>
+                </div>
+              </div>
+              
+              <div className="data-section">
+                <h4>Power</h4>
+                <div className="data-grid">
+                  <span>Active: {breaker.ActivePower || 0} kW</span>
+                  <span>Apparent: {breaker.ApparentPower || 0} kVA</span>
+                  <span>Reactive: {breaker.ReactivePower || 0} kVAR</span>
+                </div>
+              </div>
+              
+              <div className="data-section">
+                <h4>Energy & Frequency</h4>
+                <div className="data-grid">
+                  <span>Active Energy: {breaker.ActiveEnergy || 0} kWh</span>
+                  <span>Frequency: {breaker.Frequency || 0} Hz</span>
+                  <span>Power Factor: {breaker.PowerFactor || 0}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Side Panel */}
+      {sidebarOpen && selectedBreaker && (
+        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}>
+          <div className="sidebar" onClick={(e) => e.stopPropagation()}>
+            <div className="sidebar-header">
+              <h3>{selectedBreaker.name} - Chart View</h3>
+              <button className="close-btn" onClick={() => setSidebarOpen(false)}>×</button>
+            </div>
+            
+            <div className="chart-controls">
+              <div className="control-group">
+                <label>Select Data Type:</label>
+                <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
+                  <option value="voltage">Voltages (V12,V23,V31)</option>
+                  <option value="current">Currents (I1,I2,I3)</option>
+                  <option value="power">Power (Active/Apparent/Reactive)</option>
+                  <option value="energy">Energy & Frequency</option>
+                </select>
+              </div>
+              
+              <div className="control-group">
+                <label>Time Period:</label>
+                <select value={dateRange} onChange={(e) => handleDateRangeChange(e.target.value)}>
+                  <option value="7">7 days</option>
+                  <option value="14">14 days</option>
+                  <option value="30">30 days</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+              
+              {dateRange === 'custom' && (
+                <>
+                  <div className="control-group">
+                    <label>Start Date:</label>
+                    <input 
+                      type="date" 
+                      value={startDate} 
+                      onChange={(e) => setStartDate(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="control-group">
+                    <label>End Date:</label>
+                    <input 
+                      type="date" 
+                      value={endDate} 
+                      onChange={(e) => setEndDate(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <div className="sidebar-chart">
+              <Line data={generateChartData()} options={chartOptions} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

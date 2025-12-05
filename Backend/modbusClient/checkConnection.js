@@ -28,9 +28,13 @@ async function pollData() {
         continue;
       }
       console.log(`✅ Breaker ${i + 1}:`, data);
+      
+      // Always update LiveData
+      const liveDataUpdate = await sqlDB.updateLiveData(data, i + 1);
+      
+      // Write to historical Switches table only every minute
       if (write) {
-        const sendData = await sqlDB.writeBreakerData(data, i + 1); // Data sends & write to database
-        // Log the full result from writeBreakerData
+        const sendData = await sqlDB.writeBreakerData(data, i + 1);
         console.log("📤 DB response:", sendData);
 
         if (sendData.status === 200) {

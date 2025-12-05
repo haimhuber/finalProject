@@ -263,4 +263,47 @@ const checkDataExists = async (req, res) => {
     }
 };
 
-module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy, batchActivePowerData, batchActiveEnergyData, consumptionBilling, checkDataExists };
+const getLiveDataTest = async (req, res) => {
+    try {
+        const getSqlData = await sqlData.getLiveDataOnly();
+        res.status(200).json(getSqlData);
+    } catch (err) {
+        console.error('Error getting live data:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+const getHourlySamples = async (req, res) => {
+    const { startDate, endDate, switchId } = req.query;
+    try {
+        const getSqlData = await sqlData.getHourlySamples(startDate, endDate, switchId);
+        res.status(200).json(getSqlData);
+    } catch (err) {
+        console.error('Error getting hourly samples:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+const getDailySamples = async (req, res) => {
+    const { startDate, endDate, switchId } = req.query;
+    try {
+        const getSqlData = await sqlData.getDailySamples(startDate, endDate, switchId);
+        res.status(200).json(getSqlData);
+    } catch (err) {
+        console.error('Error getting daily samples:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+const getWeeklySamples = async (req, res) => {
+    const { startDate, endDate, switchId } = req.query;
+    try {
+        const getSqlData = await sqlData.getWeeklySamples(startDate, endDate, switchId);
+        res.status(200).json(getSqlData);
+    } catch (err) {
+        console.error('Error getting weekly samples:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy, batchActivePowerData, batchActiveEnergyData, consumptionBilling, checkDataExists, getLiveDataTest, getHourlySamples, getDailySamples, getWeeklySamples };

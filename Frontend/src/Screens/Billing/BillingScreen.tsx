@@ -24,10 +24,9 @@ export const BillingScreen = () => {
 
   // Initialize dates
   useEffect(() => {
-    const today = new Date();
-    const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    setStartDate(lastWeek.toISOString().split('T')[0]);
-    setEndDate(today.toISOString().split('T')[0]);
+    // Set dates based on existing data in database
+    setStartDate('2025-11-06');
+    setEndDate('2025-11-07');
   }, []);
 
   // Generate data when parameters change

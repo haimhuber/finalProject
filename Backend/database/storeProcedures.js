@@ -38,6 +38,7 @@ async function createSp() {
         @BreakerOpen BIT
       AS
       BEGIN
+        -- Insert into historical data
         INSERT INTO Switches (
           switch_id, V12, V23, V31, I1, I2, I3, Frequency, PowerFactor, ActivePower,
           ReactivePower, ApparentPower, NominalCurrent, ActiveEnergy, CommStatus,
@@ -52,6 +53,13 @@ async function createSp() {
           @ProtectionG_Trip, @ProtectionI_Trip, @ProtectionS_Trip, @ProtectionL_Trip,
           @TripDisconnected, @Tripped, @Undefined, @BreakerClose, @BreakerOpen
         );
+        
+        -- Update live data
+        EXEC UpdateLiveData @switch_id, @V12, @V23, @V31, @I1, @I2, @I3, @Frequency, @PowerFactor, @ActivePower,
+                           @ReactivePower, @ApparentPower, @NominalCurrent, @ActiveEnergy, @CommStatus,
+                           @ProtectionTrip, @ProtectionInstTrip, @ProtectionI_Enabled, @ProtectionS_Enabled, @ProtectionL_Enabled,
+                           @ProtectionG_Trip, @ProtectionI_Trip, @ProtectionS_Trip, @ProtectionL_Trip,
+                           @TripDisconnected, @Tripped, @Undefined, @BreakerClose, @BreakerOpen;
       END
     `);
         console.log("✅ Stored Procedure 'addBreakerData' created successfully");
@@ -94,20 +102,9 @@ async function createSp() {
             @liveData INT
         AS
         BEGIN
-            WITH LatestPerSwitch AS (
-                SELECT *,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY switch_id 
-                        ORDER BY timestamp DESC
-                    ) AS rn
-                FROM Switches
-            )
-            SELECT *
-            FROM LatestPerSwitch
-            WHERE rn = 1
-            ORDER BY switch_id ASC;
+            SELECT * FROM LiveData ORDER BY switch_id ASC;
         END;`);
-        console.log("✅ Stored Procedure 'getLiveData' (fixed) created successfully");
+        console.log("✅ Stored Procedure 'getLiveData' (using LiveData) created successfully");
         // ---------------------------------------------------------------------------------------
         await pool.request().query(`             
       CREATE OR ALTER PROCEDURE GetDailySample
@@ -639,6 +636,127 @@ async function createSp() {
             ORDER BY timestamp;
         END`);
         console.log("✅ Stored Procedure 'ReportPowerData' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE UpdateLiveData
+            @switch_id INT,
+            @V12 FLOAT, @V23 FLOAT, @V31 FLOAT,
+            @I1 FLOAT, @I2 FLOAT, @I3 FLOAT,
+            @Frequency FLOAT, @PowerFactor FLOAT,
+            @ActivePower FLOAT, @ReactivePower FLOAT, @ApparentPower FLOAT,
+            @NominalCurrent FLOAT, @ActiveEnergy FLOAT,
+            @CommStatus BIT, @ProtectionTrip BIT, @ProtectionInstTrip BIT,
+            @ProtectionI_Enabled BIT, @ProtectionS_Enabled BIT, @ProtectionL_Enabled BIT,
+            @ProtectionG_Trip BIT, @ProtectionI_Trip BIT, @ProtectionS_Trip BIT, @ProtectionL_Trip BIT,
+            @TripDisconnected BIT, @Tripped BIT, @Undefined BIT,
+            @BreakerClose BIT, @BreakerOpen BIT
+        AS
+        BEGIN
+            MERGE LiveData AS target
+            USING (SELECT @switch_id AS switch_id) AS source
+            ON target.switch_id = source.switch_id
+            WHEN MATCHED THEN
+                UPDATE SET
+                    V12 = @V12, V23 = @V23, V31 = @V31,
+                    I1 = @I1, I2 = @I2, I3 = @I3,
+                    Frequency = @Frequency, PowerFactor = @PowerFactor,
+                    ActivePower = @ActivePower, ReactivePower = @ReactivePower, ApparentPower = @ApparentPower,
+                    NominalCurrent = @NominalCurrent, ActiveEnergy = @ActiveEnergy,
+                    CommStatus = @CommStatus, ProtectionTrip = @ProtectionTrip, ProtectionInstTrip = @ProtectionInstTrip,
+                    ProtectionI_Enabled = @ProtectionI_Enabled, ProtectionS_Enabled = @ProtectionS_Enabled, ProtectionL_Enabled = @ProtectionL_Enabled,
+                    ProtectionG_Trip = @ProtectionG_Trip, ProtectionI_Trip = @ProtectionI_Trip, ProtectionS_Trip = @ProtectionS_Trip, ProtectionL_Trip = @ProtectionL_Trip,
+                    TripDisconnected = @TripDisconnected, Tripped = @Tripped, Undefined = @Undefined,
+                    BreakerClose = @BreakerClose, BreakerOpen = @BreakerOpen,
+                    timestamp = CURRENT_TIMESTAMP
+            WHEN NOT MATCHED THEN
+                INSERT (switch_id, V12, V23, V31, I1, I2, I3, Frequency, PowerFactor, ActivePower,
+                        ReactivePower, ApparentPower, NominalCurrent, ActiveEnergy, CommStatus,
+                        ProtectionTrip, ProtectionInstTrip, ProtectionI_Enabled, ProtectionS_Enabled, ProtectionL_Enabled,
+                        ProtectionG_Trip, ProtectionI_Trip, ProtectionS_Trip, ProtectionL_Trip,
+                        TripDisconnected, Tripped, Undefined, BreakerClose, BreakerOpen)
+                VALUES (@switch_id, @V12, @V23, @V31, @I1, @I2, @I3, @Frequency, @PowerFactor, @ActivePower,
+                        @ReactivePower, @ApparentPower, @NominalCurrent, @ActiveEnergy, @CommStatus,
+                        @ProtectionTrip, @ProtectionInstTrip, @ProtectionI_Enabled, @ProtectionS_Enabled, @ProtectionL_Enabled,
+                        @ProtectionG_Trip, @ProtectionI_Trip, @ProtectionS_Trip, @ProtectionL_Trip,
+                        @TripDisconnected, @Tripped, @Undefined, @BreakerClose, @BreakerOpen);
+        END`);
+        console.log("✅ Stored Procedure 'UpdateLiveData' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE GetLiveDataOnly
+        AS
+        BEGIN
+            SELECT * FROM LiveData ORDER BY switch_id;
+        END`);
+        console.log("✅ Stored Procedure 'GetLiveDataOnly' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE GetHourlySamples
+            @StartDate DATETIME,
+            @EndDate DATETIME,
+            @SwitchId INT = NULL
+        AS
+        BEGIN
+            SELECT 
+                switch_id,
+                AVG(ActiveEnergy) AS ActiveEnergy,
+                DATEADD(HOUR, DATEDIFF(HOUR, 0, timestamp), 0) AS timestamp
+            FROM Switches 
+            WHERE timestamp BETWEEN @StartDate AND @EndDate
+                AND (@SwitchId IS NULL OR switch_id = @SwitchId)
+            GROUP BY 
+                switch_id,
+                DATEADD(HOUR, DATEDIFF(HOUR, 0, timestamp), 0)
+            ORDER BY timestamp DESC, switch_id
+        END`);
+        console.log("✅ Stored Procedure 'GetHourlySamples' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE GetDailySamples
+            @StartDate DATETIME,
+            @EndDate DATETIME,
+            @SwitchId INT = NULL
+        AS
+        BEGIN
+            SELECT 
+                switch_id,
+                AVG(ActiveEnergy) AS ActiveEnergy,
+                CAST(timestamp AS DATE) AS timestamp
+            FROM Switches 
+            WHERE timestamp BETWEEN @StartDate AND @EndDate
+                AND (@SwitchId IS NULL OR switch_id = @SwitchId)
+            GROUP BY 
+                switch_id,
+                CAST(timestamp AS DATE)
+            ORDER BY timestamp DESC, switch_id
+        END`);
+        console.log("✅ Stored Procedure 'GetDailySamples' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE GetWeeklySamples
+            @StartDate DATETIME,
+            @EndDate DATETIME,
+            @SwitchId INT = NULL
+        AS
+        BEGIN
+            SELECT 
+                switch_id,
+                AVG(ActiveEnergy) AS ActiveEnergy,
+                DATEADD(WEEK, DATEDIFF(WEEK, 0, timestamp), 0) AS timestamp
+            FROM Switches 
+            WHERE timestamp BETWEEN @StartDate AND @EndDate
+                AND (@SwitchId IS NULL OR switch_id = @SwitchId)
+            GROUP BY 
+                switch_id,
+                DATEADD(WEEK, DATEDIFF(WEEK, 0, timestamp), 0)
+            ORDER BY timestamp DESC, switch_id
+        END`);
+        console.log("✅ Stored Procedure 'GetWeeklySamples' created successfully");
 
     } catch (error) {
         console.error('❌ Error creating stored procedures:', error);

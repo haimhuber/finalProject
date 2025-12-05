@@ -18,6 +18,7 @@ router.get('/activeEnergy/:switch_id', screenAction.activeEnergyData);
 router.get('/batchActiveEnergy', screenAction.batchActiveEnergyData);
 router.get('/consumption-billing/:switch_id', screenAction.consumptionBilling);
 router.get('/check-data/:switch_id', screenAction.checkDataExists);
+router.get('/live-data-test', screenAction.getLiveDataTest);
 router.get('/breakerspositions', screenAction.breakersPositionStatus);
 //router.get('/email', email.sendEmail);
 router.get('/alerts', screenAction.getAlertsData);
@@ -28,6 +29,9 @@ router.post('/ack-by', screenAction.ackAlarmBy);
 router.post('/report', screenAction.reportData);
 router.post('/audit', screenAction.auditTrail);
 router.get('/audit', screenAction.auditTrailData);
+router.get('/hourly-samples', screenAction.getHourlySamples);
+router.get('/daily-samples', screenAction.getDailySamples);
+router.get('/weekly-samples', screenAction.getWeeklySamples);
 router.post('/email', sendMail.sendEmail);
 
 

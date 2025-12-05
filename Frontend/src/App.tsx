@@ -4,7 +4,7 @@ import './App.css'
 import { useAuth, useAlerts, useTime } from './contexts';
 
 const HomeScreen = lazy(() => import('./Screens/Home/HomeScreen').then(m => ({ default: m.HomeScreen })));
-const DigitalPanelGallery = lazy(() => import('./Components/DigitalPanelGallery/DigitalPanelGallery').then(m => ({ default: m.DigitalPanelGallery })));
+
 const Setting = lazy(() => import('./Screens/_Setting/Setting').then(m => ({ default: m.Setting })));
 const Login = lazy(() => import('./Screens/Login/LoginPage'));
 const Signin = lazy(() => import('./Screens/Signin/SigninPage'));
@@ -91,8 +91,8 @@ function App() {
         </div>
       </div>
       <nav className='navigator'>
-        <Link to="/">Home</Link> |
-        <Link to="/dashboard">Dashboard</Link> |
+        <Link to="/">Dashboard</Link> |
+
         <Link to="/alerts" className="alerts-link">Alerts{token && alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>|
 
         <Link to="/settings">Settings</Link> |
@@ -110,7 +110,7 @@ function App() {
       <Suspense fallback={<div style={{padding: '20px', textAlign: 'center'}}>Loading...</div>}>
         <Routes>
           <Route path="/" element={<HomeScreen />} />
-          <Route path="/dashboard" element={<DigitalPanelGallery />} />
+
           <Route path="/settings" element={<Setting />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
