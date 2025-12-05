@@ -530,12 +530,22 @@ async function createSp() {
             WithCosts AS (
                 SELECT *,
                     CASE 
-                        WHEN month_num IN (6, 7, 8, 9) THEN 
-                            daily_consumption * (0.33 * 0.5712 + 0.25 * 0.4827 + 0.42 * 0.3956)
-                        WHEN month_num IN (12, 1, 2, 3) THEN 
-                            daily_consumption * (0.42 * 0.5712 + 0.25 * 0.4827 + 0.33 * 0.3956)
-                        ELSE 
-                            daily_consumption * (0.375 * 0.5712 + 0.25 * 0.4827 + 0.375 * 0.3956)
+                        WHEN month_num IN (6, 7, 8, 9) THEN -- קיץ
+                            CASE 
+                                WHEN DATEPART(WEEKDAY, CAST(timestamp AS DATE)) BETWEEN 2 AND 6 THEN -- א'-ה'
+                                    daily_consumption * ((6.0/24) * 1.69 + (18.0/24) * 0.53) -- 6 שעות פסגה, 18 שפל
+                                ELSE -- ו'-ש'
+                                    daily_consumption * 0.53 -- כל היום שפל
+                            END
+                        WHEN month_num IN (12, 1, 2) THEN -- חורף
+                            daily_consumption * ((5.0/24) * 1.21 + (19.0/24) * 0.46) -- 5 שעות פסגה, 19 שפל
+                        ELSE -- אביב/סתיו
+                            CASE 
+                                WHEN DATEPART(WEEKDAY, CAST(timestamp AS DATE)) BETWEEN 2 AND 6 THEN -- א'-ה'
+                                    daily_consumption * ((10.0/24) * 0.50 + (14.0/24) * 0.45) -- 10 שעות פסגה, 14 שפל
+                                ELSE -- ו'-ש'
+                                    daily_consumption * 0.45 -- כל היום שפל
+                            END
                     END as daily_cost
                 FROM SeasonalRates
             )

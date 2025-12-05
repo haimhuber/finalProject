@@ -94,12 +94,52 @@ export const BillingScreen = () => {
       const pseudoRandom2 = ((seed * 7) % 1000) / 1000;
       
       const consumption = pseudoRandom1 * 50 + 20;
-      const cost = consumption * (0.45 + pseudoRandom2 * 0.2);
+      
+      // חישוב עלות לפי תעריפים אמיתיים
+      const month = date.getMonth() + 1;
+      const dayOfWeek = date.getDay();
+      let rate = 0.45; // ברירת מחדל
+      let rateType = 'שפל';
+      let season = 'אביב/סתיו';
+      
+      // קיץ: יוני-ספטמבר
+      if (month >= 6 && month <= 9) {
+        season = 'קיץ';
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // א'-ה'
+          // 6 שעות פסגה (17:00-23:00), 18 שעות שפל
+          rate = (6/24) * 1.69 + (18/24) * 0.53;
+          rateType = 'משולב';
+        } else { // ו'-ש'
+          rate = 0.53; // כל היום שפל
+          rateType = 'שפל';
+        }
+      }
+      // חורף: דצמבר-פברואר
+      else if (month === 12 || month === 1 || month === 2) {
+        season = 'חורף';
+        // 5 שעות פסגה (17:00-22:00), 19 שעות שפל
+        rate = (5/24) * 1.21 + (19/24) * 0.46;
+        rateType = 'משולב';
+      }
+      // אביב/סתיו
+      else {
+        season = 'אביב/סתיו';
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // א'-ה'
+          // 10 שעות פסגה (07:00-17:00), 14 שעות שפל
+          rate = (10/24) * 0.50 + (14/24) * 0.45;
+          rateType = 'משולב';
+        } else { // ו'-ש'
+          rate = 0.45; // כל היום שפל
+          rateType = 'שפל';
+        }
+      }
+      
+      const cost = consumption * rate;
       
       data.push({
         switch_id: parseInt(selectedBreaker),
         consumption_date: dateStr,
-        season: 'Summer',
+        season: season,
         daily_consumption: consumption,
         daily_cost: cost,
         cumulative_consumption: 0,
@@ -483,7 +523,7 @@ export const BillingScreen = () => {
               <tr>
                 <th>Date</th>
                 <th>Consumption (kWh)</th>
-                <th>Cost (₪)</th>
+                <th>Cost (₪) כולל מע"מ</th>
                 <th>Rate Type</th>
                 <th>Efficiency</th>
               </tr>
@@ -499,8 +539,40 @@ export const BillingScreen = () => {
                   <td className="consumption-value">{item.daily_consumption.toFixed(1)}</td>
                   <td className="cost-value">₪{item.daily_cost.toFixed(2)}</td>
                   <td>
-                    <span className={`rate-badge ${item.daily_consumption > 40 ? 'peak' : item.daily_consumption > 30 ? 'standard' : 'off-peak'}`}>
-                      {item.daily_consumption > 40 ? 'Peak' : item.daily_consumption > 30 ? 'Standard' : 'Off-Peak'}
+                    <span className={`rate-badge ${(() => {
+                      const date = new Date(item.consumption_date);
+                      const month = date.getMonth() + 1;
+                      const dayOfWeek = date.getDay(); // 0=ראשון, 6=שבת
+                      
+                      // קיץ: יוני-ספטמבר
+                      if (month >= 6 && month <= 9) {
+                        // פסגה: א'-ה' 17:00-23:00
+                        return (dayOfWeek >= 1 && dayOfWeek <= 5) ? 'peak' : 'off-peak';
+                      }
+                      // חורף: דצמבר-פברואר  
+                      else if (month === 12 || month === 1 || month === 2) {
+                        // פסגה: כל יום 17:00-22:00
+                        return 'peak'; // כל היום פסגה בחורף
+                      }
+                      // אביב/סתיו: מרץ-מאי, אוקטובר-נובמבר
+                      else {
+                        // פסגה: א'-ה' 07:00-17:00
+                        return (dayOfWeek >= 1 && dayOfWeek <= 5) ? 'peak' : 'off-peak';
+                      }
+                    })()}`}>
+                      {(() => {
+                        const date = new Date(item.consumption_date);
+                        const month = date.getMonth() + 1;
+                        const dayOfWeek = date.getDay();
+                        
+                        if (month >= 6 && month <= 9) {
+                          return (dayOfWeek >= 1 && dayOfWeek <= 5) ? 'פסגה' : 'שפל';
+                        } else if (month === 12 || month === 1 || month === 2) {
+                          return 'פסגה';
+                        } else {
+                          return (dayOfWeek >= 1 && dayOfWeek <= 5) ? 'פסגה' : 'שפל';
+                        }
+                      })()} 
                     </span>
                   </td>
                   <td>
