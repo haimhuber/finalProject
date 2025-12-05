@@ -6,7 +6,7 @@ export async function getLiveData() {
   if (cached) return cached;
 
   try {
-    const response = await fetch("api/breakersMainData");
+    const response = await fetch("http://192.168.1.89:5500/api/breakersMainData");
     const data = await response.json();
     apiCache.set(cacheKey, data.data, 10000); // 10 seconds cache
     return data.data;
@@ -22,7 +22,7 @@ export async function getBreakerNames() {
   if (cached) return cached;
 
   try {
-    const response = await fetch("api/breakersNames");
+    const response = await fetch("http://192.168.1.89:5500/api/breakersNames");
     const data = await response.json();
     apiCache.set(cacheKey, data.data, 60000); // 1 minute cache
     return data.data;
@@ -35,13 +35,19 @@ export async function getBreakerNames() {
 export async function fetchAndCombineData() {
   const liveDataFetched = await getLiveData();
   const breakerNamesFetched = await getBreakerNames();
+  
+  // Check if data exists and is array
+  if (!Array.isArray(liveDataFetched) || !Array.isArray(breakerNamesFetched)) {
+    console.warn('Data not available:', { liveDataFetched, breakerNamesFetched });
+    return [];
+  }
+  
   // Combine using switch_id as key 
   const combined = liveDataFetched.map((item: { switch_id: number; }) => ({
     ...item,
-    ...(breakerNamesFetched[item.switch_id - 1] || {}) // Merge extra info
+    ...(breakerNamesFetched.find((b: any) => b.id === item.switch_id) || {}) // Merge extra info
   }));
   return combined;
-
 }
 
 export async function getActivePowerData(switch_id: string) {
@@ -50,7 +56,7 @@ export async function getActivePowerData(switch_id: string) {
   if (cached) return cached;
 
   try {
-    const response = await fetch(`api/activepower/${switch_id}`);
+    const response = await fetch(`http://192.168.1.89:5500/api/activePower/${switch_id}`);
     const data = await response.json();
     apiCache.set(cacheKey, data.data, 30000); // 30 seconds cache
     return data.data;
@@ -62,7 +68,7 @@ export async function getActivePowerData(switch_id: string) {
 //  -------------------------------------- 
 export async function getActiveEnergyData(switch_id: string) {
   try {
-    const response = await fetch(`api/activeEnergy/${switch_id}`);
+    const response = await fetch(`http://192.168.1.89:5500/api/activeEnergy/${switch_id}`);
     const data = await response.json();
     return data.data; // Return the array/object
   } catch (err) {
@@ -73,7 +79,7 @@ export async function getActiveEnergyData(switch_id: string) {
 
 export async function getAlerts() {
   try {
-    const response = await fetch(`api/alerts`);
+    const response = await fetch(`http://192.168.1.89:5500/api/alerts`);
     const data = await response.json();
     return data; // Return the array/object
   } catch (err) {
@@ -101,7 +107,7 @@ export async function breakersPosition() {
   if (cached) return cached;
 
   try {
-    const req = await fetch('api/breakerspositions');
+    const req = await fetch('http://192.168.1.89:5500/api/breakerspositions');
     const res = await req.json();
     apiCache.set(cacheKey, res, 15000); // 15 seconds cache
     return res;
@@ -116,7 +122,7 @@ export async function getBatchActivePowerData() {
   if (cached) return cached;
 
   try {
-    const response = await fetch('api/batchActivePower');
+    const response = await fetch('http://192.168.1.89:5500/api/batchActivePower');
     const data = await response.json();
     apiCache.set(cacheKey, data.data, 30000); // 30 seconds cache
     return data.data;
@@ -132,7 +138,7 @@ export async function getBatchActiveEnergyData() {
   if (cached) return cached;
 
   try {
-    const response = await fetch('api/batchActiveEnergy');
+    const response = await fetch('http://192.168.1.89:5500/api/batchActiveEnergy');
     const data = await response.json();
     apiCache.set(cacheKey, data.data, 30000); // 30 seconds cache
     return data.data;
@@ -144,7 +150,7 @@ export async function getBatchActiveEnergyData() {
 
 export async function sendEmail(email: string) {
   try {
-    const res = await fetch("api/email", {
+    const res = await fetch("http://192.168.1.89:5500/api/email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })

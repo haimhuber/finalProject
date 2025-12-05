@@ -27,15 +27,19 @@ export const AlertsProvider: React.FC<AlertsProviderProps> = ({ children }) => {
     let alertCounter = 0;
     try {
       const response = await getAlerts();
-      const data = response.data;
-      for (let index = 0; index < data.length; index++) {
-        if (data[index].alertAck === 0) {
-          ++alertCounter;
+      const data = response?.data;
+      
+      if (Array.isArray(data)) {
+        for (let index = 0; index < data.length; index++) {
+          if (data[index].alertAck === 0) {
+            ++alertCounter;
+          }
         }
       }
       setAlertsNumber(alertCounter);
     } catch (err) {
       console.error('Failed to fetch alerts', err);
+      setAlertsNumber(0);
     }
   };
 

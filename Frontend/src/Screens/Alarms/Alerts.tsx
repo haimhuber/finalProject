@@ -14,7 +14,7 @@ export const Alerts = () => {
   const { refreshAlerts } = useAlerts();
 
   const readAllAckData = async () => {
-    const res = await fetch('api/ack-data');
+    const res = await fetch('http://192.168.1.89:5500/api/ack-data');
     const req = await res.json();
     setAckDataBy(req.data);
     console.log(req.data);
@@ -23,7 +23,7 @@ export const Alerts = () => {
 
   const ackByFb = async (ackId: number) => {
     try {
-      const res = await fetch("api/ack-by", {
+      const res = await fetch("http://192.168.1.89:5500/api/ack-by", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ackId, ackBy }),
@@ -50,7 +50,7 @@ export const Alerts = () => {
   const ackAlarm = async (alertType: string, alertMsg: string, alertId: number) => {
     try {
       const ackUpdate = 1;
-      const res = await fetch("api/ack", {
+      const res = await fetch("http://192.168.1.89:5500/api/ack", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ alertType, alertMsg, alertId, ackUpdate }),

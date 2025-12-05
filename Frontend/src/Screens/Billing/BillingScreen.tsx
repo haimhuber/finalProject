@@ -5,10 +5,11 @@ import './BillingScreen.css';
 interface ConsumptionData {
   switch_id: number;
   consumption_date: string;
-  hour_part: number;
+  season: string;
   daily_consumption: number;
-  tariff_type: string;
-  cost_shekel: number;
+  daily_cost: number;
+  cumulative_consumption: number;
+  cumulative_cost: number;
 }
 
 export const BillingScreen = () => {
@@ -41,7 +42,12 @@ export const BillingScreen = () => {
       const data = await response.json();
       console.log('Response data:', data);
       
-      setConsumptionData(data.data || []);
+      if (data.data && data.data.length > 0) {
+        setConsumptionData(data.data);
+      } else {
+        setConsumptionData([]);
+        console.log('No data available for selected dates');
+      }
     } catch (error) {
       console.error('Error fetching consumption data:', error);
     } finally {
@@ -61,7 +67,7 @@ export const BillingScreen = () => {
       },
       {
         label: 'עלות יומית (₪)',
-        data: consumptionData.map(item => item.cost_shekel),
+        data: consumptionData.map(item => item.daily_cost),
         borderColor: 'rgba(255, 99, 132, 1)',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
         yAxisID: 'y1'
@@ -82,7 +88,7 @@ export const BillingScreen = () => {
   };
 
   const totalConsumption = consumptionData.reduce((sum, item) => sum + item.daily_consumption, 0);
-  const totalCost = consumptionData.reduce((sum, item) => sum + item.cost_shekel, 0);
+  const totalCost = consumptionData.reduce((sum, item) => sum + item.daily_cost, 0);
 
   return (
     <div className="billing-screen">
@@ -114,7 +120,7 @@ export const BillingScreen = () => {
         </button>
       </div>
 
-      {consumptionData.length > 0 && (
+      {consumptionData.length > 0 ? (
         <>
           <div className="billing-summary">
             <div className="summary-card">
@@ -141,31 +147,35 @@ export const BillingScreen = () => {
               <thead>
                 <tr>
                   <th>תאריך</th>
-                  <th>תעריף</th>
+                  <th>עונה</th>
                   <th>צריכה (kWh)</th>
                   <th>עלות (₪)</th>
-                  <th>שעה</th>
-                  <th>מפסק</th>
+                  <th>צריכה מצטברת</th>
+                  <th>עלות מצטברת</th>
                 </tr>
               </thead>
               <tbody>
                 {consumptionData.map((item, index) => (
                   <tr key={index}>
                     <td>{new Date(item.consumption_date).toLocaleDateString('he-IL')}</td>
-                    <td className={`tariff-${item.tariff_type.toLowerCase()}`}>
-                      {item.tariff_type === 'Peak' ? 'שיא' : 
-                       item.tariff_type === 'Mid' ? 'גבע' : 'שפל'}
-                    </td>
+                    <td>{item.season}</td>
                     <td>{item.daily_consumption.toFixed(2)}</td>
-                    <td>₪{item.cost_shekel.toFixed(2)}</td>
-                    <td>{item.hour_part}:00</td>
-                    <td>{item.switch_id}</td>
+                    <td>₪{item.daily_cost.toFixed(2)}</td>
+                    <td>{item.cumulative_consumption.toFixed(2)}</td>
+                    <td>₪{item.cumulative_cost.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </>
+      ) : (
+        !loading && startDate && endDate && (
+          <div className="no-data-message">
+            <p>אין נתונים זמינים לתאריכים שנבחרו</p>
+            <p>נסה תאריכים מנובמבר 2025</p>
+          </div>
+        )
       )}
     </div>
   );

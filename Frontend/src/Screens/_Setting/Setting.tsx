@@ -78,7 +78,7 @@ export const Setting = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const req = await fetch("/api/audit");
+        const req = await fetch("http://192.168.1.89:5500/api/audit");
         const response = await req.json();
         setAuditData(response.data || []);
       } catch (err) {

@@ -497,27 +497,56 @@ async function createSp() {
         BEGIN
             SET NOCOUNT ON;
             
-            SELECT TOP 1000
+            WITH DailyData AS (
+                SELECT 
+                    CAST(timestamp AS DATE) as consumption_date,
+                    MIN(ActiveEnergy) as start_energy,
+                    MAX(ActiveEnergy) as end_energy,
+                    MONTH(CAST(timestamp AS DATE)) as month_num
+                FROM Switches
+                WHERE switch_id = @switch_id
+                  AND CAST(timestamp AS DATE) BETWEEN @start_date AND @end_date
+                GROUP BY CAST(timestamp AS DATE)
+            ),
+            SeasonalRates AS (
+                SELECT *,
+                    CASE 
+                        WHEN (end_energy - start_energy) < 0 THEN 0
+                        ELSE (end_energy - start_energy)
+                    END as daily_consumption,
+                    CASE 
+                        WHEN month_num IN (12, 1, 2, 3) THEN 'חורף'
+                        WHEN month_num IN (4, 5) THEN 'אביב'
+                        WHEN month_num IN (6, 7, 8, 9) THEN 'קיץ'
+                        ELSE 'סתיו'
+                    END as season
+                FROM DailyData
+            ),
+            WithCosts AS (
+                SELECT *,
+                    CASE 
+                        WHEN month_num IN (6, 7, 8, 9) THEN 
+                            daily_consumption * (0.33 * 0.5712 + 0.25 * 0.4827 + 0.42 * 0.3956)
+                        WHEN month_num IN (12, 1, 2, 3) THEN 
+                            daily_consumption * (0.42 * 0.5712 + 0.25 * 0.4827 + 0.33 * 0.3956)
+                        ELSE 
+                            daily_consumption * (0.375 * 0.5712 + 0.25 * 0.4827 + 0.375 * 0.3956)
+                    END as daily_cost
+                FROM SeasonalRates
+            )
+            SELECT 
                 @switch_id as switch_id,
-                CAST(timestamp AS DATE) as consumption_date,
-                DATEPART(HOUR, timestamp) as hour_part,
-                ActiveEnergy as daily_consumption,
-                CASE 
-                    WHEN DATEPART(HOUR, timestamp) BETWEEN 7 AND 16 THEN 'Peak'
-                    WHEN DATEPART(HOUR, timestamp) BETWEEN 17 AND 22 THEN 'Mid'
-                    ELSE 'Off-Peak'
-                END as tariff_type,
-                CASE 
-                    WHEN DATEPART(HOUR, timestamp) BETWEEN 7 AND 16 THEN ActiveEnergy * 0.5712
-                    WHEN DATEPART(HOUR, timestamp) BETWEEN 17 AND 22 THEN ActiveEnergy * 0.4827
-                    ELSE ActiveEnergy * 0.3956
-                END as cost_shekel
-            FROM Switches 
-            WHERE switch_id = @switch_id 
-              AND CAST(timestamp AS DATE) BETWEEN @start_date AND @end_date
-            ORDER BY timestamp;
+                consumption_date,
+                season,
+                daily_consumption,
+                daily_cost,
+                SUM(daily_consumption) OVER (ORDER BY consumption_date) as cumulative_consumption,
+                SUM(daily_cost) OVER (ORDER BY consumption_date) as cumulative_cost
+            FROM WithCosts
+            WHERE daily_consumption >= 0
+            ORDER BY consumption_date;
         END`);
-        console.log("✅ Stored Procedure 'GetConsumptionWithBilling' created successfully");
+        console.log("✅ Stored Procedure 'GetConsumptionWithBilling' (Seasonal) created successfully");
 
         // ---------------------------------------------------------------------------------------
         await pool.request().query(`

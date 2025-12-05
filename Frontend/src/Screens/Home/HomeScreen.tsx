@@ -66,7 +66,9 @@ export const HomeScreen: React.FC = () => {
         setCombinedDataState(combined);
         
         let closed = 0, open = 0;
-        breakerRes.data.forEach((b: any) => b.BreakerClose ? closed++ : open++);
+        if (breakerRes?.data && Array.isArray(breakerRes.data)) {
+          breakerRes.data.forEach((b: any) => b.BreakerClose ? closed++ : open++);
+        }
         setCloseCnt(closed);
         setOpenCnt(open);
         

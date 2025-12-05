@@ -58,7 +58,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("api/login", {
+      const res = await fetch("http://192.168.1.89:5500/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -103,7 +103,7 @@ const Login = () => {
         const usernameAudit = sessionStorage.getItem("username");
         const type = "login";
 
-        await fetch("api/audit", {
+        await fetch("http://192.168.1.89:5500/api/audit", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ usernameAudit, type })
