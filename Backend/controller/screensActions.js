@@ -217,4 +217,24 @@ const auditTrailData = async (req, res) => {
     }
 };
 
-module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy };
+const batchActivePowerData = async (req, res) => {
+    try {
+        const getSqlData = await sqlData.getBatchActivePower();
+        res.status(200).json(getSqlData);
+    } catch (err) {
+        console.error('Error fetching batch active power:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+const batchActiveEnergyData = async (req, res) => {
+    try {
+        const getSqlData = await sqlData.getBatchActiveEnergy();
+        res.status(200).json(getSqlData);
+    } catch (err) {
+        console.error('Error fetching batch active energy:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy, batchActivePowerData, batchActiveEnergyData };

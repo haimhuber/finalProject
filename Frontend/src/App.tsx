@@ -1,14 +1,16 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import './App.css'
-import { HomeScreen } from './Screens/Home/HomeScreen';
-import { Setting } from './Screens/_Setting/Setting';
-import Login from './Screens/Login/LoginPage';
-import Signin from './Screens/Signin/SigninPage';
-import { Logout } from './Screens/Logout/Logout';
-import { Alerts } from './Screens/Alarms/Alerts';
-import Report from "./Screens/Reports/Report";
-import { DigitalPanelGallery } from './Components/DigitalPanelGallery/DigitalPanelGallery';
 import { useAuth, useAlerts, useTime } from './contexts';
+
+const HomeScreen = lazy(() => import('./Screens/Home/HomeScreen').then(m => ({ default: m.HomeScreen })));
+const DigitalPanelGallery = lazy(() => import('./Components/DigitalPanelGallery/DigitalPanelGallery').then(m => ({ default: m.DigitalPanelGallery })));
+const Setting = lazy(() => import('./Screens/_Setting/Setting').then(m => ({ default: m.Setting })));
+const Login = lazy(() => import('./Screens/Login/LoginPage'));
+const Signin = lazy(() => import('./Screens/Signin/SigninPage'));
+const Logout = lazy(() => import('./Screens/Logout/Logout').then(m => ({ default: m.Logout })));
+const Alerts = lazy(() => import('./Screens/Alarms/Alerts').then(m => ({ default: m.Alerts })));
+const Report = lazy(() => import('./Screens/Reports/Report'));
 
 function App() {
   const { isAuthenticated, user, token } = useAuth();
@@ -42,16 +44,18 @@ function App() {
         )}
       </nav>
 
-      <Routes>
-        <Route path="/" element={<HomeScreen />} />
-        <Route path="/dashboard" element={<DigitalPanelGallery />} />
-        <Route path="/settings" element={<Setting />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/logout" element={<Logout />} />
-        <Route path="/Signin" element={<Signin />} />
-        <Route path="/alerts" element={<Alerts />} />
-        <Route path="/reports" element={<Report />} />
-      </Routes>
+      <Suspense fallback={<div style={{padding: '20px', textAlign: 'center'}}>Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<HomeScreen />} />
+          <Route path="/dashboard" element={<DigitalPanelGallery />} />
+          <Route path="/settings" element={<Setting />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/logout" element={<Logout />} />
+          <Route path="/Signin" element={<Signin />} />
+          <Route path="/alerts" element={<Alerts />} />
+          <Route path="/reports" element={<Report />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

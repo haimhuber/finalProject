@@ -13,7 +13,9 @@ router.get('/ack-data', screenAction.readAckData);
 // Protected routes (JWT required)
 router.get('/data', screenAction.dataPage);
 router.get('/activePower/:switch_id', screenAction.activePowerData);
+router.get('/batchActivePower', screenAction.batchActivePowerData);
 router.get('/activeEnergy/:switch_id', screenAction.activeEnergyData);
+router.get('/batchActiveEnergy', screenAction.batchActiveEnergyData);
 router.get('/breakerspositions', screenAction.breakersPositionStatus);
 //router.get('/email', email.sendEmail);
 router.get('/alerts', screenAction.getAlertsData);

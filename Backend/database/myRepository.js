@@ -394,4 +394,52 @@ async function auditTrailData() {
 }
 
 
-module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy };
+async function getBatchActivePower() {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .execute('GetAllDailySamples');
+
+    if (!result.recordset || result.recordset.length === 0) {
+      return { status: 200, data: {} };
+    }
+
+    // Group by switch_id
+    const grouped = result.recordset.reduce((acc, row) => {
+      if (!acc[row.switch_id]) acc[row.switch_id] = [];
+      acc[row.switch_id].push(row);
+      return acc;
+    }, {});
+
+    return { status: 200, data: grouped };
+  } catch (err) {
+    console.error('Error fetching batch active power:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function getBatchActiveEnergy() {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .execute('GetAllDailySamplesActiveEnergy');
+
+    if (!result.recordset || result.recordset.length === 0) {
+      return { status: 200, data: {} };
+    }
+
+    // Group by switch_id
+    const grouped = result.recordset.reduce((acc, row) => {
+      if (!acc[row.switch_id]) acc[row.switch_id] = [];
+      acc[row.switch_id].push(row);
+      return acc;
+    }, {});
+
+    return { status: 200, data: grouped };
+  } catch (err) {
+    console.error('Error fetching batch active energy:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy };

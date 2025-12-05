@@ -2,6 +2,7 @@ import './Alerts.css';
 import { getAlerts, getBreakerNames, getTime } from '../../Types/CombinedData';
 import { useEffect, useState } from 'react';
 import { formatSqlTime, type AckTimestamp, type AlertInterface } from '../../Types/Alerts'
+import { useAlerts } from '../../contexts';
 
 
 export const Alerts = () => {
@@ -10,6 +11,7 @@ export const Alerts = () => {
   const [loading, setLoading] = useState(true);
   const ackBy = sessionStorage.getItem('username');
   const [ackDataBy, setAckDataBy] = useState<AckTimestamp[]>([]);
+  const { refreshAlerts } = useAlerts();
 
   const readAllAckData = async () => {
     const res = await fetch('api/ack-data');
@@ -35,7 +37,7 @@ export const Alerts = () => {
         const confiremed = window.confirm("Are you sure you want to acknowledge this alert?");
         if (confiremed) {
           fetchAlerts();
-          window.location.reload();
+          refreshAlerts(); // עדכון מספר ההתראות בקונטקסט
         }
       }
     } catch (err) {
@@ -108,18 +110,18 @@ export const Alerts = () => {
   };
 
   function formatTimestampUTC(ts: string) {
-      const date = new Date(ts);
+    const date = new Date(ts);
 
-      const day = String(date.getUTCDate()).padStart(2, "0");
-      const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-      const year = date.getUTCFullYear();
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const year = date.getUTCFullYear();
 
-      const hours = String(date.getUTCHours()).padStart(2, "0");
-      const minutes = String(date.getUTCMinutes()).padStart(2, "0");
-      const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+    const hours = String(date.getUTCHours()).padStart(2, "0");
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
 
-      return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
-    }
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+  }
 
 
   return (
@@ -160,9 +162,9 @@ export const Alerts = () => {
                           {ackDataBy.find(item => item.ackId === alert.id)?.ackBy || "--"}
                           <small className="ack-time">
                             @ {(() => {
-                                const ack = ackDataBy.find(item => item.ackId === alert.id);
-                                return ack ? formatTimestampUTC(ack.timestamp) : "";
-                              })()}
+                              const ack = ackDataBy.find(item => item.ackId === alert.id);
+                              return ack ? formatTimestampUTC(ack.timestamp) : "";
+                            })()}
                           </small>
                         </span>
                       </div>

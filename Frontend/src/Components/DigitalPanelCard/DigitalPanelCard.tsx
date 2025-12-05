@@ -1,11 +1,10 @@
 import './DigitalPanelCard.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo, useMemo } from 'react';
 import type { DigitalPanelCardProps } from '../../Types/digitalPanel';
-import { getActiveEnergyData } from '../../Types/CombinedData';
+import { getBatchActiveEnergyData } from '../../Types/CombinedData';
 import { Line } from 'react-chartjs-2';
 
-export const DigitalPanelCard: React.FC<DigitalPanelCardProps> =
-  ({
+export const DigitalPanelCard: React.FC<DigitalPanelCardProps> = memo(({
     switch_id, name, type, load, CommStatus, V12, V23, V31,
     Frequency, PowerFactor, ActivePower, ReactivePower,
     NominalCurrent, ActiveEnergy, ProtectionTrip, ProtectionInstTrip,
@@ -15,23 +14,33 @@ export const DigitalPanelCard: React.FC<DigitalPanelCardProps> =
     const [toggle, setToggle] = useState<boolean>(false);
     const [activeEnergy, setActiveEnergy] = useState<number[]>([]);
     const [day, setDay] = useState<string[]>([]);
+    const [chartLoading, setChartLoading] = useState<boolean>(true);
 
     useEffect(() => {
       async function getData() {
-        const response = await getActiveEnergyData(switch_id);
-        const values = response.map((item: any) => item.ActiveEnergy);
-        const days = response.map((item: any) => {
-          const d = new Date(item.day_slot);
-          return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
-        });
-        setActiveEnergy(values);
-        setDay(days);
+        if (toggle) { // טען גרף רק כשנדרש
+          try {
+            const batchData = await getBatchActiveEnergyData();
+            const response = batchData[switch_id] || [];
+            const values = response.map((item: any) => item.ActiveEnergy);
+            const days = response.map((item: any) => {
+              const d = new Date(item.day_slot);
+              return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+            });
+            setActiveEnergy(values);
+            setDay(days);
+          } catch (err) {
+            console.error(err);
+          } finally {
+            setChartLoading(false);
+          }
+        }
       }
 
       getData();
-    }, [switch_id]);
+    }, [switch_id, toggle]);
 
-    const chartData = {
+    const chartData = useMemo(() => ({
       labels: day,
       datasets: [
         {
@@ -42,17 +51,17 @@ export const DigitalPanelCard: React.FC<DigitalPanelCardProps> =
           tension: 0.4
         }
       ]
-    };
+    }), [day, activeEnergy]);
 
-    const chartOptions = {
+    const chartOptions = useMemo(() => ({
       responsive: true,
       plugins: {
         legend: { position: "top" as const },
         title: { display: true, text: `${name} Active Energy` }
       }
-    };
+    }), [name]);
 
-    const statusError = !CommStatus || Tripped;
+    const statusError = useMemo(() => !CommStatus || Tripped, [CommStatus, Tripped]);
 
     return (
       <div className="abb-card" style={{ position: "relative" }}>
@@ -99,7 +108,13 @@ export const DigitalPanelCard: React.FC<DigitalPanelCardProps> =
             <p className="abb-row"><span>Nominal Current:</span> <span>{NominalCurrent} A</span></p>
 
             <div className="line-small">
-              <Line data={chartData} options={chartOptions} />
+              {chartLoading ? (
+                <div style={{height: '200px', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px'}}>
+                  Loading chart...
+                </div>
+              ) : (
+                <Line data={chartData} options={chartOptions} />
+              )}
             </div>
           </>
         )}
@@ -110,4 +125,4 @@ export const DigitalPanelCard: React.FC<DigitalPanelCardProps> =
 
       </div>
     );
-  };
+  });

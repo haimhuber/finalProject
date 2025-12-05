@@ -1,8 +1,15 @@
+import { apiCache } from '../utils/apiCache';
+
 export async function getLiveData() {
+  const cacheKey = 'breakersMainData';
+  const cached = apiCache.get(cacheKey);
+  if (cached) return cached;
+
   try {
     const response = await fetch("api/breakersMainData");
     const data = await response.json();
-    return data.data; // Return the array
+    apiCache.set(cacheKey, data.data, 10000); // 10 seconds cache
+    return data.data;
   } catch (err) {
     console.error("Error fetching live data:", err);
     return [];
@@ -10,10 +17,15 @@ export async function getLiveData() {
 }
 
 export async function getBreakerNames() {
+  const cacheKey = 'breakersNames';
+  const cached = apiCache.get(cacheKey);
+  if (cached) return cached;
+
   try {
     const response = await fetch("api/breakersNames");
     const data = await response.json();
-    return data.data; // Return the array/object
+    apiCache.set(cacheKey, data.data, 60000); // 1 minute cache
+    return data.data;
   } catch (err) {
     console.error("Error fetching breaker names:", err);
     return [];
@@ -33,10 +45,15 @@ export async function fetchAndCombineData() {
 }
 
 export async function getActivePowerData(switch_id: string) {
+  const cacheKey = `activepower_${switch_id}`;
+  const cached = apiCache.get(cacheKey);
+  if (cached) return cached;
+
   try {
     const response = await fetch(`api/activepower/${switch_id}`);
     const data = await response.json();
-    return data.data; // Return the array/object
+    apiCache.set(cacheKey, data.data, 30000); // 30 seconds cache
+    return data.data;
   } catch (err) {
     console.error("Error fetching Active Power:", err);
     return [];
@@ -79,14 +96,50 @@ export function getTime() {
 
 
 export async function breakersPosition() {
+  const cacheKey = 'breakerspositions';
+  const cached = apiCache.get(cacheKey);
+  if (cached) return cached;
+
   try {
     const req = await fetch('api/breakerspositions');
     const res = await req.json();
+    apiCache.set(cacheKey, res, 15000); // 15 seconds cache
     return res;
   } catch (err) {
     console.error({ ServerMsg: err });
   }
+}
 
+export async function getBatchActivePowerData() {
+  const cacheKey = 'batchActivePower';
+  const cached = apiCache.get(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch('api/batchActivePower');
+    const data = await response.json();
+    apiCache.set(cacheKey, data.data, 30000); // 30 seconds cache
+    return data.data;
+  } catch (err) {
+    console.error('Error fetching batch active power:', err);
+    return {};
+  }
+}
+
+export async function getBatchActiveEnergyData() {
+  const cacheKey = 'batchActiveEnergy';
+  const cached = apiCache.get(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch('api/batchActiveEnergy');
+    const data = await response.json();
+    apiCache.set(cacheKey, data.data, 30000); // 30 seconds cache
+    return data.data;
+  } catch (err) {
+    console.error('Error fetching batch active energy:', err);
+    return {};
+  }
 }
 
 export async function sendEmail(email: string) {

@@ -1,5 +1,5 @@
 import './HomeScreen.css';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Line, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { getActivePowerData, fetchAndCombineData, getActiveEnergyData, breakersPosition } from "../../Types/CombinedData";
+import { getBatchActivePowerData, fetchAndCombineData, breakersPosition } from "../../Types/CombinedData";
 
 ChartJS.register(
   CategoryScale,
@@ -34,7 +34,7 @@ export const HomeScreen: React.FC = () => {
   const [openCnt, setOpenCnt] = useState(0);
   const [closeCnt, setCloseCnt] = useState(0);
 
-  const breakersPieData = {
+  const breakersPieData = useMemo(() => ({
     labels: ["Closed", "Open"],
     datasets: [
       {
@@ -43,7 +43,7 @@ export const HomeScreen: React.FC = () => {
         borderWidth: 0,
       },
     ],
-  };
+  }), [closeCnt, openCnt]);
 
   // CHECK TOKEN
   useEffect(() => {
@@ -57,34 +57,39 @@ export const HomeScreen: React.FC = () => {
       setLoading(true);
 
       try {
-        const combined = await fetchAndCombineData();
+        // טען נתונים בסיסיים קודם
+        const [combined, breakerRes] = await Promise.all([
+          fetchAndCombineData(),
+          breakersPosition()
+        ]);
+        
         setCombinedDataState(combined);
-
-        const pwr: any = {};
-        const labels: any = {};
-
-        await Promise.all(
-          combined.map(async (p: any) => {
-            const res = await getActivePowerData(p.switch_id);
-            pwr[p.switch_id] = res.map((x: any) => x.ActivePower);
-            labels[p.switch_id] = res.map((x: any) =>
-              new Date(x.day_slot).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" })
-            );
-          })
-        );
-
-        setActivePowerMap(pwr);
-        setDayLabelsMap(labels);
-
-        const breakerRes = await breakersPosition();
+        
         let closed = 0, open = 0;
         breakerRes.data.forEach((b: any) => b.BreakerClose ? closed++ : open++);
         setCloseCnt(closed);
         setOpenCnt(open);
+        
+        setLoading(false); // הסר loading מוקדם יותר
+
+        // טען גרפים ברקע - batch API
+        const batchData = await getBatchActivePowerData();
+        const pwr: any = {};
+        const labels: any = {};
+
+        Object.keys(batchData).forEach(switch_id => {
+          const res = batchData[switch_id];
+          pwr[switch_id] = res.map((x: any) => x.ActivePower);
+          labels[switch_id] = res.map((x: any) =>
+            new Date(x.day_slot).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" })
+          );
+        });
+
+        setActivePowerMap(pwr);
+        setDayLabelsMap(labels);
 
       } catch (err) {
         console.error(err);
-      } finally {
         setLoading(false);
       }
     }
@@ -95,8 +100,20 @@ export const HomeScreen: React.FC = () => {
   // LOADING SCREEN
   if (loading) {
     return (
-      <div className="home-loading">
-        Loading Home data...
+      <div className="home-wrapper">
+        <h2 className="home-title">Digital Panel Home Screen – Site Ceasarea</h2>
+        <div className="home-top-pie" style={{height: '300px', background: '#f0f0f0', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          Loading chart...
+        </div>
+        <div className="home-grid">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="abb-card" style={{background: '#f0f0f0', minHeight: '200px'}}>
+              <div style={{height: '20px', background: '#ddd', margin: '10px 0', borderRadius: '4px'}}></div>
+              <div style={{height: '15px', background: '#ddd', margin: '10px 0', borderRadius: '4px', width: '70%'}}></div>
+              <div style={{height: '100px', background: '#ddd', margin: '10px 0', borderRadius: '4px'}}></div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -114,7 +131,7 @@ export const HomeScreen: React.FC = () => {
       {/* CARDS GRID */}
       <div className="home-grid">
         {combinedDataState.map((panel) => {
-          const lineData = {
+          const lineData = useMemo(() => ({
             labels: dayLabelsMap[panel.switch_id],
             datasets: [
               {
@@ -125,7 +142,7 @@ export const HomeScreen: React.FC = () => {
                 tension: 0.35,
               }
             ]
-          };
+          }), [dayLabelsMap[panel.switch_id], activePowerMap[panel.switch_id]]);
 
           return (
             <div className="abb-card" key={panel.switch_id}>

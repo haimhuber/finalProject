@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { DigitalPanelCard } from '../DigitalPanelCard/DigitalPanelCard';
 import { fetchAndCombineData } from '../../Types/CombinedData';
 import './DigitalPanelGallery.css';
 
-export const DigitalPanelGallery = () => {
+export const DigitalPanelGallery = memo(() => {
   const [combinedDataState, setCombinedDataState] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -43,7 +43,20 @@ export const DigitalPanelGallery = () => {
   }, []);
 
   if (loading) {
-    return <div className="loading-screen">Loading Dashboard data…</div>;
+    return (
+      <div className="digital-panel-gallery">
+        {[1,2,3,4,5,6].map(i => (
+          <div key={i} className="single-card">
+            <div className="abb-card" style={{background: '#f0f0f0', minHeight: '400px', padding: '20px'}}>
+              <div style={{height: '24px', background: '#ddd', margin: '10px 0', borderRadius: '4px', width: '60%'}}></div>
+              <div style={{height: '16px', background: '#ddd', margin: '8px 0', borderRadius: '4px', width: '40%'}}></div>
+              <div style={{height: '16px', background: '#ddd', margin: '8px 0', borderRadius: '4px', width: '50%'}}></div>
+              <div style={{height: '200px', background: '#ddd', margin: '20px 0', borderRadius: '4px'}}></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (
@@ -55,4 +68,4 @@ export const DigitalPanelGallery = () => {
       ))}
     </div>
   );
-};
+});
