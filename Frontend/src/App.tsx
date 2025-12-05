@@ -38,25 +38,53 @@ function App() {
               const month = now.getMonth() + 1;
               const dayOfWeek = now.getDay(); // 0=Sunday, 6=Saturday
               
-              // קיץ: יוני-ספטמבר (6-9)
+              // Summer: June-September (6-9)
               if (month >= 6 && month <= 9) {
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // א'-ה'
-                  if (hour >= 17 && hour < 23) return 'פסגה - ₪1.69/kWh';
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Sun-Thu
+                  if (hour >= 17 && hour < 23) return 'PEAK - ₪1.69/kWh';
                 }
-                return 'שפל - ₪0.53/kWh';
+                return 'OFF-PEAK - ₪0.53/kWh';
               }
               
-              // חורף: דצמבר-פברואר (12,1,2)
+              // Winter: December-February (12,1,2)
               if (month === 12 || month === 1 || month === 2) {
-                if (hour >= 17 && hour < 22) return 'פסגה - ₪1.21/kWh';
-                return 'שפל - ₪0.46/kWh';
+                if (hour >= 17 && hour < 22) return 'PEAK - ₪1.21/kWh';
+                return 'OFF-PEAK - ₪0.46/kWh';
               }
               
-              // אביב/סתיו: מרץ-מאי, אוקטובר-נובמבר (3-5, 10-11)
-              if (dayOfWeek >= 1 && dayOfWeek <= 5) { // א'-ה'
-                if (hour >= 7 && hour < 17) return 'פסגה - ₪0.50/kWh';
+              // Spring/Autumn: March-May, October-November (3-5, 10-11)
+              if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Sun-Thu
+                if (hour >= 7 && hour < 17) return 'PEAK - ₪0.50/kWh';
               }
-              return 'שפל - ₪0.45/kWh';
+              return 'OFF-PEAK - ₪0.45/kWh';
+            })()} 
+          </div>
+          <div className="peak-item">
+            {(() => {
+              const now = new Date();
+              const month = now.getMonth() + 1;
+              const dayOfWeek = now.getDay();
+              
+              // Summer: June-September
+              if (month >= 6 && month <= 9) {
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                  return 'PEAK: 17:00-23:00 | OFF-PEAK: All other hours';
+                } else {
+                  return 'OFF-PEAK: All day (Weekend)';
+                }
+              }
+              
+              // Winter: December-February
+              if (month === 12 || month === 1 || month === 2) {
+                return 'PEAK: 17:00-22:00 | OFF-PEAK: All other hours';
+              }
+              
+              // Spring/Autumn
+              if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                return 'PEAK: 07:00-17:00 | OFF-PEAK: All other hours';
+              } else {
+                return 'OFF-PEAK: All day (Weekend)';
+              }
             })()} 
           </div>
           <p className="season-clean">{season}</p>

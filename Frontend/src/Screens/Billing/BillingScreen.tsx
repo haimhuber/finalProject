@@ -95,42 +95,42 @@ export const BillingScreen = () => {
       
       const consumption = pseudoRandom1 * 50 + 20;
       
-      // חישוב עלות לפי תעריפים אמיתיים
+      // Calculate cost based on real tariffs
       const month = date.getMonth() + 1;
       const dayOfWeek = date.getDay();
-      let rate = 0.45; // ברירת מחדל
-      let rateType = 'שפל';
-      let season = 'אביב/סתיו';
+      let rate = 0.45; // default
+      let rateType = 'Off-Peak';
+      let season = 'Spring/Autumn';
       
-      // קיץ: יוני-ספטמבר
+      // Summer: June-September
       if (month >= 6 && month <= 9) {
-        season = 'קיץ';
-        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // א'-ה'
-          // 6 שעות פסגה (17:00-23:00), 18 שעות שפל
+        season = 'Summer';
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Sun-Thu
+          // 6 hours peak (17:00-23:00), 18 hours off-peak
           rate = (6/24) * 1.69 + (18/24) * 0.53;
-          rateType = 'משולב';
-        } else { // ו'-ש'
-          rate = 0.53; // כל היום שפל
-          rateType = 'שפל';
+          rateType = 'Mixed';
+        } else { // Fri-Sat
+          rate = 0.53; // All day off-peak
+          rateType = 'Off-Peak';
         }
       }
-      // חורף: דצמבר-פברואר
+      // Winter: December-February
       else if (month === 12 || month === 1 || month === 2) {
-        season = 'חורף';
-        // 5 שעות פסגה (17:00-22:00), 19 שעות שפל
+        season = 'Winter';
+        // 5 hours peak (17:00-22:00), 19 hours off-peak
         rate = (5/24) * 1.21 + (19/24) * 0.46;
-        rateType = 'משולב';
+        rateType = 'Mixed';
       }
-      // אביב/סתיו
+      // Spring/Autumn
       else {
-        season = 'אביב/סתיו';
-        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // א'-ה'
-          // 10 שעות פסגה (07:00-17:00), 14 שעות שפל
+        season = 'Spring/Autumn';
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Sun-Thu
+          // 10 hours peak (07:00-17:00), 14 hours off-peak
           rate = (10/24) * 0.50 + (14/24) * 0.45;
-          rateType = 'משולב';
-        } else { // ו'-ש'
-          rate = 0.45; // כל היום שפל
-          rateType = 'שפל';
+          rateType = 'Mixed';
+        } else { // Fri-Sat
+          rate = 0.45; // All day off-peak
+          rateType = 'Off-Peak';
         }
       }
       
@@ -186,16 +186,42 @@ export const BillingScreen = () => {
     ]
   };
 
-  const doughnutData = {
-    labels: ['Peak Hours', 'Standard Hours', 'Off-Peak Hours'],
-    datasets: [
-      {
-        data: [33, 42, 25],
-        backgroundColor: ['#FF6900', '#00A8CC', '#8BC34A'],
-        borderWidth: 0
+  const doughnutData = useMemo(() => {
+    const month = new Date().getMonth() + 1;
+    const dayOfWeek = new Date().getDay();
+    
+    let peakHours, offPeakHours;
+    
+    if (month >= 6 && month <= 9) { // Summer
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        peakHours = 6; // 17:00-23:00
+        offPeakHours = 18;
+      } else {
+        peakHours = 0; // No peak on weekends
+        offPeakHours = 24;
       }
-    ]
-  };
+    } else if (month === 12 || month === 1 || month === 2) { // Winter
+      peakHours = 5; // 17:00-22:00
+      offPeakHours = 19;
+    } else { // Spring/Autumn
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        peakHours = 10; // 07:00-17:00
+        offPeakHours = 14;
+      } else {
+        peakHours = 0; // No peak on weekends
+        offPeakHours = 24;
+      }
+    }
+    
+    return {
+      labels: peakHours > 0 ? ['Peak Hours', 'Off-Peak Hours'] : ['Off-Peak Hours'],
+      datasets: [{
+        data: peakHours > 0 ? [peakHours, offPeakHours] : [offPeakHours],
+        backgroundColor: peakHours > 0 ? ['#FF6900', '#8BC34A'] : ['#8BC34A'],
+        borderWidth: 0
+      }]
+    };
+  }, []);
 
   const chartOptions = {
     responsive: true,
@@ -498,15 +524,32 @@ export const BillingScreen = () => {
           <div className="tariff-legend">
             <div className="tariff-item peak">
               <span className="tariff-dot" style={{backgroundColor: '#FF6900'}}></span>
-              Peak Hours (07:00-17:00) - ₪0.57/kWh
-            </div>
-            <div className="tariff-item standard">
-              <span className="tariff-dot" style={{backgroundColor: '#00A8CC'}}></span>
-              Standard Hours (17:00-23:00) - ₪0.48/kWh
+              {(() => {
+                const month = new Date().getMonth() + 1;
+                const dayOfWeek = new Date().getDay();
+                
+                if (month >= 6 && month <= 9) {
+                  return dayOfWeek >= 1 && dayOfWeek <= 5 ? 'Peak Hours (17:00-23:00) - ₪1.69/kWh' : 'No Peak (Weekend)';
+                } else if (month === 12 || month === 1 || month === 2) {
+                  return 'Peak Hours (17:00-22:00) - ₪1.21/kWh';
+                } else {
+                  return dayOfWeek >= 1 && dayOfWeek <= 5 ? 'Peak Hours (07:00-17:00) - ₪0.50/kWh' : 'No Peak (Weekend)';
+                }
+              })()} 
             </div>
             <div className="tariff-item off-peak">
               <span className="tariff-dot" style={{backgroundColor: '#8BC34A'}}></span>
-              Off-Peak Hours (23:00-07:00) - ₪0.40/kWh
+              {(() => {
+                const month = new Date().getMonth() + 1;
+                
+                if (month >= 6 && month <= 9) {
+                  return 'Off-Peak Hours (All other) - ₪0.53/kWh';
+                } else if (month === 12 || month === 1 || month === 2) {
+                  return 'Off-Peak Hours (All other) - ₪0.46/kWh';
+                } else {
+                  return 'Off-Peak Hours (All other) - ₪0.45/kWh';
+                }
+              })()} 
             </div>
           </div>
         </div>
@@ -523,8 +566,10 @@ export const BillingScreen = () => {
               <tr>
                 <th>Date</th>
                 <th>Consumption (kWh)</th>
-                <th>Cost (₪) כולל מע"מ</th>
-                <th>Rate Type</th>
+<th>Cost (₪) incl. VAT</th>
+                <th>Season</th>
+                <th>Peak Rate</th>
+                <th>Off-Peak Rate</th>
                 <th>Efficiency</th>
               </tr>
             </thead>
@@ -539,41 +584,37 @@ export const BillingScreen = () => {
                   <td className="consumption-value">{item.daily_consumption.toFixed(1)}</td>
                   <td className="cost-value">₪{item.daily_cost.toFixed(2)}</td>
                   <td>
-                    <span className={`rate-badge ${(() => {
+                    <span className="rate-badge standard">
+                      {item.season}
+                    </span>
+                  </td>
+                  <td>
+                    {(() => {
                       const date = new Date(item.consumption_date);
                       const month = date.getMonth() + 1;
-                      const dayOfWeek = date.getDay(); // 0=ראשון, 6=שבת
                       
-                      // קיץ: יוני-ספטמבר
                       if (month >= 6 && month <= 9) {
-                        // פסגה: א'-ה' 17:00-23:00
-                        return (dayOfWeek >= 1 && dayOfWeek <= 5) ? 'peak' : 'off-peak';
+                        return '₪1.69/kWh (17:00-23:00)';
+                      } else if (month === 12 || month === 1 || month === 2) {
+                        return '₪1.21/kWh (17:00-22:00)';
+                      } else {
+                        return '₪0.50/kWh (07:00-17:00)';
                       }
-                      // חורף: דצמבר-פברואר  
-                      else if (month === 12 || month === 1 || month === 2) {
-                        // פסגה: כל יום 17:00-22:00
-                        return 'peak'; // כל היום פסגה בחורף
+                    })()} 
+                  </td>
+                  <td>
+                    {(() => {
+                      const date = new Date(item.consumption_date);
+                      const month = date.getMonth() + 1;
+                      
+                      if (month >= 6 && month <= 9) {
+                        return '₪0.53/kWh (All other hours)';
+                      } else if (month === 12 || month === 1 || month === 2) {
+                        return '₪0.46/kWh (All other hours)';
+                      } else {
+                        return '₪0.45/kWh (All other hours)';
                       }
-                      // אביב/סתיו: מרץ-מאי, אוקטובר-נובמבר
-                      else {
-                        // פסגה: א'-ה' 07:00-17:00
-                        return (dayOfWeek >= 1 && dayOfWeek <= 5) ? 'peak' : 'off-peak';
-                      }
-                    })()}`}>
-                      {(() => {
-                        const date = new Date(item.consumption_date);
-                        const month = date.getMonth() + 1;
-                        const dayOfWeek = date.getDay();
-                        
-                        if (month >= 6 && month <= 9) {
-                          return (dayOfWeek >= 1 && dayOfWeek <= 5) ? 'פסגה' : 'שפל';
-                        } else if (month === 12 || month === 1 || month === 2) {
-                          return 'פסגה';
-                        } else {
-                          return (dayOfWeek >= 1 && dayOfWeek <= 5) ? 'פסגה' : 'שפל';
-                        }
-                      })()} 
-                    </span>
+                    })()} 
                   </td>
                   <td>
                     <div className="efficiency-container">
@@ -596,6 +637,8 @@ export const BillingScreen = () => {
                 <td><strong>Total</strong></td>
                 <td className="consumption-value"><strong>{totalConsumption.toFixed(1)} kWh</strong></td>
                 <td className="cost-value"><strong>₪{totalCost.toFixed(2)}</strong></td>
+                <td>-</td>
+                <td>-</td>
                 <td>-</td>
                 <td>-</td>
               </tr>

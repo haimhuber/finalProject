@@ -502,52 +502,86 @@ async function createSp() {
         BEGIN
             SET NOCOUNT ON;
             
-            WITH DailyData AS (
+            WITH HourlyData AS (
                 SELECT 
                     CAST(timestamp AS DATE) as consumption_date,
-                    MIN(ActiveEnergy) as start_energy,
-                    MAX(ActiveEnergy) as end_energy,
-                    MONTH(CAST(timestamp AS DATE)) as month_num
+                    DATEPART(HOUR, timestamp) as hour_part,
+                    ActiveEnergy,
+                    timestamp,
+                    MONTH(CAST(timestamp AS DATE)) as month_num,
+                    DATEPART(WEEKDAY, CAST(timestamp AS DATE)) as weekday_num
                 FROM Switches
                 WHERE switch_id = @switch_id
                   AND CAST(timestamp AS DATE) BETWEEN @start_date AND @end_date
-                GROUP BY CAST(timestamp AS DATE)
             ),
-            SeasonalRates AS (
+            TimeSlots AS (
+                SELECT 
+                    consumption_date,
+                    month_num,
+                    weekday_num,
+                    -- Get energy at key transition points
+                    MAX(CASE WHEN hour_part <= 7 THEN ActiveEnergy END) as energy_07,
+                    MAX(CASE WHEN hour_part <= 17 THEN ActiveEnergy END) as energy_17,
+                    MAX(CASE WHEN hour_part <= 22 THEN ActiveEnergy END) as energy_22,
+                    MAX(CASE WHEN hour_part <= 23 THEN ActiveEnergy END) as energy_23,
+                    MIN(ActiveEnergy) as energy_start,
+                    MAX(ActiveEnergy) as energy_end
+                FROM HourlyData
+                GROUP BY consumption_date, month_num, weekday_num
+            ),
+            ConsumptionByPeriod AS (
                 SELECT *,
                     CASE 
-                        WHEN (end_energy - start_energy) < 0 THEN 0
-                        ELSE (end_energy - start_energy)
-                    END as daily_consumption,
+                        WHEN month_num IN (12, 1, 2, 3) THEN 'Winter'
+                        WHEN month_num IN (4, 5) THEN 'Spring'
+                        WHEN month_num IN (6, 7, 8, 9) THEN 'Summer'
+                        ELSE 'Autumn'
+                    END as season,
+                    
+                    -- Calculate consumption for each period based on season
                     CASE 
-                        WHEN month_num IN (12, 1, 2, 3) THEN 'חורף'
-                        WHEN month_num IN (4, 5) THEN 'אביב'
-                        WHEN month_num IN (6, 7, 8, 9) THEN 'קיץ'
-                        ELSE 'סתיו'
-                    END as season
-                FROM DailyData
+                        -- Summer: Peak 17:00-23:00 (weekdays only)
+                        WHEN month_num IN (6, 7, 8, 9) AND weekday_num BETWEEN 2 AND 6 THEN
+                            ISNULL(energy_23 - energy_17, 0) -- Peak period
+                        -- Winter: Peak 17:00-22:00 (all days)
+                        WHEN month_num IN (12, 1, 2) THEN
+                            ISNULL(energy_22 - energy_17, 0) -- Peak period
+                        -- Spring/Autumn: Peak 07:00-17:00 (weekdays only)
+                        WHEN weekday_num BETWEEN 2 AND 6 THEN
+                            ISNULL(energy_17 - energy_07, 0) -- Peak period
+                        ELSE 0
+                    END as peak_consumption,
+                    
+                    -- Off-peak is total minus peak
+                    (energy_end - energy_start) - 
+                    CASE 
+                        WHEN month_num IN (6, 7, 8, 9) AND weekday_num BETWEEN 2 AND 6 THEN
+                            ISNULL(energy_23 - energy_17, 0)
+                        WHEN month_num IN (12, 1, 2) THEN
+                            ISNULL(energy_22 - energy_17, 0)
+                        WHEN weekday_num BETWEEN 2 AND 6 THEN
+                            ISNULL(energy_17 - energy_07, 0)
+                        ELSE 0
+                    END as offpeak_consumption
+                FROM TimeSlots
             ),
             WithCosts AS (
                 SELECT *,
+                    (energy_end - energy_start) as daily_consumption,
+                    
+                    -- Calculate cost based on actual consumption periods
                     CASE 
-                        WHEN month_num IN (6, 7, 8, 9) THEN -- קיץ
-                            CASE 
-                                WHEN DATEPART(WEEKDAY, CAST(timestamp AS DATE)) BETWEEN 2 AND 6 THEN -- א'-ה'
-                                    daily_consumption * ((6.0/24) * 1.69 + (18.0/24) * 0.53) -- 6 שעות פסגה, 18 שפל
-                                ELSE -- ו'-ש'
-                                    daily_consumption * 0.53 -- כל היום שפל
-                            END
-                        WHEN month_num IN (12, 1, 2) THEN -- חורף
-                            daily_consumption * ((5.0/24) * 1.21 + (19.0/24) * 0.46) -- 5 שעות פסגה, 19 שפל
-                        ELSE -- אביב/סתיו
-                            CASE 
-                                WHEN DATEPART(WEEKDAY, CAST(timestamp AS DATE)) BETWEEN 2 AND 6 THEN -- א'-ה'
-                                    daily_consumption * ((10.0/24) * 0.50 + (14.0/24) * 0.45) -- 10 שעות פסגה, 14 שפל
-                                ELSE -- ו'-ש'
-                                    daily_consumption * 0.45 -- כל היום שפל
-                            END
+                        -- Summer rates
+                        WHEN month_num IN (6, 7, 8, 9) THEN
+                            (peak_consumption * 1.69) + (offpeak_consumption * 0.53)
+                        -- Winter rates
+                        WHEN month_num IN (12, 1, 2) THEN
+                            (peak_consumption * 1.21) + (offpeak_consumption * 0.46)
+                        -- Spring/Autumn rates
+                        ELSE
+                            (peak_consumption * 0.50) + (offpeak_consumption * 0.45)
                     END as daily_cost
-                FROM SeasonalRates
+                FROM ConsumptionByPeriod
             )
             SELECT 
                 @switch_id as switch_id,
