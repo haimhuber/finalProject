@@ -30,10 +30,36 @@ function App() {
           </div>
         </div>
         <div className="status-content">
-          <div className="peak-item">📅 {shortDate}</div>
-          <div className="peak-item">OFF: {peakOffSeason?.offPeakStart} – {peakOffSeason?.offPeakEnd}</div>
-          <div className="peak-item">PEAK: {peakOffSeason?.peakStart} – {peakOffSeason?.peakEnd}</div>
-          <p className="season-clean">Season: {season}</p>
+          <div className="peak-item">🕐 {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</div>
+          <div className="peak-item">
+            {(() => {
+              const now = new Date();
+              const hour = now.getHours();
+              const month = now.getMonth() + 1;
+              const dayOfWeek = now.getDay(); // 0=Sunday, 6=Saturday
+              
+              // קיץ: יוני-ספטמבר (6-9)
+              if (month >= 6 && month <= 9) {
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // א'-ה'
+                  if (hour >= 17 && hour < 23) return 'פסגה - ₪1.69/kWh';
+                }
+                return 'שפל - ₪0.53/kWh';
+              }
+              
+              // חורף: דצמבר-פברואר (12,1,2)
+              if (month === 12 || month === 1 || month === 2) {
+                if (hour >= 17 && hour < 22) return 'פסגה - ₪1.21/kWh';
+                return 'שפל - ₪0.46/kWh';
+              }
+              
+              // אביב/סתיו: מרץ-מאי, אוקטובר-נובמבר (3-5, 10-11)
+              if (dayOfWeek >= 1 && dayOfWeek <= 5) { // א'-ה'
+                if (hour >= 7 && hour < 17) return 'פסגה - ₪0.50/kWh';
+              }
+              return 'שפל - ₪0.45/kWh';
+            })()} 
+          </div>
+          <p className="season-clean">{season}</p>
         </div>
       </div>
       <nav className='navigator'>
