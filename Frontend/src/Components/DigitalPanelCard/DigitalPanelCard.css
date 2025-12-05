@@ -8,7 +8,7 @@
   /* אפור תעשייתי בהיר */
   border: 1px solid #d1d5db;
   /* קו אפור עדין */
-  border-radius: 10px;
+
 
   padding: 14px;
 
@@ -37,14 +37,14 @@
    =============================== */
 
 .panel-title {
-  font-size: 1.05rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #111827;
   margin: 0;
 }
 
 .panel-subtitle {
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 500;
   color: #374151;
   margin: 0;
@@ -71,7 +71,7 @@
 
 .abb-section-title {
   margin-top: 10px;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #111827;
 
@@ -84,7 +84,7 @@
   display: flex;
   justify-content: space-between;
   color: #1f2937;
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   margin: 2px 0;
 }
 

@@ -137,6 +137,7 @@ async function getBreakersMainData() {
     const result = await pool.request()
       .input('liveData', sql.Int, config.breakers.length)
       .execute('getLiveData');
+    
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
       return { status: 200, data: [] };

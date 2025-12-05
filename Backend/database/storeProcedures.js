@@ -94,15 +94,20 @@ async function createSp() {
             @liveData INT
         AS
         BEGIN
-        SELECT *
-            FROM (
-            SELECT TOP (@liveData) *
-            FROM Switches
-            ORDER BY Switches.timestamp DESC
-        ) AS Latest
-        ORDER BY Latest.timestamp ASC;
+            WITH LatestPerSwitch AS (
+                SELECT *,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY switch_id 
+                        ORDER BY timestamp DESC
+                    ) AS rn
+                FROM Switches
+            )
+            SELECT *
+            FROM LatestPerSwitch
+            WHERE rn = 1
+            ORDER BY switch_id ASC;
         END;`);
-        console.log("✅ Stored Procedure 'getLiveData' created successfully");
+        console.log("✅ Stored Procedure 'getLiveData' (fixed) created successfully");
         // ---------------------------------------------------------------------------------------
         await pool.request().query(`             
       CREATE OR ALTER PROCEDURE GetDailySample

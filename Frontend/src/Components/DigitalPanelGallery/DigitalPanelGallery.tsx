@@ -20,7 +20,7 @@ export const DigitalPanelGallery = memo(() => {
         const data = await fetchAndCombineData();
         setCombinedDataState(data);
       } catch (err) {
-        console.error(err);
+        console.error('Error in initial load:', err);
       } finally {
         setLoading(false);
       }

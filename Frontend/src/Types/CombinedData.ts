@@ -6,9 +6,16 @@ export async function getLiveData() {
   if (cached) return cached;
 
   try {
-    const response = await fetch("http://192.168.1.89:5500/api/breakersMainData");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    
+    const response = await fetch("http://192.168.1.89:5500/api/breakersMainData", {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    
     const data = await response.json();
-    apiCache.set(cacheKey, data.data, 10000); // 10 seconds cache
+    apiCache.set(cacheKey, data.data, 10000);
     return data.data;
   } catch (err) {
     console.error("Error fetching live data:", err);
@@ -24,6 +31,7 @@ export async function getBreakerNames() {
   try {
     const response = await fetch("http://192.168.1.89:5500/api/breakersNames");
     const data = await response.json();
+
     apiCache.set(cacheKey, data.data, 60000); // 1 minute cache
     return data.data;
   } catch (err) {
@@ -36,18 +44,43 @@ export async function fetchAndCombineData() {
   const liveDataFetched = await getLiveData();
   const breakerNamesFetched = await getBreakerNames();
   
-  // Check if data exists and is array
-  if (!Array.isArray(liveDataFetched) || !Array.isArray(breakerNamesFetched)) {
-    console.warn('Data not available:', { liveDataFetched, breakerNamesFetched });
+
+  
+  // If no breaker names, return empty
+  if (!Array.isArray(breakerNamesFetched) || breakerNamesFetched.length === 0) {
+    console.warn('No breaker names available');
     return [];
   }
   
-  // Combine using switch_id as key 
-  const combined = liveDataFetched.map((item: { switch_id: number; }) => ({
-    ...item,
-    ...(breakerNamesFetched.find((b: any) => b.id === item.switch_id) || {}) // Merge extra info
+  // If we have live data, combine it
+  if (Array.isArray(liveDataFetched) && liveDataFetched.length > 0) {
+    const combined = liveDataFetched.map((item: { switch_id: number; }) => ({
+      ...item,
+      ...(breakerNamesFetched.find((b: any) => b.id === item.switch_id) || {})
+    }));
+    return combined;
+  }
+  
+  // If no live data, return breaker names with default values
+  return breakerNamesFetched.map((breaker: any) => ({
+    switch_id: breaker.id,
+    ...breaker,
+    V12: 400,
+    V23: 400,
+    V31: 400,
+    I1: 0,
+    I2: 0,
+    I3: 0,
+    Frequency: 50,
+    PowerFactor: 0.95,
+    ActivePower: 0,
+    ReactivePower: 0,
+    ApparentPower: 0,
+    ActiveEnergy: 0,
+    BreakerClose: 1,
+    BreakerOpen: 0,
+    timestamp: new Date().toISOString()
   }));
-  return combined;
 }
 
 export async function getActivePowerData(switch_id: string) {

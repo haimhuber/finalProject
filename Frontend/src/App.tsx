@@ -24,10 +24,17 @@ function App() {
 
     <BrowserRouter>
       <div className="peak-status-bar">
-        <div className="peak-item">📅 {shortDate}</div>
-        <div className="peak-item">OFF: {peakOffSeason?.offPeakStart} – {peakOffSeason?.offPeakEnd}</div>
-        <div className="peak-item">PEAK: {peakOffSeason?.peakStart} – {peakOffSeason?.peakEnd}</div>
-        <p className="season-clean">Season: {season}</p>
+        <div className="status-logo">
+          <div className="nav-logo-circle">
+            <span className="nav-logo-text">ABB</span>
+          </div>
+        </div>
+        <div className="status-content">
+          <div className="peak-item">📅 {shortDate}</div>
+          <div className="peak-item">OFF: {peakOffSeason?.offPeakStart} – {peakOffSeason?.offPeakEnd}</div>
+          <div className="peak-item">PEAK: {peakOffSeason?.peakStart} – {peakOffSeason?.peakEnd}</div>
+          <p className="season-clean">Season: {season}</p>
+        </div>
       </div>
       <nav className='navigator'>
         <Link to="/">Home</Link> |
