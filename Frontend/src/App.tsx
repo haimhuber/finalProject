@@ -11,6 +11,7 @@ const Signin = lazy(() => import('./Screens/Signin/SigninPage'));
 const Logout = lazy(() => import('./Screens/Logout/Logout').then(m => ({ default: m.Logout })));
 const Alerts = lazy(() => import('./Screens/Alarms/Alerts').then(m => ({ default: m.Alerts })));
 const Report = lazy(() => import('./Screens/Reports/Report'));
+const Billing = lazy(() => import('./Screens/Billing/BillingScreen').then(m => ({ default: m.BillingScreen })));
 
 function App() {
   const { isAuthenticated, user, token } = useAuth();
@@ -35,6 +36,7 @@ function App() {
 
         <Link to="/settings">Settings</Link> |
         <Link to="/reports">Reports</Link> |
+        <Link to="/billing">Billing</Link> |
 
         {/* SHOW LOGIN OR LOGOUT */}
         {!isAuthenticated && <Link to="/login">Login</Link>}
@@ -54,6 +56,7 @@ function App() {
           <Route path="/Signin" element={<Signin />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/reports" element={<Report />} />
+          <Route path="/billing" element={<Billing />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

@@ -386,6 +386,156 @@ async function createSp() {
         END`);
         console.log("✅ Stored Procedure 'GetAllDailySamplesActiveEnergy' created successfully");
 
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE GetDailyConsumption
+            @switch_id INT,
+            @date DATE
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+
+            -- Get 4 daily samples (6-hour intervals)
+            WITH HourlySamples AS (
+                SELECT 
+                    ActiveEnergy,
+                    timestamp,
+                    DATEPART(HOUR, timestamp) as hour_part,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY DATEPART(HOUR, timestamp) / 6
+                        ORDER BY timestamp DESC
+                    ) AS rn
+                FROM Switches
+                WHERE switch_id = @switch_id
+                    AND CAST(timestamp AS DATE) = @date
+            ),
+            DailySamples AS (
+                SELECT ActiveEnergy, timestamp
+                FROM HourlySamples
+                WHERE rn = 1
+            )
+            SELECT 
+                switch_id = @switch_id,
+                date = @date,
+                ActiveEnergy,
+                timestamp,
+                -- Calculate consumption difference between samples
+                LAG(ActiveEnergy) OVER (ORDER BY timestamp) as prev_energy,
+                CASE 
+                    WHEN LAG(ActiveEnergy) OVER (ORDER BY timestamp) IS NOT NULL 
+                    THEN ActiveEnergy - LAG(ActiveEnergy) OVER (ORDER BY timestamp)
+                    ELSE 0
+                END as consumption_kwh
+            FROM DailySamples
+            ORDER BY timestamp;
+        END`);
+        console.log("✅ Stored Procedure 'GetDailyConsumption' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE GetMonthlyConsumption
+            @switch_id INT,
+            @year INT,
+            @month INT
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+
+            -- Get daily consumption for entire month
+            WITH DailyConsumption AS (
+                SELECT 
+                    CAST(timestamp AS DATE) as consumption_date,
+                    MAX(ActiveEnergy) - MIN(ActiveEnergy) as daily_consumption
+                FROM Switches
+                WHERE switch_id = @switch_id
+                    AND YEAR(timestamp) = @year
+                    AND MONTH(timestamp) = @month
+                GROUP BY CAST(timestamp AS DATE)
+            )
+            SELECT 
+                switch_id = @switch_id,
+                year = @year,
+                month = @month,
+                consumption_date,
+                daily_consumption,
+                SUM(daily_consumption) OVER (ORDER BY consumption_date) as cumulative_consumption
+            FROM DailyConsumption
+            ORDER BY consumption_date;
+        END`);
+        console.log("✅ Stored Procedure 'GetMonthlyConsumption' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE GetConsumptionSummary
+            @switch_id INT,
+            @start_date DATE,
+            @end_date DATE
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+
+            SELECT 
+                switch_id = @switch_id,
+                period_start = @start_date,
+                period_end = @end_date,
+                total_consumption = MAX(ActiveEnergy) - MIN(ActiveEnergy),
+                avg_daily_consumption = (MAX(ActiveEnergy) - MIN(ActiveEnergy)) / DATEDIFF(DAY, @start_date, @end_date),
+                sample_count = COUNT(*)
+            FROM Switches
+            WHERE switch_id = @switch_id
+                AND CAST(timestamp AS DATE) BETWEEN @start_date AND @end_date;
+        END`);
+        console.log("✅ Stored Procedure 'GetConsumptionSummary' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE GetConsumptionWithBilling
+            @switch_id INT,
+            @start_date DATE,
+            @end_date DATE
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+
+            WITH DailyConsumption AS (
+                SELECT 
+                    CAST(timestamp AS DATE) as consumption_date,
+                    DATEPART(HOUR, timestamp) as hour_part,
+                    MAX(ActiveEnergy) - MIN(ActiveEnergy) as daily_consumption
+                FROM Switches
+                WHERE switch_id = @switch_id
+                    AND CAST(timestamp AS DATE) BETWEEN @start_date AND @end_date
+                GROUP BY CAST(timestamp AS DATE), DATEPART(HOUR, timestamp)
+            ),
+            ConsumptionWithTariff AS (
+                SELECT 
+                    consumption_date,
+                    daily_consumption,
+                    CASE 
+                        WHEN hour_part BETWEEN 7 AND 16 THEN 'Peak'      -- שיא 7:00-17:00
+                        WHEN hour_part BETWEEN 17 AND 22 THEN 'Mid'       -- גבע 17:00-23:00
+                        ELSE 'Off-Peak'                                   -- שפל 23:00-7:00
+                    END as tariff_type,
+                    CASE 
+                        WHEN hour_part BETWEEN 7 AND 16 THEN daily_consumption * 0.5712  -- שיא
+                        WHEN hour_part BETWEEN 17 AND 22 THEN daily_consumption * 0.4827  -- גבע
+                        ELSE daily_consumption * 0.3956                                   -- שפל
+                    END as cost_shekel
+                FROM DailyConsumption
+            )
+            SELECT 
+                switch_id = @switch_id,
+                consumption_date,
+                tariff_type,
+                daily_consumption,
+                cost_shekel,
+                SUM(daily_consumption) OVER (ORDER BY consumption_date) as cumulative_consumption,
+                SUM(cost_shekel) OVER (ORDER BY consumption_date) as cumulative_cost
+            FROM ConsumptionWithTariff
+            ORDER BY consumption_date;
+        END`);
+        console.log("✅ Stored Procedure 'GetConsumptionWithBilling' created successfully");
+
     } catch (error) {
         console.error('❌ Error creating stored procedures:', error);
         throw error;
