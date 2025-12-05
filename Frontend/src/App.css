@@ -111,54 +111,29 @@
    =========================== */
 
 .welcomeUser {
-  font-weight: 700;
-  font-size: 1.1rem;
-  padding: 8px 18px;
-  border-radius: 12px;
-  color: #dfe3ff;
-
-  background: linear-gradient(145deg, #1d1d1e, #141414);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-
-  /* Industrial 3D Plate */
-  box-shadow:
-    4px 4px 12px rgba(0, 0, 0, 0.55),
-    -4px -4px 12px rgba(255, 255, 255, 0.05),
-    inset 2px 2px 4px rgba(0, 0, 0, 0.58),
-    inset -2px -2px 4px rgba(255, 255, 255, 0.08);
-
-  text-shadow:
-    0 0 4px rgba(100, 100, 255, 0.4),
-    0 0 8px rgba(120, 120, 255, 0.25);
-
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 16px;
+  color: #666;
+  background: rgba(227, 30, 36, 0.1);
+  border-radius: 20px;
+  margin-left: 10px;
   transition: 0.3s ease;
 }
 
-/* Hover lift */
+.nav-divider {
+  width: 1px;
+  height: 30px;
+  background: #ddd;
+  margin: 0 10px;
+}
+
 .welcomeUser:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    6px 6px 17px rgba(0, 0, 0, 0.6),
-    -4px -4px 14px rgba(255, 255, 255, 0.08),
-    inset 1px 1px 3px rgba(255, 255, 255, 0.1),
-    inset -1px -1px 3px rgba(0, 0, 0, 0.5);
+  background: rgba(227, 30, 36, 0.15);
+  color: #E31E24;
 }
 
-/* Error Mode (no token) */
-.welcomeUser.error {
-  background: linear-gradient(145deg, #3a1010, #240505);
-  color: #ffbdbd;
 
-  box-shadow:
-    3px 3px 8px rgba(0, 0, 0, 0.6),
-    -3px -3px 8px rgba(255, 255, 255, 0.05),
-    inset 2px 2px 5px rgba(0, 0, 0, 0.7),
-    inset -2px -2px 5px rgba(255, 80, 80, 0.2);
-
-  text-shadow:
-    0 0 6px rgba(255, 0, 0, 0.5),
-    0 0 12px rgba(255, 50, 50, 0.3);
-}
 
 /* ===========================
    MOBILE

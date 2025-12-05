@@ -32,6 +32,10 @@ router.get('/audit', screenAction.auditTrailData);
 router.get('/hourly-samples', screenAction.getHourlySamples);
 router.get('/daily-samples', screenAction.getDailySamples);
 router.get('/weekly-samples', screenAction.getWeeklySamples);
+router.get('/users', screenAction.getUsers);
+router.delete('/users/:id', screenAction.deleteUser);
+router.post('/forgot-password', screenAction.forgotPassword);
+router.post('/reset-password', screenAction.resetPassword);
 router.post('/email', sendMail.sendEmail);
 
 

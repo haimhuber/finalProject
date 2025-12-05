@@ -1,217 +1,226 @@
-/* === GLOBAL CONTAINER === */
-.abb-container {
-  padding: 30px;
-  color: #e5e5e5;
-  background: #1a1d21;
+/* ABB-Style Settings Screen - Same as Billing */
+.billing-screen {
   min-height: 100vh;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* === TITLE === */
-.abb-title {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #0095d5;
-  font-size: 32px;
-  font-weight: 600;
+/* Header Section */
+.billing-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  padding: 2rem 2rem 3rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-/* === MAIN BUTTONS === */
-.abb-buttons {
+.header-content {
+  text-align: left;
+}
+
+.header-content h1 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 300;
+}
+
+.abb-logo {
   display: flex;
-  gap: 15px;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.logo-circle {
+  width: 60px;
+  height: 60px;
+  background: #E31E24;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(227, 30, 36, 0.3);
 }
 
-.abb-btn {
-  background: #aa3923;
+.logo-text-circle {
+  font-size: 18px;
+  font-weight: bold;
   color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 17px;
+  letter-spacing: 1px;
+  font-family: Arial, sans-serif;
+}
+
+/* Controls Section */
+.billing-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 2rem;
+  margin-top: -2rem;
+  position: relative;
+  z-index: 10;
+  overflow-x: auto;
+}
+
+.control-group {
+  background: white;
+  padding: 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  min-width: 160px;
+  flex: 1;
+  max-width: 250px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.control-group:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+}
+
+.control-group label {
+  display: block;
   font-weight: 600;
-  transition: all 0.2s ease-in-out;
+  color: #2c3e50;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.abb-btn:hover {
-  background: #007bb3;
-  transform: translateY(-1px);
-}
-
-/* === BREAKER GRID === */
-.breaker-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-  padding: 20px;
-}
-
-.breaker-card-abb {
-  background: #23272b;
-  border: 1px solid #374048;
-  padding: 20px;
-  border-radius: 10px;
-  transition: 0.2s;
-}
-
-.breaker-card-abb:hover {
-  border-color: #0095d5;
-}
-
-.breaker-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #0095d5;
-  margin-bottom: 10px;
-}
-
-.breaker-info {
-  margin: 6px 0;
-}
-
-/* === INPUTS === */
-.abb-input {
-  width: 100%;
-  padding: 10px;
-  background: #2c3237;
-  border: 1px solid #45505a;
-  color: #fff;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-
-.abb-input:focus {
-  border-color: #0095d5;
-  outline: none;
-}
-
-/* === SMALL BUTTONS === */
-.abb-btn-small {
-  background: #0095d5;
+.control-btn {
+  background: #FF6900;
   color: white;
-  padding: 8px 12px;
-  margin-right: 8px;
   border: none;
-  border-radius: 6px;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: background 0.2s ease;
+  margin: 0.2rem;
+  font-size: 0.9rem;
 }
 
-.abb-btn-small:hover {
-  background: #007bb3;
+.control-btn:hover:not(:disabled) {
+  background: #e55a00;
 }
 
-.abb-btn-danger {
-  background: #d53a3a !important;
+.control-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
-.abb-btn-danger:hover {
-  background: #b82f2f !important;
+.control-btn.active {
+  background: #E31E24;
 }
 
-/* === 3D WRAPPER EFFECT === */
-.audit-table-wrapper {
-  margin-top: 40px;
-  padding: 25px;
-  background: linear-gradient(145deg, #1f2327, #181b1e);
-  border-radius: 14px;
-
-  /* 3D outer shadow */
-  box-shadow:
-    8px 8px 20px #0d0f11,
-    -8px -8px 20px #2f3438;
-
-  border: 1px solid #2c3237;
-  transition: 0.3s ease-in-out;
+/* Data Table Section */
+.data-table-section {
+  margin: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  overflow: hidden;
 }
 
-.audit-table-wrapper:hover {
-  box-shadow:
-    12px 12px 25px #0a0c0d,
-    -12px -12px 25px #33393f;
+.table-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f3f4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* === TITLE === */
-.audit-title {
-  text-align: center;
-  color: #00a4e6;
-  margin-bottom: 18px;
-  font-size: 26px;
-  font-weight: 600;
-  text-shadow: 0px 0px 8px rgba(0, 164, 230, 0.4);
-}
-
-/* === WRAPPER (light 3D card) === */
-.audit-table-wrapper {
-  margin-top: 40px;
-  padding: 25px;
-  background: #1e2226;
-  border-radius: 10px;
-
-  /* Soft 3D */
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.35),
-    inset 0 1px 2px rgba(255, 255, 255, 0.05);
-
-  border: 1px solid #2c3136;
-}
-
-/* === TITLE === */
-.audit-title {
-  text-align: center;
-  color: #00a4e6;
-  margin-bottom: 18px;
-  font-size: 24px;
+.table-header h3 {
+  margin: 0;
+  color: #2c3e50;
   font-weight: 600;
 }
 
-/* === TABLE === */
-.audit-table-abb {
+.table-info {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: center;
-  /* <<< CENTER ALL TEXT */
-  background: #252a2f;
-  border-radius: 6px;
-  overflow: hidden;
-
-  /* subtle depth */
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* === HEADER === */
-.audit-table-abb th {
-  background: #007fb3;
-  color: white;
-  padding: 12px 10px;
-  font-size: 15px;
-
-  /* cleaner light 3D */
-  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+.data-table th {
+  background: #f8f9fa;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* === BODY CELLS === */
-.audit-table-abb td {
-  padding: 12px 10px;
-  border-bottom: 1px solid #32383f;
-
-  /* smaller soft depth */
-  background: #2b3036;
+.data-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f3f4;
+  color: #5a6c7d;
 }
 
-.audit-table-abb tbody tr:nth-child(even) td {
-  background: #262b30;
+.data-table tr:hover {
+  background: #f8f9fa;
 }
 
-/* === HOVER === */
-.audit-table-abb tbody tr:hover td {
-  background: #30353c;
-  color: #00a4e6;
+.rate-badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
 
-  /* light glow, no extreme 3D */
-  box-shadow: inset 0 0 6px rgba(0, 164, 230, 0.2);
-  transition: 0.2s ease-in-out;
+.rate-badge.standard {
+  background: #e3f2fd;
+  color: #1e88e5;
+}
+
+.timestamp-cell {
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .billing-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  
+  .billing-controls {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .control-group {
+    min-width: unset;
+    max-width: unset;
+  }
+  
+  .data-table-section {
+    margin: 1rem;
+  }
+  
+  .header-content h1 {
+    font-size: 2rem;
+  }
 }

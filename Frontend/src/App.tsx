@@ -8,6 +8,7 @@ const HomeScreen = lazy(() => import('./Screens/Home/HomeScreen').then(m => ({ d
 const Setting = lazy(() => import('./Screens/_Setting/Setting').then(m => ({ default: m.Setting })));
 const Login = lazy(() => import('./Screens/Login/LoginPage'));
 const Signin = lazy(() => import('./Screens/Signin/SigninPage'));
+const ResetPassword = lazy(() => import('./Screens/ResetPassword/ResetPassword'));
 const Logout = lazy(() => import('./Screens/Logout/Logout').then(m => ({ default: m.Logout })));
 const Alerts = lazy(() => import('./Screens/Alarms/Alerts').then(m => ({ default: m.Alerts })));
 const Report = lazy(() => import('./Screens/Reports/Report'));
@@ -91,19 +92,18 @@ function App() {
         </div>
       </div>
       <nav className='navigator'>
-        <Link to="/">Dashboard</Link> |
-
-        <Link to="/alerts" className="alerts-link">Alerts{token && alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>|
-
-        <Link to="/settings">Settings</Link> |
-        <Link to="/reports">Reports</Link> |
-        <Link to="/billing">Billing</Link> |
-
-        {/* SHOW LOGIN OR LOGOUT */}
+        <Link to="/">Dashboard</Link>
+        <Link to="/alerts" className="alerts-link">Alerts{token && alertsNumber > 0 && (<span className="alerts-badge">{alertsNumber}</span>)}</Link>
+        <Link to="/settings">Settings</Link>
+        <Link to="/reports">Reports</Link>
+        <Link to="/billing">Billing</Link>
+        
+        <div className="nav-divider"></div>
+        
         {!isAuthenticated && <Link to="/login">Login</Link>}
-        {isAuthenticated && <Link to="/logout">Logout</Link>} |
+        {isAuthenticated && <Link to="/logout">Logout</Link>}
         {isAuthenticated && (
-          <p style={{ color: token ? '#756af4' : 'red' }} className="welcomeUser">Welcome, {user}</p>
+          <span className="welcomeUser">Welcome, {user}</span>
         )}
       </nav>
 
@@ -115,6 +115,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/Signin" element={<Signin />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/reports" element={<Report />} />
           <Route path="/billing" element={<Billing />} />

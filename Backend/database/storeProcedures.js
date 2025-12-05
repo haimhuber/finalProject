@@ -564,7 +564,11 @@ async function createSp() {
             ),
             WithCosts AS (
                 SELECT *,
-                    (energy_end - energy_start) as daily_consumption,
+                    CASE 
+                        WHEN energy_end IS NOT NULL AND energy_start IS NOT NULL 
+                        THEN energy_end - energy_start 
+                        ELSE 0 
+                    END as daily_consumption,
                     
                     -- Calculate cost based on actual consumption periods
                     CASE 
@@ -757,6 +761,39 @@ async function createSp() {
             ORDER BY timestamp DESC, switch_id
         END`);
         console.log("✅ Stored Procedure 'GetWeeklySamples' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE DeleteUser
+            @userId INT
+        AS
+        BEGIN
+            DELETE FROM Users WHERE id = @userId;
+            
+            IF @@ROWCOUNT > 0
+                SELECT 1 AS success, 'User deleted successfully' AS message;
+            ELSE
+                SELECT 0 AS success, 'User not found' AS message;
+        END`);
+        console.log("✅ Stored Procedure 'DeleteUser' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE UpdateUserPassword
+            @email VARCHAR(100),
+            @newPassword VARCHAR(255)
+        AS
+        BEGIN
+            UPDATE Users 
+            SET userPassword = @newPassword 
+            WHERE email = @email;
+            
+            IF @@ROWCOUNT > 0
+                SELECT 1 AS success, 'Password updated successfully' AS message;
+            ELSE
+                SELECT 0 AS success, 'User not found' AS message;
+        END`);
+        console.log("✅ Stored Procedure 'UpdateUserPassword' created successfully");
 
     } catch (error) {
         console.error('❌ Error creating stored procedures:', error);

@@ -173,6 +173,12 @@ const Report = () => {
           >
             📊 Alerts Report
           </button>
+          <button 
+            className={`control-btn ${showSwitchData ? 'active' : ''}`}
+            onClick={() => SetshowSwitchData(!showSwitchData)}
+          >
+            ⚡ Switch Report
+          </button>
         </div>
 
         <div className="control-group">
@@ -243,14 +249,7 @@ const Report = () => {
           />
         </div>
 
-        <div className="control-group">
-          <button 
-            className={`control-btn ${showSwitchData ? 'active' : ''}`}
-            onClick={() => SetshowSwitchData(!showSwitchData)}
-          >
-            ⚡ Switch Report
-          </button>
-        </div>
+
 
         <div className="control-group">
           <button className="control-btn" onClick={() => {
@@ -325,11 +324,16 @@ const Report = () => {
         <div className="data-table-section">
           <div className="table-header">
             <h3>Switch Report</h3>
-            <span className="table-info">Period: {startDate} to {endDate} | Breaker: {selectedBreaker} | Data: {breakerDataPick}</span>
+            <span className="table-info">Period: {startDate} to {endDate} | Breaker: {selectedBreaker || 'Not Selected'} | Data: {breakerDataPick || 'Not Selected'}</span>
           </div>
           
           <div className="table-container">
-            {switchReportData.length === 0 && !loading ? (
+            {!selectedBreaker || !breakerDataPick ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#E31E24', backgroundColor: '#fff5f5', border: '1px solid #E31E24', borderRadius: '8px' }}>
+                <h3>⚠️ Selection Required</h3>
+                <p>Please select both Breaker and Data Type to view the report</p>
+              </div>
+            ) : switchReportData.length === 0 && !loading ? (
               <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
                 <h3>No Data Available</h3>
                 <p>No data found for the selected date range</p>
@@ -355,7 +359,7 @@ const Report = () => {
                           <td>{selectedBreaker}</td>
                           <td>{breakerInfo?.name || `Q${selectedBreaker}`}</td>
                           <td>
-                            <span className="rate-badge standard">{breakerDataPick || 'ActivePower'}</span>
+                            <span className="rate-badge standard">{breakerDataPick}</span>
                           </td>
                           <td className="consumption-value">
                             {breakerDataPick === 'ActiveEnergy' ? row.ActiveEnergy : row.ActivePower} {breakerDataPick === 'ActiveEnergy' ? 'kWh' : 'kW'}

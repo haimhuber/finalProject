@@ -11,6 +11,11 @@ const Login = () => {
   const [disabledBtn, setDisabledBtn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [countDown, setCountDown] = useState(30);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [showForgotVerification, setShowForgotVerification] = useState(false);
+  const [forgotCode, setForgotCode] = useState("");
+  const [forgotEmailCode, setForgotEmailCode] = useState<number>(0);
 
 
 
@@ -52,6 +57,54 @@ const Login = () => {
 
   function signin() {
     window.location.href = "/Signin";
+  }
+
+  async function handleForgotPassword() {
+    if (!forgotEmail) {
+      alert('Please enter your email address');
+      return;
+    }
+
+    try {
+      // First check if user exists
+      const response = await fetch('http://192.168.1.89:5500/api/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Use the same sendEmail function as login
+        try {
+          const request = await sendEmail(forgotEmail);
+          if (request?.Succsess) {
+            setForgotEmailCode(request.code);
+            setShowForgotPassword(false);
+            setShowForgotVerification(true);
+          } else {
+            alert('Cannot send verification code');
+          }
+        } catch (err) {
+          console.error('Email sending error:', err);
+          alert('Failed to send email');
+        }
+      } else {
+        alert(result.message || 'Email not found');
+      }
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      alert('Failed to send reset email');
+    }
+  }
+
+  function verifyForgotCode() {
+    if (Number(forgotCode) === forgotEmailCode) {
+      window.location.href = `/reset-password?email=${encodeURIComponent(forgotEmail)}`;
+    } else {
+      alert('Verification code is incorrect!');
+    }
   }
 
   async function handleLogin(e: React.FormEvent) {
@@ -153,6 +206,14 @@ const Login = () => {
             >
               Signin
             </button>
+            
+            <button
+              className="forgot-password"
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+            >
+              Forgot Password?
+            </button>
           </form>
         )}
 
@@ -184,6 +245,73 @@ const Login = () => {
               onClick={() => { handleSendAgain(); resendEmail() }}
             >
               Send again : {disabledBtn ? "Disabled" : "Enabled"} {disabledBtn ? `${countDown}s` : ""}
+            </button>
+          </div>
+        )}
+
+        {/* FORGOT PASSWORD */}
+        {showForgotPassword && (
+          <div className="auth-box">
+            <h2>Reset Password</h2>
+            <p>Enter your email to receive verification code</p>
+            
+            <input
+              type="email"
+              placeholder="Email"
+              value={forgotEmail}
+              onChange={(e) => setForgotEmail(e.target.value)}
+              required
+            />
+            
+            <button
+              className="signin"
+              type="button"
+              onClick={handleForgotPassword}
+            >
+              Send Verification Code
+            </button>
+            
+            <button
+              className="signin"
+              type="button"
+              onClick={() => setShowForgotPassword(false)}
+            >
+              Back to Login
+            </button>
+          </div>
+        )}
+
+        {/* FORGOT PASSWORD VERIFICATION */}
+        {showForgotVerification && (
+          <div className="auth-box">
+            <h2>Enter Verification Code</h2>
+            <p>Code sent to: {forgotEmail}</p>
+            
+            <input
+              type="text"
+              placeholder="Verification Code"
+              value={forgotCode}
+              onChange={(e) => setForgotCode(e.target.value)}
+              required
+            />
+            
+            <button
+              className="signin"
+              type="button"
+              onClick={verifyForgotCode}
+            >
+              Verify & Reset Password
+            </button>
+            
+            <button
+              className="signin"
+              type="button"
+              onClick={() => {
+                setShowForgotVerification(false);
+                setShowForgotPassword(true);
+              }}
+            >
+              Back
             </button>
           </div>
         )}

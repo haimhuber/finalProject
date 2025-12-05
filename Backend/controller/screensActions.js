@@ -6,6 +6,7 @@ const { log } = require('console');
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
 const bcrypt = require('bcrypt');
+
 const saltRounds = 10;
 
 
@@ -117,12 +118,17 @@ const checkIfUserExist = async (req, res) => {
         return res.status(401).json({ message: "Invalid username or password" });
     try {
         const chekcIfUserExist = await sqlData.userExist(username);
+        
+        if (!chekcIfUserExist.userData) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+        
         const enctypedPassword = await bcrypt.compare(password, chekcIfUserExist.userData.userPassword);
         if (enctypedPassword) res.status(200).json({ msg: "Password ok -> login finished", data: true, userEmail: chekcIfUserExist.userData.email });
         else res.status(404).json({ msg: "Password mismatch" });
 
     } catch (err) {
-        console.error('Error  adding user:', err);
+        console.error('Error  checking user:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
@@ -306,4 +312,84 @@ const getWeeklySamples = async (req, res) => {
     }
 };
 
-module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy, batchActivePowerData, batchActiveEnergyData, consumptionBilling, checkDataExists, getLiveDataTest, getHourlySamples, getDailySamples, getWeeklySamples };
+const getUsers = async (req, res) => {
+    try {
+        const getSqlData = await sqlData.getUsers();
+        res.status(200).json(getSqlData);
+    } catch (err) {
+        console.error('Error getting users:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    const userId = req.params.id;
+    const currentUser = req.headers['current-user']; // Will be sent from frontend
+    
+    try {
+        // First get the user to check username
+        const userToDelete = await sqlData.getUserById(userId);
+        
+        if (userToDelete.data && userToDelete.data.userName === currentUser) {
+            return res.status(403).json({ 
+                status: 403, 
+                data: { success: false, message: 'Cannot delete your own account while logged in!' }
+            });
+        }
+        
+        const result = await sqlData.deleteUser(userId);
+        res.status(200).json(result);
+    } catch (err) {
+        console.error('Error deleting user:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const result = await sqlData.getUserByEmail(email);
+        
+        if (result.status === 404) {
+            return res.status(404).json({ success: false, message: 'Email not found' });
+        }
+        
+        // Generate temporary password
+        const tempPassword = Math.random().toString(36).slice(-8) + '!';
+        
+        // Hash the temporary password
+        const hashedTempPassword = await bcrypt.hash(tempPassword, saltRounds);
+        
+        // Update user with temporary password
+        await sqlData.updateUserPassword(email, hashedTempPassword);
+        
+        // Just return success - email will be sent from frontend
+        res.status(200).json({ 
+            success: true, 
+            message: 'User found, ready to send verification code'
+        });
+        
+    } catch (err) {
+        console.error('Error in forgot password:', err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    const { email, newPassword } = req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+        const result = await sqlData.updateUserPassword(email, hashedPassword);
+        
+        if (result.data?.success) {
+            res.status(200).json({ success: true, message: 'Password updated successfully' });
+        } else {
+            res.status(404).json({ success: false, message: 'User not found' });
+        }
+    } catch (err) {
+        console.error('Error resetting password:', err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+module.exports = { auditTrailData, auditTrail, breakersPositionStatus, reportData, readAckData, homeScreen, homePage, dataPage, activePowerData, breakersLiveData, breakersNames, activeEnergyData, addingUser, checkIfUserExist, getAlertsData, ackAlarm, ackAlarmBy, batchActivePowerData, batchActiveEnergyData, consumptionBilling, checkDataExists, getLiveDataTest, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, deleteUser, forgotPassword, resetPassword };

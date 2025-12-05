@@ -4,12 +4,18 @@ import "./SigninPage.css";
 const Signin: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
 
 
 
   async function handleSignin(e: React.FormEvent) {
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
 
     try {
       const res = await fetch("http://192.168.1.89:5500/api/adduser", {
@@ -49,6 +55,15 @@ const Signin: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          
           <input
             type="email"
             placeholder="Email"

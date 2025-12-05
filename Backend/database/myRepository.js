@@ -185,15 +185,15 @@ async function userExist(userName) {
       .input('userName', sql.VarChar, userName)
       .execute('CheckUserExists');
     if (!result.recordset || result.recordset.length === 0) {
-      console.log('No data found');
-      return { status: 400, data: false, userData: result.recordset[0] };
+      console.log('User not found');
+      return { status: 404, data: false, userData: null };
     }
 
     console.log({ status: 200, data: result.recordset[0] });
     return { status: 200, data: true, userData: result.recordset[0] };
 
   } catch (err) {
-    console.error('Error fetching Switches data:', err);
+    console.error('Error fetching user data:', err);
     return { status: 500, message: err.message };
   }
 }
@@ -587,4 +587,78 @@ async function getWeeklySamples(startDate, endDate, switchId) {
   }
 }
 
-module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples };
+async function getUsers() {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .query('SELECT id, userName, email, timestamp FROM Users ORDER BY timestamp DESC');
+
+    return { status: 200, data: result.recordset };
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function getUserById(userId) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('userId', sql.Int, userId)
+      .query('SELECT id, userName, email FROM Users WHERE id = @userId');
+
+    return { status: 200, data: result.recordset[0] };
+  } catch (err) {
+    console.error('Error fetching user by id:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function getUserByEmail(email) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('email', sql.VarChar, email)
+      .query('SELECT id, userName, email FROM Users WHERE email = @email');
+
+    if (!result.recordset || result.recordset.length === 0) {
+      return { status: 404, message: 'Email not found' };
+    }
+
+    return { status: 200, data: result.recordset[0] };
+  } catch (err) {
+    console.error('Error fetching user by email:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function updateUserPassword(email, hashedPassword) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('email', sql.VarChar, email)
+      .input('newPassword', sql.VarChar, hashedPassword)
+      .execute('UpdateUserPassword');
+
+    return { status: 200, data: result.recordset[0] };
+  } catch (err) {
+    console.error('Error updating password:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function deleteUser(userId) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('userId', sql.Int, userId)
+      .execute('DeleteUser');
+
+    return { status: 200, data: result.recordset[0] };
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser };

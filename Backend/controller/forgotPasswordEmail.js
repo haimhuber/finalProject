@@ -3,7 +3,8 @@ require('dotenv').config();
 const min = 1;
 const max = 10;
 let tempStore = [];
-const sendEmail = async (req, res) => {
+
+const sendForgotPasswordEmail = async (req, res) => {
     const emailTo = req.body.email;
     if (!emailTo) return { Server_msg: "Email is required" };
     for (let index = 0; index < 6; index++) {
@@ -11,7 +12,6 @@ const sendEmail = async (req, res) => {
     }
     const verificationCode = Number(tempStore.join(''));
     console.log(verificationCode);
-
 
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -23,10 +23,10 @@ const sendEmail = async (req, res) => {
 
     // הגדרת ההודעה
     const mailOptions = {
-        from: '"Digital Panel" <haimhuber90@gmail.com>',
-        to: emailTo, //req.params.email
-        subject: `Digital Panel: Auth Code`,
-        text: `This is your verification code: ${verificationCode}`
+        from: 'haimhuber90@gmail.com',
+        to: emailTo,
+        subject: `ABB Digital Panel: Password Reset Code`,
+        text: `This is your password reset verification code: ${verificationCode}`
     };
 
     // שליחה
@@ -38,8 +38,6 @@ const sendEmail = async (req, res) => {
             res.status(200).send({ status: 200, code: verificationCode });
         }
     });
-
 }
 
-
-module.exports.sendEmail = sendEmail;
+module.exports.sendForgotPasswordEmail = sendForgotPasswordEmail;

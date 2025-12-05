@@ -1,7 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 export const Logout = () => {
+  const hasLoggedOut = useRef(false);
+  
   useEffect(() => {
+    if (hasLoggedOut.current) return;
+    hasLoggedOut.current = true;
+    
     async function logout() {
       const username = sessionStorage.getItem("username");
       try {
@@ -20,7 +25,7 @@ export const Logout = () => {
       }
       alert(`User: ${username} Log out`);
       sessionStorage.removeItem("token");
-      sessionStorage.removeItem("usermane");
+      sessionStorage.removeItem("username");
       window.location.href = "/login";
     }
     logout();
