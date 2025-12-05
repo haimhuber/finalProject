@@ -43,10 +43,11 @@ app.use(
 
 createDatabase.createDatabase();
 //startModbusClient.start();
-app.use('/', screenRouters);
+app.use('/api', screenRouters);
 
-app.listen(port, host, () => {
-  console.log(`Server listening at http://${host}:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server listening at http://0.0.0.0:${port}`);
+  console.log(`Available on: http://192.168.1.89:${port}`);
 });
 
 

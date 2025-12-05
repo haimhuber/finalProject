@@ -16,6 +16,8 @@ router.get('/activePower/:switch_id', screenAction.activePowerData);
 router.get('/batchActivePower', screenAction.batchActivePowerData);
 router.get('/activeEnergy/:switch_id', screenAction.activeEnergyData);
 router.get('/batchActiveEnergy', screenAction.batchActiveEnergyData);
+router.get('/consumption-billing/:switch_id', screenAction.consumptionBilling);
+router.get('/check-data/:switch_id', screenAction.checkDataExists);
 router.get('/breakerspositions', screenAction.breakersPositionStatus);
 //router.get('/email', email.sendEmail);
 router.get('/alerts', screenAction.getAlertsData);

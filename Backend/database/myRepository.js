@@ -442,4 +442,40 @@ async function getBatchActiveEnergy() {
   }
 }
 
-module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy };
+async function getConsumptionBilling(switch_id, start_date, end_date) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('switch_id', sql.Int, switch_id)
+      .input('start_date', sql.Date, start_date)
+      .input('end_date', sql.Date, end_date)
+      .execute('GetConsumptionWithBilling');
+
+    if (!result.recordset || result.recordset.length === 0) {
+      return { status: 200, data: [] };
+    }
+
+    return { status: 200, data: result.recordset };
+  } catch (err) {
+    console.error('Error fetching consumption billing:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function checkDataExists(switch_id, start_date, end_date) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('switch_id', sql.Int, switch_id)
+      .input('start_date', sql.Date, start_date)
+      .input('end_date', sql.Date, end_date)
+      .execute('CheckDataExists');
+
+    return { status: 200, data: result.recordset[0] };
+  } catch (err) {
+    console.error('Error checking data exists:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists };

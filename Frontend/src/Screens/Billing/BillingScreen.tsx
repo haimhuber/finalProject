@@ -3,12 +3,12 @@ import { Line, Bar } from 'react-chartjs-2';
 import './BillingScreen.css';
 
 interface ConsumptionData {
+  switch_id: number;
   consumption_date: string;
-  tariff_type: string;
+  hour_part: number;
   daily_consumption: number;
+  tariff_type: string;
   cost_shekel: number;
-  cumulative_consumption: number;
-  cumulative_cost: number;
 }
 
 export const BillingScreen = () => {
@@ -20,8 +20,8 @@ export const BillingScreen = () => {
 
   useEffect(() => {
     const today = new Date();
-    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    setStartDate(lastMonth.toISOString().split('T')[0]);
+    const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    setStartDate(lastWeek.toISOString().split('T')[0]);
     setEndDate(today.toISOString().split('T')[0]);
   }, []);
 
@@ -29,9 +29,18 @@ export const BillingScreen = () => {
     if (!switchId || !startDate || !endDate) return;
     
     setLoading(true);
+    console.log('Fetching data for:', { switchId, startDate, endDate });
+    
     try {
-      const response = await fetch(`/api/consumption-billing/${switchId}?start=${startDate}&end=${endDate}`);
+      const url = `http://192.168.1.89:5500/api/consumption-billing/${switchId}?start=${startDate}&end=${endDate}`;
+      console.log('API URL:', url);
+      
+      const response = await fetch(url);
+      console.log('Response status:', response.status);
+      
       const data = await response.json();
+      console.log('Response data:', data);
+      
       setConsumptionData(data.data || []);
     } catch (error) {
       console.error('Error fetching consumption data:', error);
@@ -135,8 +144,8 @@ export const BillingScreen = () => {
                   <th>תעריף</th>
                   <th>צריכה (kWh)</th>
                   <th>עלות (₪)</th>
-                  <th>צריכה מצטברת</th>
-                  <th>עלות מצטברת</th>
+                  <th>שעה</th>
+                  <th>מפסק</th>
                 </tr>
               </thead>
               <tbody>
@@ -149,8 +158,8 @@ export const BillingScreen = () => {
                     </td>
                     <td>{item.daily_consumption.toFixed(2)}</td>
                     <td>₪{item.cost_shekel.toFixed(2)}</td>
-                    <td>{item.cumulative_consumption.toFixed(2)}</td>
-                    <td>₪{item.cumulative_cost.toFixed(2)}</td>
+                    <td>{item.hour_part}:00</td>
+                    <td>{item.switch_id}</td>
                   </tr>
                 ))}
               </tbody>

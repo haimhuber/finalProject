@@ -496,45 +496,71 @@ async function createSp() {
         AS
         BEGIN
             SET NOCOUNT ON;
-
-            WITH DailyConsumption AS (
-                SELECT 
-                    CAST(timestamp AS DATE) as consumption_date,
-                    DATEPART(HOUR, timestamp) as hour_part,
-                    MAX(ActiveEnergy) - MIN(ActiveEnergy) as daily_consumption
-                FROM Switches
-                WHERE switch_id = @switch_id
-                    AND CAST(timestamp AS DATE) BETWEEN @start_date AND @end_date
-                GROUP BY CAST(timestamp AS DATE), DATEPART(HOUR, timestamp)
-            ),
-            ConsumptionWithTariff AS (
-                SELECT 
-                    consumption_date,
-                    daily_consumption,
-                    CASE 
-                        WHEN hour_part BETWEEN 7 AND 16 THEN 'Peak'      -- שיא 7:00-17:00
-                        WHEN hour_part BETWEEN 17 AND 22 THEN 'Mid'       -- גבע 17:00-23:00
-                        ELSE 'Off-Peak'                                   -- שפל 23:00-7:00
-                    END as tariff_type,
-                    CASE 
-                        WHEN hour_part BETWEEN 7 AND 16 THEN daily_consumption * 0.5712  -- שיא
-                        WHEN hour_part BETWEEN 17 AND 22 THEN daily_consumption * 0.4827  -- גבע
-                        ELSE daily_consumption * 0.3956                                   -- שפל
-                    END as cost_shekel
-                FROM DailyConsumption
-            )
-            SELECT 
-                switch_id = @switch_id,
-                consumption_date,
-                tariff_type,
-                daily_consumption,
-                cost_shekel,
-                SUM(daily_consumption) OVER (ORDER BY consumption_date) as cumulative_consumption,
-                SUM(cost_shekel) OVER (ORDER BY consumption_date) as cumulative_cost
-            FROM ConsumptionWithTariff
-            ORDER BY consumption_date;
+            
+            SELECT TOP 1000
+                @switch_id as switch_id,
+                CAST(timestamp AS DATE) as consumption_date,
+                DATEPART(HOUR, timestamp) as hour_part,
+                ActiveEnergy as daily_consumption,
+                CASE 
+                    WHEN DATEPART(HOUR, timestamp) BETWEEN 7 AND 16 THEN 'Peak'
+                    WHEN DATEPART(HOUR, timestamp) BETWEEN 17 AND 22 THEN 'Mid'
+                    ELSE 'Off-Peak'
+                END as tariff_type,
+                CASE 
+                    WHEN DATEPART(HOUR, timestamp) BETWEEN 7 AND 16 THEN ActiveEnergy * 0.5712
+                    WHEN DATEPART(HOUR, timestamp) BETWEEN 17 AND 22 THEN ActiveEnergy * 0.4827
+                    ELSE ActiveEnergy * 0.3956
+                END as cost_shekel
+            FROM Switches 
+            WHERE switch_id = @switch_id 
+              AND CAST(timestamp AS DATE) BETWEEN @start_date AND @end_date
+            ORDER BY timestamp;
         END`);
         console.log("✅ Stored Procedure 'GetConsumptionWithBilling' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE CheckDataExists
+            @switch_id INT,
+            @start_date DATE,
+            @end_date DATE
+        AS
+        BEGIN
+            SELECT COUNT(*) as record_count,
+                   MIN(timestamp) as earliest_record,
+                   MAX(timestamp) as latest_record,
+                   CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END as data_exists
+            FROM Switches 
+            WHERE switch_id = @switch_id 
+              AND CAST(timestamp AS DATE) BETWEEN @start_date AND @end_date;
+        END`);
+        console.log("✅ Stored Procedure 'CheckDataExists' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE getAllSwitchesNames
+        AS
+        BEGIN
+            SELECT id, name FROM MainData ORDER BY id;
+        END`);
+        console.log("✅ Stored Procedure 'getAllSwitchesNames' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE ReportPowerData
+            @switch_id VARCHAR(50),
+            @startTime DATETIME,
+            @endTime DATETIME
+        AS
+        BEGIN
+            SELECT ActivePower, ActiveEnergy, timestamp
+            FROM Switches
+            WHERE switch_id = CAST(@switch_id AS INT)
+              AND timestamp BETWEEN @startTime AND @endTime
+            ORDER BY timestamp;
+        END`);
+        console.log("✅ Stored Procedure 'ReportPowerData' created successfully");
 
     } catch (error) {
         console.error('❌ Error creating stored procedures:', error);
