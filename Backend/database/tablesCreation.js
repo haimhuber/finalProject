@@ -170,6 +170,36 @@ async function createTables() {
     `);
     console.log({ 'LiveData table created (if not exists)': 200 });
 
+    // 8️⃣ TariffRates table
+    await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='TariffRates' AND xtype='U')
+      CREATE TABLE TariffRates (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        season VARCHAR(20) NOT NULL,
+        peakRate DECIMAL(10,4) NOT NULL,
+        offPeakRate DECIMAL(10,4) NOT NULL,
+        peakHours VARCHAR(50) NOT NULL,
+        weekdaysOnly BIT NOT NULL DEFAULT 1,
+        isActive BIT NOT NULL DEFAULT 1,
+        createdBy VARCHAR(50),
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log({ 'TariffRates table created (if not exists)': 200 });
+
+    // Insert default tariff rates
+    await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM TariffRates)
+      BEGIN
+        INSERT INTO TariffRates (season, peakRate, offPeakRate, peakHours, weekdaysOnly, createdBy)
+        VALUES 
+        ('Summer', 1.69, 0.53, '17:00-23:00', 1, 'System'),
+        ('Winter', 1.21, 0.46, '17:00-22:00', 0, 'System'),
+        ('Spring/Autumn', 0.50, 0.45, '07:00-17:00', 1, 'System');
+      END
+    `);
+    console.log({ 'Default tariff rates inserted': 200 });
+
   } catch (err) {
     console.error('❌ Error creating tables:', err);
     return { message: err.message, status: 500 };

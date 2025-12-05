@@ -499,91 +499,56 @@ async function createSp() {
         BEGIN
             SET NOCOUNT ON;
             
-            WITH HourlyData AS (
+            -- Step 1: Calculate daily consumption (MAX - MIN) with spike detection
+            WITH DailyConsumption AS (
                 SELECT 
                     CAST(timestamp AS DATE) as consumption_date,
-                    DATEPART(HOUR, timestamp) as hour_part,
-                    ActiveEnergy,
-                    timestamp,
+                    MAX(ActiveEnergy) - MIN(ActiveEnergy) as raw_consumption,
+                    CASE 
+                        WHEN MAX(ActiveEnergy) - MIN(ActiveEnergy) > 500 THEN 0  -- Filter unrealistic spikes
+                        ELSE MAX(ActiveEnergy) - MIN(ActiveEnergy)
+                    END as daily_consumption,
                     MONTH(CAST(timestamp AS DATE)) as month_num,
                     DATEPART(WEEKDAY, CAST(timestamp AS DATE)) as weekday_num
                 FROM Switches
                 WHERE switch_id = @switch_id
                   AND CAST(timestamp AS DATE) BETWEEN @start_date AND @end_date
+                GROUP BY CAST(timestamp AS DATE)
             ),
-            TimeSlots AS (
+            
+            -- Step 2: Calculate cost based on time rates
+            WithCosts AS (
                 SELECT 
                     consumption_date,
+                    daily_consumption,
                     month_num,
                     weekday_num,
-                    -- Get energy at key transition points
-                    MAX(CASE WHEN hour_part <= 7 THEN ActiveEnergy END) as energy_07,
-                    MAX(CASE WHEN hour_part <= 17 THEN ActiveEnergy END) as energy_17,
-                    MAX(CASE WHEN hour_part <= 22 THEN ActiveEnergy END) as energy_22,
-                    MAX(CASE WHEN hour_part <= 23 THEN ActiveEnergy END) as energy_23,
-                    MIN(ActiveEnergy) as energy_start,
-                    MAX(ActiveEnergy) as energy_end
-                FROM HourlyData
-                GROUP BY consumption_date, month_num, weekday_num
-            ),
-            ConsumptionByPeriod AS (
-                SELECT *,
                     CASE 
-                        WHEN month_num IN (12, 1, 2, 3) THEN 'Winter'
-                        WHEN month_num IN (4, 5) THEN 'Spring'
-                        WHEN month_num IN (6, 7, 8, 9) THEN 'Summer'
-                        ELSE 'Autumn'
+                        WHEN month_num IN (12,1,2,3) THEN 'Winter'
+                        WHEN month_num IN (4,5,10,11) THEN 'Spring/Autumn'
+                        WHEN month_num IN (6,7,8,9) THEN 'Summer'
+                        ELSE 'Spring/Autumn'
                     END as season,
                     
-                    -- Calculate consumption for each period based on season
+                    -- Cost calculation by season and day type
                     CASE 
-                        -- Summer: Peak 17:00-23:00 (weekdays only)
-                        WHEN month_num IN (6, 7, 8, 9) AND weekday_num BETWEEN 2 AND 6 THEN
-                            ISNULL(energy_23 - energy_17, 0) -- Peak period
-                        -- Winter: Peak 17:00-22:00 (all days)
-                        WHEN month_num IN (12, 1, 2) THEN
-                            ISNULL(energy_22 - energy_17, 0) -- Peak period
-                        -- Spring/Autumn: Peak 07:00-17:00 (weekdays only)
-                        WHEN weekday_num BETWEEN 2 AND 6 THEN
-                            ISNULL(energy_17 - energy_07, 0) -- Peak period
-                        ELSE 0
-                    END as peak_consumption,
-                    
-                    -- Off-peak is total minus peak
-                    (energy_end - energy_start) - 
-                    CASE 
-                        WHEN month_num IN (6, 7, 8, 9) AND weekday_num BETWEEN 2 AND 6 THEN
-                            ISNULL(energy_23 - energy_17, 0)
-                        WHEN month_num IN (12, 1, 2) THEN
-                            ISNULL(energy_22 - energy_17, 0)
-                        WHEN weekday_num BETWEEN 2 AND 6 THEN
-                            ISNULL(energy_17 - energy_07, 0)
-                        ELSE 0
-                    END as offpeak_consumption
-                FROM TimeSlots
-            ),
-            WithCosts AS (
-                SELECT *,
-                    CASE 
-                        WHEN energy_end IS NOT NULL AND energy_start IS NOT NULL 
-                        THEN energy_end - energy_start 
-                        ELSE 0 
-                    END as daily_consumption,
-                    
-                    -- Calculate cost based on actual consumption periods
-                    CASE 
-                        -- Summer rates
-                        WHEN month_num IN (6, 7, 8, 9) THEN
-                            (peak_consumption * 1.69) + (offpeak_consumption * 0.53)
-                        -- Winter rates
-                        WHEN month_num IN (12, 1, 2) THEN
-                            (peak_consumption * 1.21) + (offpeak_consumption * 0.46)
-                        -- Spring/Autumn rates
+                        -- Summer: Peak 17:00-23:00 weekdays
+                        WHEN month_num IN (6,7,8,9) AND weekday_num BETWEEN 2 AND 6 THEN
+                            (daily_consumption * 0.25 * 1.69) + (daily_consumption * 0.75 * 0.53)
+                        WHEN month_num IN (6,7,8,9) THEN
+                            daily_consumption * 0.53
+                        -- Winter: Peak 17:00-22:00 all days
+                        WHEN month_num IN (12,1,2) THEN
+                            (daily_consumption * 0.21 * 1.21) + (daily_consumption * 0.79 * 0.46)
+                        -- Spring/Autumn: Peak 07:00-17:00 weekdays
+                        WHEN month_num IN (3,4,5,10,11) AND weekday_num BETWEEN 2 AND 6 THEN
+                            (daily_consumption * 0.42 * 0.50) + (daily_consumption * 0.58 * 0.45)
                         ELSE
-                            (peak_consumption * 0.50) + (offpeak_consumption * 0.45)
+                            daily_consumption * 0.45
                     END as daily_cost
-                FROM ConsumptionByPeriod
+                FROM DailyConsumption
             )
+            
             SELECT 
                 @switch_id as switch_id,
                 consumption_date,
@@ -593,7 +558,7 @@ async function createSp() {
                 SUM(daily_consumption) OVER (ORDER BY consumption_date) as cumulative_consumption,
                 SUM(daily_cost) OVER (ORDER BY consumption_date) as cumulative_cost
             FROM WithCosts
-            WHERE daily_consumption >= 0
+            WHERE daily_consumption > 0
             ORDER BY consumption_date;
         END`);
         console.log("✅ Stored Procedure 'GetConsumptionWithBilling' (Seasonal) created successfully");
@@ -794,6 +759,65 @@ async function createSp() {
                 SELECT 0 AS success, 'User not found' AS message;
         END`);
         console.log("✅ Stored Procedure 'UpdateUserPassword' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE GetTariffRates
+        AS
+        BEGIN
+            SELECT * FROM TariffRates WHERE isActive = 1 ORDER BY season;
+        END`);
+        console.log("✅ Stored Procedure 'GetTariffRates' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE UpdateTariffRate
+            @season VARCHAR(20),
+            @peakRate DECIMAL(10,4),
+            @offPeakRate DECIMAL(10,4),
+            @peakHours VARCHAR(50),
+            @weekdaysOnly BIT,
+            @updatedBy VARCHAR(50)
+        AS
+        BEGIN
+            UPDATE TariffRates 
+            SET peakRate = @peakRate,
+                offPeakRate = @offPeakRate,
+                peakHours = @peakHours,
+                weekdaysOnly = @weekdaysOnly,
+                createdBy = @updatedBy,
+                timestamp = CURRENT_TIMESTAMP
+            WHERE season = @season AND isActive = 1;
+            
+            IF @@ROWCOUNT > 0
+                SELECT 1 AS success, 'Tariff updated successfully' AS message;
+            ELSE
+                SELECT 0 AS success, 'Tariff not found' AS message;
+        END`);
+        console.log("✅ Stored Procedure 'UpdateTariffRate' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`
+        CREATE OR ALTER PROCEDURE UpdateTariffRatesOnly
+            @season VARCHAR(20),
+            @peakRate DECIMAL(10,4),
+            @offPeakRate DECIMAL(10,4),
+            @updatedBy VARCHAR(50)
+        AS
+        BEGIN
+            UPDATE TariffRates 
+            SET peakRate = @peakRate,
+                offPeakRate = @offPeakRate,
+                createdBy = @updatedBy,
+                timestamp = CURRENT_TIMESTAMP
+            WHERE season = @season AND isActive = 1;
+            
+            IF @@ROWCOUNT > 0
+                SELECT 1 AS success, 'Tariff rates updated successfully' AS message;
+            ELSE
+                SELECT 0 AS success, 'Tariff not found' AS message;
+        END`);
+        console.log("✅ Stored Procedure 'UpdateTariffRatesOnly' created successfully");
 
     } catch (error) {
         console.error('❌ Error creating stored procedures:', error);

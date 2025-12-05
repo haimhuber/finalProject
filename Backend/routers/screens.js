@@ -37,6 +37,9 @@ router.delete('/users/:id', screenAction.deleteUser);
 router.post('/forgot-password', screenAction.forgotPassword);
 router.post('/reset-password', screenAction.resetPassword);
 router.post('/email', sendMail.sendEmail);
+router.get('/tariff-rates', screenAction.getTariffRates);
+router.put('/tariff-rates', screenAction.updateTariffRate);
+router.patch('/tariff-rates', screenAction.updateTariffRatesOnly);
 
 
 

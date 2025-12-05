@@ -661,4 +661,53 @@ async function deleteUser(userId) {
   }
 }
 
-module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser };
+async function getTariffRates() {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .execute('GetTariffRates');
+
+    return { status: 200, data: result.recordset };
+  } catch (err) {
+    console.error('Error fetching tariff rates:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function updateTariffRate(season, peakRate, offPeakRate, peakHours, weekdaysOnly, updatedBy) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('season', sql.VarChar, season)
+      .input('peakRate', sql.Decimal(10,4), peakRate)
+      .input('offPeakRate', sql.Decimal(10,4), offPeakRate)
+      .input('peakHours', sql.VarChar, peakHours)
+      .input('weekdaysOnly', sql.Bit, weekdaysOnly)
+      .input('updatedBy', sql.VarChar, updatedBy)
+      .execute('UpdateTariffRate');
+
+    return { status: 200, data: result.recordset[0] };
+  } catch (err) {
+    console.error('Error updating tariff rate:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function updateTariffRatesOnly(season, peakRate, offPeakRate, updatedBy) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('season', sql.VarChar, season)
+      .input('peakRate', sql.Decimal(10,4), peakRate)
+      .input('offPeakRate', sql.Decimal(10,4), offPeakRate)
+      .input('updatedBy', sql.VarChar, updatedBy)
+      .execute('UpdateTariffRatesOnly');
+
+    return { status: 200, data: result.recordset[0] };
+  } catch (err) {
+    console.error('Error updating tariff rates only:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser, getTariffRates, updateTariffRate, updateTariffRatesOnly };
