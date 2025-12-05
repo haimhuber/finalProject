@@ -1,8 +1,9 @@
 import './DigitalPanelCard.css';
-import React, { useEffect, useState, memo, useMemo } from 'react';
+import React, { useEffect, useState, memo, useMemo, useRef } from 'react';
 import type { DigitalPanelCardProps } from '../../Types/digitalPanel';
-import { getBatchActiveEnergyData } from '../../Types/CombinedData';
+import { getBatchActiveEnergyData, getActiveEnergyData } from '../../Types/CombinedData';
 import { Line } from 'react-chartjs-2';
+import '../../chartConfig';
 
 export const DigitalPanelCard: React.FC<DigitalPanelCardProps> = memo(({
     switch_id, name, type, load, CommStatus, V12, V23, V31,
@@ -15,13 +16,21 @@ export const DigitalPanelCard: React.FC<DigitalPanelCardProps> = memo(({
     const [activeEnergy, setActiveEnergy] = useState<number[]>([]);
     const [day, setDay] = useState<string[]>([]);
     const [chartLoading, setChartLoading] = useState<boolean>(true);
+    const chartRef = useRef<any>(null);
 
     useEffect(() => {
       async function getData() {
         if (toggle) { // טען גרף רק כשנדרש
           try {
-            const batchData = await getBatchActiveEnergyData();
-            const response = batchData[switch_id] || [];
+            let response;
+            try {
+              const batchData = await getBatchActiveEnergyData();
+              response = batchData[switch_id] || [];
+              if (response.length === 0) throw new Error('No batch data');
+            } catch {
+              response = await getActiveEnergyData(switch_id);
+            }
+            
             const values = response.map((item: any) => item.ActiveEnergy);
             const days = response.map((item: any) => {
               const d = new Date(item.day_slot);
@@ -113,7 +122,7 @@ export const DigitalPanelCard: React.FC<DigitalPanelCardProps> = memo(({
                   Loading chart...
                 </div>
               ) : (
-                <Line data={chartData} options={chartOptions} />
+                <Line ref={chartRef} data={chartData} options={chartOptions} key={`chart-${switch_id}`} />
               )}
             </div>
           </>

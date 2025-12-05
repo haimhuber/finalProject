@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { getBatchActivePowerData, fetchAndCombineData, breakersPosition } from "../../Types/CombinedData";
+import { getBatchActivePowerData, getActivePowerData, fetchAndCombineData, breakersPosition } from "../../Types/CombinedData";
 
 ChartJS.register(
   CategoryScale,
@@ -72,18 +72,36 @@ export const HomeScreen: React.FC = () => {
         
         setLoading(false); // הסר loading מוקדם יותר
 
-        // טען גרפים ברקע - batch API
-        const batchData = await getBatchActivePowerData();
+        // טען גרפים ברקע
         const pwr: any = {};
         const labels: any = {};
 
-        Object.keys(batchData).forEach(switch_id => {
-          const res = batchData[switch_id];
-          pwr[switch_id] = res.map((x: any) => x.ActivePower);
-          labels[switch_id] = res.map((x: any) =>
-            new Date(x.day_slot).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" })
+        // נסה batch API, אם לא עובד - חזור לשיטה הישנה
+        try {
+          const batchData = await getBatchActivePowerData();
+          if (Object.keys(batchData).length > 0) {
+            Object.keys(batchData).forEach(switch_id => {
+              const res = batchData[switch_id];
+              pwr[switch_id] = res.map((x: any) => x.ActivePower);
+              labels[switch_id] = res.map((x: any) =>
+                new Date(x.day_slot).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" })
+              );
+            });
+          } else {
+            throw new Error('Empty batch data');
+          }
+        } catch {
+          // fallback לשיטה הישנה
+          await Promise.all(
+            combined.map(async (p: any) => {
+              const res = await getActivePowerData(p.switch_id);
+              pwr[p.switch_id] = res.map((x: any) => x.ActivePower);
+              labels[p.switch_id] = res.map((x: any) =>
+                new Date(x.day_slot).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" })
+              );
+            })
           );
-        });
+        }
 
         setActivePowerMap(pwr);
         setDayLabelsMap(labels);
@@ -131,7 +149,7 @@ export const HomeScreen: React.FC = () => {
       {/* CARDS GRID */}
       <div className="home-grid">
         {combinedDataState.map((panel) => {
-          const lineData = useMemo(() => ({
+          const lineData = {
             labels: dayLabelsMap[panel.switch_id],
             datasets: [
               {
@@ -142,7 +160,7 @@ export const HomeScreen: React.FC = () => {
                 tension: 0.35,
               }
             ]
-          }), [dayLabelsMap[panel.switch_id], activePowerMap[panel.switch_id]]);
+          };
 
           return (
             <div className="abb-card" key={panel.switch_id}>

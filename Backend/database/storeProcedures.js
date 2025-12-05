@@ -314,14 +314,82 @@ async function createSp() {
         END`);
         console.log("✅ Stored Procedure 'ReadAllAuditTrail' created successfully");
 
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`                
+        CREATE OR ALTER PROCEDURE GetAllDailySamples
+        AS
+        BEGIN
+            SET NOCOUNT ON;
 
-    } catch (err) {
-        console.error('❌ Error creating addBreakerData SP:', err);
-        return { message: err.message, status: 500 };
+            -- Get the last 10 days for all switches (latest record per day per switch)
+            WITH DailyLatest AS (
+                SELECT 
+                    switch_id,
+                    CAST(timestamp AS DATE) AS day_slot,
+                    ActivePower,
+                    timestamp,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY switch_id, CAST(timestamp AS DATE)
+                        ORDER BY timestamp DESC
+                    ) AS rn
+                FROM Switches
+            ),
+            Last10Days AS (
+                SELECT switch_id, day_slot, ActivePower, timestamp,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY switch_id 
+                           ORDER BY day_slot DESC
+                       ) AS day_rank
+                FROM DailyLatest
+                WHERE rn = 1
+            )
+            SELECT switch_id, day_slot, ActivePower, timestamp
+            FROM Last10Days
+            WHERE day_rank <= 10
+            ORDER BY switch_id ASC, day_slot ASC;
+        END`);
+        console.log("✅ Stored Procedure 'GetAllDailySamples' created successfully");
+
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`                
+        CREATE OR ALTER PROCEDURE GetAllDailySamplesActiveEnergy
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+
+            -- Get the last 10 days for all switches (latest record per day per switch)
+            WITH DailyLatest AS (
+                SELECT 
+                    switch_id,
+                    CAST(timestamp AS DATE) AS day_slot,
+                    ActiveEnergy,
+                    timestamp,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY switch_id, CAST(timestamp AS DATE)
+                        ORDER BY timestamp DESC
+                    ) AS rn
+                FROM Switches
+            ),
+            Last10Days AS (
+                SELECT switch_id, day_slot, ActiveEnergy, timestamp,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY switch_id 
+                           ORDER BY day_slot DESC
+                       ) AS day_rank
+                FROM DailyLatest
+                WHERE rn = 1
+            )
+            SELECT switch_id, day_slot, ActiveEnergy, timestamp
+            FROM Last10Days
+            WHERE day_rank <= 10
+            ORDER BY switch_id ASC, day_slot ASC;
+        END`);
+        console.log("✅ Stored Procedure 'GetAllDailySamplesActiveEnergy' created successfully");
+
+    } catch (error) {
+        console.error('❌ Error creating stored procedures:', error);
+        throw error;
     }
-
-
-
 }
 
 module.exports = { createSp };
