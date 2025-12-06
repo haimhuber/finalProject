@@ -88,6 +88,38 @@ const Report = () => {
           }
         });
         filteredData = Object.values(hourlyData);
+      } else if (sampleType === 'weekly') {
+        const weeklyData: { [key: string]: any } = {};
+        const getWeekKey = (ts: string) => {
+          const d = new Date(ts);
+          const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+          const dayNum = date.getUTCDay() || 7; // Monday=1..Sunday=7
+          const monday = new Date(date);
+          monday.setUTCDate(date.getUTCDate() + (1 - dayNum));
+          const yearStart = new Date(Date.UTC(monday.getUTCFullYear(), 0, 1));
+          const weekNo = Math.ceil((((monday.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+          return `${monday.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+        };
+
+        filteredData.forEach((row: any) => {
+          const weekKey = getWeekKey(row.timestamp);
+          // keep the earliest record in that week (so mid-week readings like 06-11 are not overridden by later days)
+          if (!weeklyData[weekKey] || new Date(row.timestamp) < new Date(weeklyData[weekKey].timestamp)) {
+            weeklyData[weekKey] = row;
+          }
+        });
+        filteredData = Object.values(weeklyData);
+      } else if (sampleType === 'monthly') {
+        const monthlyData: { [key: string]: any } = {};
+        filteredData.forEach((row: any) => {
+          const d = new Date(row.timestamp);
+          const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          // keep earliest record in the month
+          if (!monthlyData[monthKey] || new Date(row.timestamp) < new Date(monthlyData[monthKey].timestamp)) {
+            monthlyData[monthKey] = row;
+          }
+        });
+        filteredData = Object.values(monthlyData);
       }
 
       setSwitchReportData(filteredData);
@@ -194,7 +226,8 @@ const Report = () => {
             value={selectedBreaker}
             onChange={(e) => setSelectedBreaker(e.target.value)}
             className="control-select"
-            style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', height: '36px', minWidth: '140px', border: '1px solid #ced4da', borderRadius: '4px' }}
+            disabled={showAlert}
+            style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', height: '36px', minWidth: '140px', border: '1px solid #ced4da', borderRadius: '4px', opacity: showAlert ? 0.5 : 1, cursor: showAlert ? 'not-allowed' : 'pointer' }}
           >
             <option value="">All Breakers</option>
             {breakerList.map((curr) => (
@@ -211,7 +244,8 @@ const Report = () => {
             value={breakerDataPick}
             onChange={(e) => setBbreakerDataPick(e.target.value)}
             className="control-select"
-            style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', height: '36px', minWidth: '140px', border: '1px solid #ced4da', borderRadius: '4px' }}
+            disabled={showAlert}
+            style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', height: '36px', minWidth: '140px', border: '1px solid #ced4da', borderRadius: '4px', opacity: showAlert ? 0.5 : 1, cursor: showAlert ? 'not-allowed' : 'pointer' }}
           >
             <option value="">Select Type</option>
             <option value={breakerData.ActiveEnergy}>{breakerData.ActiveEnergy}</option>
@@ -225,17 +259,19 @@ const Report = () => {
             value={sampleType}
             onChange={(e) => setSampleType(e.target.value)}
             className="control-select"
-            style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', height: '36px', minWidth: '120px', border: '1px solid #ced4da', borderRadius: '4px' }}
+            disabled={showAlert}
+            style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', height: '36px', minWidth: '120px', border: '1px solid #ced4da', borderRadius: '4px', opacity: showAlert ? 0.5 : 1, cursor: showAlert ? 'not-allowed' : 'pointer' }}
           >
             <option value="daily">Daily</option>
             <option value="hourly">Hourly</option>
             <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
           </select>
         </div>
 
         <div style={{ height: '36px', width: '1px', backgroundColor: '#dee2e6' }}></div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
             <label style={{ fontSize: '0.75rem', color: '#6c757d', fontWeight: 500 }}>From</label>
             <input
@@ -345,12 +381,17 @@ const Report = () => {
             </div>
 
             <div className="table-container">
-              {!selectedBreaker || !breakerDataPick ? (
+              {loading ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+                  <h3>🌀 Loading...</h3>
+                  <p>Updating data, please wait</p>
+                </div>
+              ) : !selectedBreaker || !breakerDataPick ? (
                 <div style={{ textAlign: 'center', padding: '2rem', color: '#E31E24', backgroundColor: '#fff5f5', border: '1px solid #E31E24', borderRadius: '8px' }}>
                   <h3>⚠️ Selection Required</h3>
                   <p>Please select both Breaker and Data Type to view the report</p>
                 </div>
-              ) : switchReportData.length === 0 && !loading ? (
+              ) : switchReportData.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
                   <h3>No Data Available</h3>
                   <p>No data found for the selected date range</p>
