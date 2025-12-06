@@ -55,23 +55,21 @@ function AppContent() {
                 const hour = now.getHours();
                 const month = now.getMonth() + 1;
                 const dayOfWeek = now.getDay();
+                const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
                 if (month === 12 || month === 1 || month === 2) {
-                  if (hour >= 17 && hour < 22) return 'Current Rate - ₪1.21/kWh';
-                  return 'Rate - ₪0.46/kWh';
+                  if (!isWeekend && hour >= 17 && hour < 22) return 'Current Rate - ₪1.21/kWh';
+                  return 'Current Rate - ₪0.46/kWh';
                 }
 
                 if (month >= 6 && month <= 9) {
-                  if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                    if (hour >= 17 && hour < 23) return 'Current Rate - ₪1.69/kWh';
-                  }
-                  return 'Rate - ₪0.53/kWh';
+                  if (!isWeekend && hour >= 17 && hour < 23) return 'Current Rate - ₪1.69/kWh';
+                  return 'Current Rate - ₪0.53/kWh';
                 }
 
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                  if (hour >= 7 && hour < 17) return 'Current Rate - ₪0.50/kWh';
-                }
-                return 'Rate - ₪0.45/kWh';
+                // Spring/Autumn
+                if (!isWeekend && hour >= 17 && hour < 22) return 'Current Rate - ₪0.50/kWh';
+                return 'Current Rate - ₪0.45/kWh';
               })()}
             </div>
             <div className="status-item">
@@ -79,39 +77,38 @@ function AppContent() {
                 const now = new Date();
                 const month = now.getMonth() + 1;
                 const dayOfWeek = now.getDay();
+                const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
                 if (month === 12 || month === 1 || month === 2) {
                   return (
                     <>
-                      <div>PEAK: 17:00-22:00</div>
-                      <div>OFF: All other hours</div>
+                      <div>PEAK: 17:00-22:00 (All days)</div>
+                      <div>OFF: 00:00-17:00, 22:00-24:00</div>
                     </>
                   );
-
                 }
 
                 if (month >= 6 && month <= 9) {
-                  if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                  if (!isWeekend) {
                     return (
                       <>
-                        <div>PEAK: 17:00-22:00</div>
-                        <div>OFF: All other hours</div>
+                        <div>PEAK: 17:00-23:00 (Weekdays)</div>
+                        <div>OFF: 00:00-17:00, 23:00-24:00</div>
                       </>
                     );
-
                   } else {
                     return 'OFF-PEAK: All day (Weekend)';
                   }
                 }
 
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                // Spring/Autumn (Mar-May, Oct-Nov)
+                if (!isWeekend) {
                   return (
                     <>
-                      <div>PEAK: 17:00-22:00</div>
-                      <div>OFF: All other hours</div>
+                      <div>PEAK: 17:00-22:00 (Weekdays)</div>
+                      <div>OFF: 00:00-17:00, 22:00-24:00</div>
                     </>
                   );
-
                 } else {
                   return 'OFF-PEAK: All day (Weekend)';
                 }

@@ -137,7 +137,7 @@ async function getBreakersMainData() {
     const result = await pool.request()
       .input('liveData', sql.Int, config.breakers.length)
       .execute('getLiveData');
-    
+
     if (!result.recordset || result.recordset.length === 0) {
       console.log('No data found');
       return { status: 200, data: [] };
@@ -539,6 +539,24 @@ async function getLiveDataOnly() {
   }
 }
 
+async function clearLiveData() {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+
+    // Clear the LiveData table and reset IDENTITY
+    const result = await pool.request().query(`
+      DELETE FROM LiveData;
+      DBCC CHECKIDENT ('LiveData', RESEED, 0);
+    `);
+
+    console.log('✅ LiveData table cleared successfully');
+    return { message: 'LiveData table cleared successfully', status: 200 };
+  } catch (err) {
+    console.error('Error clearing LiveData:', err);
+    return { message: err.message || 'Unknown error', status: 500 };
+  }
+}
+
 async function getHourlySamples(startDate, endDate, switchId) {
   try {
     const pool = await connectDb.connectionToSqlDB();
@@ -679,12 +697,12 @@ async function updateTariffRate(season, peakRate, offPeakRate, peakHours, weekda
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
       .input('season', sql.VarChar, season)
-      .input('peakRate', sql.Decimal(10,4), peakRate)
-      .input('offPeakRate', sql.Decimal(10,4), offPeakRate)
+      .input('peakRate', sql.Decimal(10, 4), peakRate)
+      .input('offPeakRate', sql.Decimal(10, 4), offPeakRate)
       .input('peakHours', sql.VarChar, peakHours)
       .input('weekdaysOnly', sql.Bit, weekdaysOnly)
-      .input('efficiencyBase', sql.Decimal(10,2), efficiencyBase)
-      .input('efficiencyMultiplier', sql.Decimal(10,2), efficiencyMultiplier)
+      .input('efficiencyBase', sql.Decimal(10, 2), efficiencyBase)
+      .input('efficiencyMultiplier', sql.Decimal(10, 2), efficiencyMultiplier)
       .input('updatedBy', sql.VarChar, updatedBy)
       .execute('UpdateTariffRate');
 
@@ -700,8 +718,8 @@ async function updateTariffRatesOnly(season, peakRate, offPeakRate, updatedBy) {
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
       .input('season', sql.VarChar, season)
-      .input('peakRate', sql.Decimal(10,4), peakRate)
-      .input('offPeakRate', sql.Decimal(10,4), offPeakRate)
+      .input('peakRate', sql.Decimal(10, 4), peakRate)
+      .input('offPeakRate', sql.Decimal(10, 4), offPeakRate)
       .input('updatedBy', sql.VarChar, updatedBy)
       .execute('UpdateTariffRatesOnly');
 
@@ -716,8 +734,8 @@ async function updateEfficiencySettings(efficiencyBase, efficiencyMultiplier, up
   try {
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
-      .input('efficiencyBase', sql.Decimal(10,2), efficiencyBase)
-      .input('efficiencyMultiplier', sql.Decimal(10,2), efficiencyMultiplier)
+      .input('efficiencyBase', sql.Decimal(10, 2), efficiencyBase)
+      .input('efficiencyMultiplier', sql.Decimal(10, 2), efficiencyMultiplier)
       .input('updatedBy', sql.VarChar, updatedBy)
       .execute('UpdateEfficiencySettings');
 
@@ -728,4 +746,4 @@ async function updateEfficiencySettings(efficiencyBase, efficiencyMultiplier, up
   }
 }
 
-module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser, getTariffRates, updateTariffRate, updateTariffRatesOnly, updateEfficiencySettings };
+module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, clearLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser, getTariffRates, updateTariffRate, updateTariffRatesOnly, updateEfficiencySettings };

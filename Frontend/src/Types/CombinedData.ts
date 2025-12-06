@@ -8,12 +8,12 @@ export async function getLiveData() {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000);
-    
+
     const response = await fetch("http://192.168.1.89:5500/api/breakersMainData", {
       signal: controller.signal
     });
     clearTimeout(timeoutId);
-    
+
     const data = await response.json();
     apiCache.set(cacheKey, data.data, 10000);
     return data.data;
@@ -43,28 +43,37 @@ export async function getBreakerNames() {
 export async function fetchAndCombineData() {
   const liveDataFetched = await getLiveData();
   const breakerNamesFetched = await getBreakerNames();
-  
 
-  
+
+
   // If no breaker names, return empty
   if (!Array.isArray(breakerNamesFetched) || breakerNamesFetched.length === 0) {
     console.warn('No breaker names available');
     return [];
   }
-  
+
   // If we have live data, combine it
   if (Array.isArray(liveDataFetched) && liveDataFetched.length > 0) {
-    const combined = liveDataFetched.map((item: { switch_id: number; }) => ({
-      ...item,
-      ...(breakerNamesFetched.find((b: any) => b.id === item.switch_id) || {})
-    }));
+    const combined = liveDataFetched.map((item: { switch_id: number; }) => {
+      const breakerInfo = breakerNamesFetched.find((b: any) => b.id === item.switch_id) || {};
+      return {
+        ...item,
+        name: breakerInfo.name || item.name || 'Unknown',
+        type: breakerInfo.type || 'Unknown',
+        load: breakerInfo.load || 'Unknown',
+        ...breakerInfo
+      };
+    });
     return combined;
   }
-  
+
   // If no live data, return breaker names with default values
   return breakerNamesFetched.map((breaker: any) => ({
     switch_id: breaker.id,
     ...breaker,
+    name: breaker.name || 'Unknown',
+    type: breaker.type || 'Unknown',
+    load: breaker.load || 'Unknown',
     V12: 400,
     V23: 400,
     V31: 400,

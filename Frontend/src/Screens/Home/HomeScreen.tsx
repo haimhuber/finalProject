@@ -1,6 +1,6 @@
 import './HomeScreen.css';
-import { useEffect, useState, useMemo } from "react";
-import { Line, Pie } from "react-chartjs-2";
+import { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -35,7 +35,6 @@ export const HomeScreen: React.FC = () => {
   const [endDate, setEndDate] = useState<string>('');
   const [dateRange, setDateRange] = useState<string>('7');
 
-  const totalBreakers = combinedDataState.length;
   const closedBreakers = combinedDataState.filter(b => b.BreakerClose && !b.Tripped).length;
   const openBreakers = combinedDataState.filter(b => !b.BreakerClose && !b.Tripped).length;
   const trippedBreakers = combinedDataState.filter(b => b.Tripped).length;
@@ -69,6 +68,13 @@ export const HomeScreen: React.FC = () => {
       }
     }
     load();
+
+    // רענן נתונים כל דקה (60000 מילישניות)
+    const interval = setInterval(() => {
+      load();
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleBreakerClick = (breaker: any) => {
@@ -87,16 +93,47 @@ export const HomeScreen: React.FC = () => {
     }
   };
 
+  // Format timestamp to DD-MM-YYYY HH:MM
+  const formatTimestamp = (timestamp: string) => {
+    if (!timestamp) return 'N/A';
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  };
+
+  // Get protection status for display
+  const getProtectionStatus = () => {
+    if (!selectedBreaker) return null;
+    return {
+      ProtectionTrip: selectedBreaker.ProtectionTrip ? '⚠️ TRIP' : '✓ OK',
+      ProtectionInstTrip: selectedBreaker.ProtectionInstTrip ? '⚠️ INST TRIP' : '✓ OK',
+      ProtectionI_Enabled: selectedBreaker.ProtectionI_Enabled ? '✓ ENABLED' : '✗ DISABLED',
+      ProtectionS_Enabled: selectedBreaker.ProtectionS_Enabled ? '✓ ENABLED' : '✗ DISABLED',
+      ProtectionL_Enabled: selectedBreaker.ProtectionL_Enabled ? '✓ ENABLED' : '✗ DISABLED',
+      ProtectionG_Trip: selectedBreaker.ProtectionG_Trip ? '⚠️ TRIP' : '✓ OK',
+      ProtectionI_Trip: selectedBreaker.ProtectionI_Trip ? '⚠️ TRIP' : '✓ OK',
+      ProtectionS_Trip: selectedBreaker.ProtectionS_Trip ? '⚠️ TRIP' : '✓ OK',
+      ProtectionL_Trip: selectedBreaker.ProtectionL_Trip ? '⚠️ TRIP' : '✓ OK',
+      TripDisconnected: selectedBreaker.TripDisconnected ? '⚠️ YES' : '✓ NO',
+      Tripped: selectedBreaker.Tripped ? '⚠️ TRIPPED' : '✓ OK',
+      Undefined: selectedBreaker.Undefined ? '⚠️ UNDEFINED' : '✓ OK'
+    };
+  };
+
   const generateChartData = () => {
     if (!selectedBreaker) return { labels: [], datasets: [] };
-    
+
     // Calculate days between start and end date
     const start = new Date(startDate);
     const end = new Date(endDate);
     const daysDiff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const numDays = Math.min(Math.max(daysDiff, 1), 30); // Limit to 30 days max
-    
-    const labels = Array.from({length: numDays}, (_, i) => {
+
+    const labels = Array.from({ length: numDays }, (_, i) => {
       const date = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
       return date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
     });
@@ -111,25 +148,25 @@ export const HomeScreen: React.FC = () => {
     const basePower = selectedBreaker.ActivePower || 150;
     const baseEnergy = selectedBreaker.ActiveEnergy || 94000;
 
-    let datasets = [];
-    switch(chartType) {
+    let datasets: any[] = [];
+    switch (chartType) {
       case 'voltage':
         datasets = [
           {
             label: 'V12 (V)',
-            data: Array.from({length: numDays}, () => baseV12 + (Math.random() - 0.5) * 20),
+            data: Array.from({ length: numDays }, () => baseV12 + (Math.random() - 0.5) * 20),
             borderColor: '#FF6900',
             backgroundColor: '#FF690020'
           },
           {
             label: 'V23 (V)',
-            data: Array.from({length: numDays}, () => baseV23 + (Math.random() - 0.5) * 20),
+            data: Array.from({ length: numDays }, () => baseV23 + (Math.random() - 0.5) * 20),
             borderColor: '#00A8CC',
             backgroundColor: '#00A8CC20'
           },
           {
             label: 'V31 (V)',
-            data: Array.from({length: numDays}, () => baseV31 + (Math.random() - 0.5) * 20),
+            data: Array.from({ length: numDays }, () => baseV31 + (Math.random() - 0.5) * 20),
             borderColor: '#8BC34A',
             backgroundColor: '#8BC34A20'
           }
@@ -139,19 +176,19 @@ export const HomeScreen: React.FC = () => {
         datasets = [
           {
             label: 'I1 (A)',
-            data: Array.from({length: numDays}, () => baseI1 + (Math.random() - 0.5) * 40),
+            data: Array.from({ length: numDays }, () => baseI1 + (Math.random() - 0.5) * 40),
             borderColor: '#FF6900',
             backgroundColor: '#FF690020'
           },
           {
             label: 'I2 (A)',
-            data: Array.from({length: numDays}, () => baseI2 + (Math.random() - 0.5) * 40),
+            data: Array.from({ length: numDays }, () => baseI2 + (Math.random() - 0.5) * 40),
             borderColor: '#00A8CC',
             backgroundColor: '#00A8CC20'
           },
           {
             label: 'I3 (A)',
-            data: Array.from({length: numDays}, () => baseI3 + (Math.random() - 0.5) * 40),
+            data: Array.from({ length: numDays }, () => baseI3 + (Math.random() - 0.5) * 40),
             borderColor: '#8BC34A',
             backgroundColor: '#8BC34A20'
           }
@@ -161,19 +198,19 @@ export const HomeScreen: React.FC = () => {
         datasets = [
           {
             label: 'Active Power (kW)',
-            data: Array.from({length: numDays}, () => basePower + (Math.random() - 0.5) * 100),
+            data: Array.from({ length: numDays }, () => basePower + (Math.random() - 0.5) * 100),
             borderColor: '#FF6900',
             backgroundColor: '#FF690020'
           },
           {
             label: 'Apparent Power (kVA)',
-            data: Array.from({length: numDays}, () => (basePower + 20) + (Math.random() - 0.5) * 100),
+            data: Array.from({ length: numDays }, () => (basePower + 20) + (Math.random() - 0.5) * 100),
             borderColor: '#00A8CC',
             backgroundColor: '#00A8CC20'
           },
           {
             label: 'Reactive Power (kVAR)',
-            data: Array.from({length: numDays}, () => (basePower * 0.3) + (Math.random() - 0.5) * 50),
+            data: Array.from({ length: numDays }, () => (basePower * 0.3) + (Math.random() - 0.5) * 50),
             borderColor: '#8BC34A',
             backgroundColor: '#8BC34A20'
           }
@@ -182,12 +219,12 @@ export const HomeScreen: React.FC = () => {
       case 'energy':
         // Generate realistic cumulative energy data based on selected breaker
         let cumulativeEnergy = baseEnergy;
-        const energyData = Array.from({length: numDays}, (_, i) => {
+        const energyData = Array.from({ length: numDays }, () => {
           const dailyConsumption = Math.random() * 40 + 30;
           cumulativeEnergy += dailyConsumption;
           return Math.round(cumulativeEnergy * 10) / 10;
         });
-        
+
         datasets = [
           {
             label: 'Active Energy (kWh)',
@@ -197,7 +234,7 @@ export const HomeScreen: React.FC = () => {
           },
           {
             label: 'Frequency (Hz)',
-            data: Array.from({length: numDays}, () => (selectedBreaker.Frequency || 50) + (Math.random() - 0.5) * 1),
+            data: Array.from({ length: numDays }, () => (selectedBreaker.Frequency || 50) + (Math.random() - 0.5) * 1),
             borderColor: '#00A8CC',
             backgroundColor: '#00A8CC20'
           }
@@ -223,7 +260,7 @@ export const HomeScreen: React.FC = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         position: 'top' as const
       }
@@ -255,7 +292,7 @@ export const HomeScreen: React.FC = () => {
             <p className="subtitle">ABB Smart Power Digital Solutions - Site Caesarea</p>
           </div>
         </div>
-        <div style={{padding: '2rem', textAlign: 'center', fontSize: '1.2rem'}}>Loading...</div>
+        <div style={{ padding: '2rem', textAlign: 'center', fontSize: '1.2rem' }}>Loading...</div>
       </div>
     );
   }
@@ -283,19 +320,19 @@ export const HomeScreen: React.FC = () => {
               <div className="status-number">{closedBreakers}</div>
               <div className="status-label">Closed</div>
             </div>
-            
+
             <div className="status-card open">
               <div className="status-emoji">🔓</div>
               <div className="status-number">{openBreakers}</div>
               <div className="status-label">Open</div>
             </div>
-            
+
             <div className="status-card comm-error">
               <div className="status-emoji">📡</div>
               <div className="status-number">{commErrorBreakers}</div>
               <div className="status-label">Comm Error</div>
             </div>
-            
+
             <div className="status-card tripped">
               <div className="status-emoji">⚠️</div>
               <div className="status-number">{trippedBreakers}</div>
@@ -307,8 +344,8 @@ export const HomeScreen: React.FC = () => {
 
       <div className="breakers-grid">
         {combinedDataState.map((breaker) => (
-          <div 
-            key={breaker.switch_id} 
+          <div
+            key={breaker.switch_id}
             className="breaker-card"
             onClick={() => handleBreakerClick(breaker)}
           >
@@ -320,9 +357,8 @@ export const HomeScreen: React.FC = () => {
                     <span className="checkmark">✓</span>
                   </div>
                 ) : (
-                  <div className={`status-indicator ${
-                    !breaker.CommStatus ? 'comm-error' : 'tripped'
-                  }`}>
+                  <div className={`status-indicator ${!breaker.CommStatus ? 'comm-error' : 'tripped'
+                    }`}>
                     <span className="status-text">
                       {!breaker.CommStatus ? 'COMM ERR' : 'TRIPPED'}
                     </span>
@@ -330,7 +366,7 @@ export const HomeScreen: React.FC = () => {
                 )}
               </div>
             </div>
-            
+
             <div className="breaker-info">
               <div className="info-row">
                 <span>Type:</span>
@@ -363,7 +399,7 @@ export const HomeScreen: React.FC = () => {
                   <span>V31: {breaker.V31 || 0}V</span>
                 </div>
               </div>
-              
+
               <div className="data-section">
                 <h4>Currents</h4>
                 <div className="data-grid">
@@ -372,7 +408,7 @@ export const HomeScreen: React.FC = () => {
                   <span>I3: {breaker.I3 || 0}A</span>
                 </div>
               </div>
-              
+
               <div className="data-section">
                 <h4>Power</h4>
                 <div className="data-grid">
@@ -381,7 +417,7 @@ export const HomeScreen: React.FC = () => {
                   <span>Reactive: {breaker.ReactivePower || 0} kVAR</span>
                 </div>
               </div>
-              
+
               <div className="data-section">
                 <h4>Energy & Frequency</h4>
                 <div className="data-grid">
@@ -413,7 +449,7 @@ export const HomeScreen: React.FC = () => {
               </div>
               <button className="close-btn" onClick={() => setSidebarOpen(false)}>×</button>
             </div>
-            
+
             <div className="chart-controls">
               <div className="control-group">
                 <label>Select Data Type:</label>
@@ -424,7 +460,7 @@ export const HomeScreen: React.FC = () => {
                   <option value="energy">Energy & Frequency</option>
                 </select>
               </div>
-              
+
               <div className="control-group">
                 <label>Time Period:</label>
                 <select value={dateRange} onChange={(e) => handleDateRangeChange(e.target.value)}>
@@ -434,32 +470,92 @@ export const HomeScreen: React.FC = () => {
                   <option value="custom">Custom</option>
                 </select>
               </div>
-              
+
               {dateRange === 'custom' && (
                 <>
                   <div className="control-group">
                     <label>Start Date:</label>
-                    <input 
-                      type="date" 
-                      value={startDate} 
+                    <input
+                      type="date"
+                      value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                     />
                   </div>
-                  
+
                   <div className="control-group">
                     <label>End Date:</label>
-                    <input 
-                      type="date" 
-                      value={endDate} 
+                    <input
+                      type="date"
+                      value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                     />
                   </div>
                 </>
               )}
             </div>
-            
+
             <div className="sidebar-chart">
               <Line data={generateChartData()} options={chartOptions} />
+            </div>
+
+            {/* Protection Status Section */}
+            <div className="protection-status-section" style={{
+              padding: '2rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '8px',
+              marginBottom: '2rem',
+              border: '2px solid #ff9c6e',
+              minHeight: '500px',
+              overflowY: 'auto'
+            }}>
+              <h4 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#d4380d', fontSize: '1.5rem', textAlign: 'center' }}>
+                🛡️ Protection Status & Fault Detection
+              </h4>
+
+              <div style={{ fontSize: '1rem', marginBottom: '2rem', color: '#666', paddingBottom: '1.5rem', borderBottom: '2px solid #ddd' }}>
+                <strong>📅 Last Sampling Update:</strong> <br />
+                <span style={{ color: '#1890ff', fontWeight: 'bold', fontSize: '1.1rem' }}>{formatTimestamp(selectedBreaker?.timestamp)}</span>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '1.5rem'
+              }}>
+                {getProtectionStatus() && Object.entries(getProtectionStatus() || {}).map(([key, value]) => (
+                  <div key={key} style={{
+                    padding: '1.2rem',
+                    backgroundColor: '#fff',
+                    borderRadius: '8px',
+                    border: `2px solid ${value?.includes('TRIP') || value?.includes('TRIPPED') || value?.includes('UNDEFINED') ? '#ff4d4f' : value?.includes('ENABLED') ? '#52c41a' : '#d9d9d9'}`,
+                    fontSize: '0.95rem',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }}>
+                    <strong style={{ display: 'block', marginBottom: '0.5rem', color: '#333', fontSize: '1rem' }}>
+                      {key === 'ProtectionTrip' ? '⚡ Protection Trip' :
+                        key === 'ProtectionInstTrip' ? '⚡ Instantaneous Trip' :
+                          key === 'ProtectionI_Enabled' ? '🔌 Phase Current (I) Protection' :
+                            key === 'ProtectionS_Enabled' ? '⚙️ Short Circuit (S) Protection' :
+                              key === 'ProtectionL_Enabled' ? '🔗 Load (L) Protection' :
+                                key === 'ProtectionG_Trip' ? '🌍 Ground (G) Trip' :
+                                  key === 'ProtectionI_Trip' ? '⚠️ Phase Current (I) Trip' :
+                                    key === 'ProtectionS_Trip' ? '⚠️ Short Circuit (S) Trip' :
+                                      key === 'ProtectionL_Trip' ? '⚠️ Load (L) Trip' :
+                                        key === 'TripDisconnected' ? '🔴 Trip Disconnected' :
+                                          key === 'Tripped' ? '❌ Breaker Tripped' :
+                                            '❓ Undefined Status'}
+                    </strong>
+                    <div style={{
+                      marginTop: '0.5rem',
+                      color: value?.includes('TRIP') || value?.includes('TRIPPED') || value?.includes('UNDEFINED') ? '#ff4d4f' : value?.includes('ENABLED') ? '#52c41a' : '#1890ff',
+                      fontWeight: 'bold',
+                      fontSize: '1.1rem'
+                    }}>
+                      {value}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

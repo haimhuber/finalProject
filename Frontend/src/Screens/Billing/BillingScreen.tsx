@@ -15,6 +15,8 @@ interface ConsumptionData {
   cumulative_cost: number;
 }
 
+type SeasonKey = 'summer' | 'winter' | 'springAutumn';
+
 export const BillingScreen = () => {
   const [selectedBreaker, setSelectedBreaker] = useState<string>('1');
   const [startDate, setStartDate] = useState<string>('');
@@ -27,12 +29,84 @@ export const BillingScreen = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
   const [tariffRates, setTariffRates] = useState({
-    summer: { peak: 1.69, offPeak: 0.53, peakHours: '17:00-23:00' },
-    winter: { peak: 1.21, offPeak: 0.46, peakHours: '17:00-22:00' },
-    springAutumn: { peak: 0.50, offPeak: 0.45, peakHours: '07:00-17:00' }
+    summer: { peak: 1.6895, offPeak: 0.5283, peakHours: '17:00-23:00' },
+    winter: { peak: 1.2071, offPeak: 0.4557, peakHours: '17:00-22:00' },
+    springAutumn: { peak: 0.4977, offPeak: 0.446, peakHours: '17:00-22:00' }
   });
   const [efficiencyBase, setEfficiencyBase] = useState(50);
   const [efficiencyMultiplier, setEfficiencyMultiplier] = useState(2);
+
+  const getSeasonKey = (date: Date): SeasonKey => {
+    const month = date.getMonth() + 1;
+    if (month === 12 || month === 1 || month === 2) return 'winter';
+    if (month >= 6 && month <= 9) return 'summer';
+    if ((month >= 3 && month <= 5) || (month >= 10 && month <= 11)) return 'springAutumn';
+    return 'springAutumn';
+  };
+
+  const getSeasonLabel = (seasonKey: SeasonKey) => {
+    if (seasonKey === 'summer') return 'Summer';
+    if (seasonKey === 'winter') return 'Winter';
+    return 'Spring/Autumn';
+  };
+
+  const isWeekend = (dayOfWeek: number) => dayOfWeek === 5 || dayOfWeek === 6; // Fri/Sat
+
+  const getTariffForDate = (date: Date) => {
+    const seasonKey = getSeasonKey(date);
+    const seasonRates = tariffRates[seasonKey as keyof typeof tariffRates];
+    const dayOfWeek = date.getDay();
+    const weekend = isWeekend(dayOfWeek);
+
+    let peakHours = 0;
+    let peakHoursLabel = 'No peak';
+    let offPeakHoursLabel = 'All hours';
+
+    // Calculate peak hours based on season and day type
+    if (!weekend) {
+      if (seasonKey === 'summer') {
+        peakHours = 6; // 17:00-23:00 = 6 hours
+        peakHoursLabel = '17:00-23:00';
+        offPeakHoursLabel = '00:00-17:00 and 23:00-24:00';
+      } else if (seasonKey === 'winter') {
+        peakHours = 5; // 17:00-22:00 = 5 hours
+        peakHoursLabel = '17:00-22:00';
+        offPeakHoursLabel = '00:00-17:00 and 22:00-24:00';
+      } else { // spring/autumn
+        peakHours = 5; // 17:00-22:00 = 5 hours
+        peakHoursLabel = '17:00-22:00';
+        offPeakHoursLabel = '00:00-17:00 and 22:00-24:00';
+      }
+    } else {
+      // Weekends: no peak pricing
+      peakHours = 0;
+      peakHoursLabel = 'No peak (Fri/Sat)';
+      offPeakHoursLabel = 'All hours (24:00)';
+    }
+
+    const offPeakHours = 24 - peakHours;
+    const effectiveRate = weekend
+      ? seasonRates.offPeak
+      : ((peakHours / 24) * seasonRates.peak) + ((offPeakHours / 24) * seasonRates.offPeak);
+
+    return {
+      seasonKey,
+      seasonLabel: getSeasonLabel(seasonKey),
+      peakRate: seasonRates.peak,
+      offPeakRate: seasonRates.offPeak,
+      peakHoursLabel,
+      offPeakHoursLabel,
+      effectiveRate,
+      isWeekend: weekend,
+      peakHours,
+      offPeakHours
+    };
+  };
+
+  const formatPrice = (value: number) => `₪${value.toFixed(2)}/kWh`;
+
+  const calculateEfficiency = (consumption: number) =>
+    Math.round(Math.min(100, Math.max(0, (efficiencyBase - consumption) * efficiencyMultiplier + 50)));
 
   // Load tariff and efficiency settings
   useEffect(() => {
@@ -120,6 +194,7 @@ export const BillingScreen = () => {
     for (let i = 0; i < days; i++) {
       const date = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
       const dateStr = date.toISOString().split('T')[0];
+      const tariff = getTariffForDate(date);
 
       const seed = simpleHash(`${selectedBreaker}-${dateStr}`);
       const pseudoRandom1 = (seed % 1000) / 1000;
@@ -127,52 +202,13 @@ export const BillingScreen = () => {
 
       const consumption = pseudoRandom1 * 50 + 20;
 
-      // Calculate cost based on real tariffs
-      const month = date.getMonth() + 1;
-      const dayOfWeek = date.getDay();
-      let rate = 0.45; // default
-      let rateType = 'Off-Peak';
-      let season = 'Spring/Autumn';
-
-      // Summer: June-September
-      if (month >= 6 && month <= 9) {
-        season = 'Summer';
-        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Sun-Thu
-          // 6 hours peak (17:00-23:00), 18 hours off-peak
-          rate = (6 / 24) * 1.69 + (18 / 24) * 0.53;
-          rateType = 'Mixed';
-        } else { // Fri-Sat
-          rate = 0.53; // All day off-peak
-          rateType = 'Off-Peak';
-        }
-      }
-      // Winter: December-February
-      else if (month === 12 || month === 1 || month === 2) {
-        season = 'Winter';
-        // 5 hours peak (17:00-22:00), 19 hours off-peak
-        rate = (5 / 24) * 1.21 + (19 / 24) * 0.46;
-        rateType = 'Mixed';
-      }
-      // Spring/Autumn
-      else {
-        season = 'Spring/Autumn';
-        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Sun-Thu
-          // 10 hours peak (07:00-17:00), 14 hours off-peak
-          rate = (10 / 24) * 0.50 + (14 / 24) * 0.45;
-          rateType = 'Mixed';
-        } else { // Fri-Sat
-          rate = 0.45; // All day off-peak
-          rateType = 'Off-Peak';
-        }
-      }
-
-      const cost = consumption * rate;
+      const cost = consumption * tariff.effectiveRate;
 
       data.push({
         switch_id: parseInt(selectedBreaker),
         consumption_date: dateStr,
         consumption_day: date.toLocaleDateString('en-US', { weekday: 'long' }),
-        season: season,
+        season: tariff.seasonLabel,
         daily_consumption: consumption,
         daily_cost: cost,
         cumulative_consumption: 0,
@@ -238,8 +274,8 @@ export const BillingScreen = () => {
       offPeakHours = 19;
     } else { // Spring/Autumn
       if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-        peakHours = 10; // 07:00-17:00
-        offPeakHours = 14;
+        peakHours = 5; // 17:00-22:00
+        offPeakHours = 19;
       } else {
         peakHours = 0; // No peak on weekends
         offPeakHours = 24;
@@ -401,17 +437,32 @@ export const BillingScreen = () => {
           doc.rect(20, yPos - 6, 170, 10, 'F');
         }
 
-        const date = new Date(item.consumption_date).toLocaleDateString('en-US', {
+        const date = new Date(item.consumption_date);
+        const dateStr = date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric'
         });
-        const rateType = item.daily_consumption > 40 ? 'Peak' : item.daily_consumption > 30 ? 'Std' : 'Off';
-        const efficiency = Math.round(Math.min(100, (50 - item.daily_consumption) * 2 + 50));
+        const month = date.getMonth() + 1;
+        const dayOfWeek = date.getDay();
+        const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
-        doc.text(date, colX[0] + 2, yPos);
+        let peakHours = '';
+        if (isWeekend) {
+          peakHours = 'No peak';
+        } else if (month >= 6 && month <= 9) {
+          peakHours = '17:00-23:00';
+        } else if (month === 12 || month === 1 || month === 2) {
+          peakHours = '17:00-22:00';
+        } else {
+          peakHours = '17:00-22:00';
+        }
+
+        const efficiency = Math.round(Math.min(100, (efficiencyBase - item.daily_consumption) * efficiencyMultiplier + 50));
+
+        doc.text(dateStr, colX[0] + 2, yPos);
         doc.text(item.daily_consumption.toFixed(1), colX[1] + 2, yPos);
         doc.text(item.daily_cost.toFixed(2), colX[2] + 2, yPos);
-        doc.text(rateType, colX[3] + 2, yPos);
+        doc.text(peakHours, colX[3] + 2, yPos);
         doc.text(efficiency + '%', colX[4] + 2, yPos);
 
         yPos += 10;
@@ -674,13 +725,15 @@ export const BillingScreen = () => {
                     {(() => {
                       const date = new Date(item.consumption_date);
                       const month = date.getMonth() + 1;
+                      const dayOfWeek = date.getDay();
+                      const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
                       if (month >= 6 && month <= 9) {
-                        return '₪1.69/kWh (17:00-23:00)';
+                        return isWeekend ? '₪1.69/kWh (No peak)' : '₪1.69/kWh (17:00-23:00)';
                       } else if (month === 12 || month === 1 || month === 2) {
-                        return '₪1.21/kWh (17:00-22:00)';
+                        return isWeekend ? '₪1.21/kWh (No peak)' : '₪1.21/kWh (17:00-22:00)';
                       } else {
-                        return '₪0.50/kWh (07:00-17:00)';
+                        return isWeekend ? '₪0.50/kWh (No peak)' : '₪0.50/kWh (17:00-22:00)';
                       }
                     })()}
                   </td>
@@ -760,36 +813,36 @@ export const BillingScreen = () => {
               <div className="tariff-section">
                 <h4>Summer (June-September)</h4>
                 <div className="rate-inputs">
-                  <label>Peak Rate (₪/kWh):</label>
-                  <input type="number" step="0.01" defaultValue={tariffRates.summer.peak} />
-                  <label>Off-Peak Rate (₪/kWh):</label>
-                  <input type="number" step="0.01" defaultValue={tariffRates.summer.offPeak} />
-                  <label>Peak Hours:</label>
-                  <input type="text" defaultValue={tariffRates.summer.peakHours} />
+                  <label>Peak Rate (₪/kWh, incl. VAT):</label>
+                  <input type="number" step="0.01" defaultValue={1.6895} />
+                  <label>Off-Peak Rate (₪/kWh, incl. VAT):</label>
+                  <input type="number" step="0.01" defaultValue={0.5283} />
+                  <label>Peak Hours (weekdays):</label>
+                  <input type="text" defaultValue="17:00-23:00" />
                 </div>
               </div>
 
               <div className="tariff-section">
                 <h4>Winter (December-February)</h4>
                 <div className="rate-inputs">
-                  <label>Peak Rate (₪/kWh):</label>
-                  <input type="number" step="0.01" defaultValue={tariffRates.winter.peak} />
-                  <label>Off-Peak Rate (₪/kWh):</label>
-                  <input type="number" step="0.01" defaultValue={tariffRates.winter.offPeak} />
-                  <label>Peak Hours:</label>
-                  <input type="text" defaultValue={tariffRates.winter.peakHours} />
+                  <label>Peak Rate (₪/kWh, incl. VAT):</label>
+                  <input type="number" step="0.01" defaultValue={1.2071} />
+                  <label>Off-Peak Rate (₪/kWh, incl. VAT):</label>
+                  <input type="number" step="0.01" defaultValue={0.4557} />
+                  <label>Peak Hours (all days):</label>
+                  <input type="text" defaultValue="17:00-22:00" />
                 </div>
               </div>
 
               <div className="tariff-section">
-                <h4>Spring/Autumn</h4>
+                <h4>Spring/Autumn (Mar-May, Oct-Nov)</h4>
                 <div className="rate-inputs">
-                  <label>Peak Rate (₪/kWh):</label>
-                  <input type="number" step="0.01" defaultValue={tariffRates.springAutumn.peak} />
-                  <label>Off-Peak Rate (₪/kWh):</label>
-                  <input type="number" step="0.01" defaultValue={tariffRates.springAutumn.offPeak} />
-                  <label>Peak Hours:</label>
-                  <input type="text" defaultValue={tariffRates.springAutumn.peakHours} />
+                  <label>Peak Rate (₪/kWh, incl. VAT):</label>
+                  <input type="number" step="0.01" defaultValue={0.4977} />
+                  <label>Off-Peak Rate (₪/kWh, incl. VAT):</label>
+                  <input type="number" step="0.01" defaultValue={0.446} />
+                  <label>Peak Hours (weekdays only):</label>
+                  <input type="text" defaultValue="17:00-22:00" />
                 </div>
               </div>
 

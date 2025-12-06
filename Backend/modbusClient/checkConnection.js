@@ -12,9 +12,13 @@ let interval = null;
 let write
 async function pollData() {
   console.log("📡 Polling data from breakers...");
-  if (writeToDbEvery1min > 11 ) {
+  if (writeToDbEvery1min > 11) {
     write = true;
     writeToDbEvery1min = 0;
+
+    // Clear LiveData table at the start of each minute (only once)
+    console.log("🗑️ Clearing LiveData table...");
+    await sqlDB.clearLiveData();
   } else {
     write = false;
     writeToDbEvery1min++;
@@ -28,10 +32,10 @@ async function pollData() {
         continue;
       }
       console.log(`✅ Breaker ${i + 1}:`, data);
-      
+
       // Always update LiveData
       const liveDataUpdate = await sqlDB.updateLiveData(data, i + 1);
-      
+
       // Write to historical Switches table only every minute
       if (write) {
         const sendData = await sqlDB.writeBreakerData(data, i + 1);
