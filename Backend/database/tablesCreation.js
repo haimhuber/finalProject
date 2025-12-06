@@ -195,7 +195,7 @@ async function createTables() {
         VALUES 
         ('Summer', 1.69, 0.53, '17:00-23:00', 1, 'System'),
         ('Winter', 1.21, 0.46, '17:00-22:00', 0, 'System'),
-        ('Spring/Autumn', 0.50, 0.45, '07:00-17:00', 1, 'System');
+        ('Spring/Autumn', 0.50, 0.45, '17:00-22:00', 1, 'System');
       END
     `);
     console.log({ 'Default tariff rates inserted': 200 });
