@@ -102,7 +102,7 @@ const Report = () => {
     if (showSwitchData) {
       fetchSwitchData();
     }
-  }, [showSwitchData]);
+  }, [showSwitchData, selectedBreaker, startDate, endDate, sampleType, breakerDataPick]);
 
   const formatTimestamp = (ts: string) => {
     if (!ts) return "--";
@@ -136,7 +136,13 @@ const Report = () => {
   };
 
   function setAlert() {
-    setShowAlert(!showAlert);
+    setShowAlert(true);
+    SetshowSwitchData(false);
+  }
+
+  function toggleSwitchReport() {
+    SetshowSwitchData(true);
+    setShowAlert(false);
   }
 
   return (
@@ -149,35 +155,48 @@ const Report = () => {
             </div>
           </div>
           <h1>Reports Dashboard</h1>
-          <p className="subtitle">ABB Smart Power Digital Solutions - Site Caesarea</p>
+          <p className="subtitle" style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>ABB Smart Power Digital Solutions - Site Caesarea</p>
         </div>
       </div>
 
-      <div className="billing-controls">
-        <div className="control-group">
-          <label>Report Type:</label>
+      <div className="billing-controls" style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: '1.2rem',
+        padding: '1.6rem',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '8px',
+        marginBottom: '1.5rem'
+      }}>
+        <div className="control-group" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <button
             className={`control-btn ${showAlert ? 'active' : ''}`}
             onClick={setAlert}
+            style={{ fontSize: '0.85rem', padding: '0.5rem 1rem', height: '36px', margin: 0 }}
           >
-            📊 Alerts Report
+            📊 Alerts
           </button>
           <button
             className={`control-btn ${showSwitchData ? 'active' : ''}`}
-            onClick={() => SetshowSwitchData(!showSwitchData)}
+            onClick={toggleSwitchReport}
+            style={{ fontSize: '0.85rem', padding: '0.5rem 1rem', height: '36px', margin: 0 }}
           >
-            ⚡ Switch Report
+            ⚡ Switch
           </button>
         </div>
 
-        <div className="control-group">
-          <label>Select Breaker:</label>
+        <div style={{ height: '36px', width: '1px', backgroundColor: '#dee2e6' }}></div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <label style={{ fontSize: '0.75rem', color: '#6c757d', fontWeight: 500 }}>Breaker</label>
           <select
             value={selectedBreaker}
             onChange={(e) => setSelectedBreaker(e.target.value)}
             className="control-select"
+            style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', height: '36px', minWidth: '140px', border: '1px solid #ced4da', borderRadius: '4px' }}
           >
-            <option value="">Select Breaker</option>
+            <option value="">All Breakers</option>
             {breakerList.map((curr) => (
               <option key={curr.id} value={curr.id}>
                 {curr.name}
@@ -186,72 +205,83 @@ const Report = () => {
           </select>
         </div>
 
-        <div className="control-group">
-          <label>Data Type:</label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <label style={{ fontSize: '0.75rem', color: '#6c757d', fontWeight: 500 }}>Data Type</label>
           <select
             value={breakerDataPick}
             onChange={(e) => setBbreakerDataPick(e.target.value)}
             className="control-select"
+            style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', height: '36px', minWidth: '140px', border: '1px solid #ced4da', borderRadius: '4px' }}
           >
-            <option value="">Select Data Type</option>
+            <option value="">Select Type</option>
             <option value={breakerData.ActiveEnergy}>{breakerData.ActiveEnergy}</option>
             <option value={breakerData.ActivePower}>{breakerData.ActivePower}</option>
           </select>
         </div>
 
-        <div className="control-group">
-          <label>Sample Type:</label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <label style={{ fontSize: '0.75rem', color: '#6c757d', fontWeight: 500 }}>Sample</label>
           <select
             value={sampleType}
             onChange={(e) => setSampleType(e.target.value)}
             className="control-select"
+            style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', height: '36px', minWidth: '120px', border: '1px solid #ced4da', borderRadius: '4px' }}
           >
-            <option value="daily">Daily Samples</option>
-            <option value="hourly">Hourly Samples</option>
-            <option value="weekly">Weekly Samples</option>
+            <option value="daily">Daily</option>
+            <option value="hourly">Hourly</option>
+            <option value="weekly">Weekly</option>
           </select>
         </div>
 
-        <div className="control-group">
-          <label>Start Date:</label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-            }}
-            style={{ padding: '0.8rem', border: '2px solid #e1e8ed', borderRadius: '8px' }}
-          />
+        <div style={{ height: '36px', width: '1px', backgroundColor: '#dee2e6' }}></div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+            <label style={{ fontSize: '0.75rem', color: '#6c757d', fontWeight: 500 }}>From</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              style={{
+                padding: '0.4rem 0.6rem',
+                border: '1px solid #ced4da',
+                borderRadius: '4px',
+                fontSize: '0.85rem',
+                height: '36px',
+                minWidth: '140px'
+              }}
+            />
+          </div>
+
+          <div style={{ marginTop: '1.2rem', fontSize: '0.85rem', color: '#6c757d' }}>→</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+            <label style={{ fontSize: '0.75rem', color: '#6c757d', fontWeight: 500 }}>To</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              style={{
+                padding: '0.4rem 0.6rem',
+                border: '1px solid #ced4da',
+                borderRadius: '4px',
+                fontSize: '0.85rem',
+                height: '36px',
+                minWidth: '140px'
+              }}
+            />
+          </div>
         </div>
 
-        <div className="control-group">
-          <label>End Date:</label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-            }}
-            style={{ padding: '0.8rem', border: '2px solid #e1e8ed', borderRadius: '8px' }}
-          />
-        </div>
+        <div style={{ height: '36px', width: '1px', backgroundColor: '#dee2e6' }}></div>
 
-
-
-        <div className="control-group">
-          <button className="control-btn" onClick={() => {
-            fetchAlerts();
-            if (showSwitchData) fetchSwitchData();
-          }} disabled={loading}>
-            {loading ? '⏳ Loading...' : '🔄 Update Dates'}
-          </button>
-        </div>
-
-
-
-        <div className="control-group">
-          <button className="export-btn" onClick={generatePDF}>
-            📄 Download PDF
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <button
+            className="export-btn"
+            onClick={generatePDF}
+            style={{ fontSize: '0.85rem', padding: '0.5rem 1.2rem', height: '36px', margin: 0 }}
+          >
+            📄 PDF
           </button>
         </div>
       </div>
