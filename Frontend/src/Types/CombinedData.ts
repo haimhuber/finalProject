@@ -1,4 +1,5 @@
 import { apiCache } from '../utils/apiCache';
+import { API_ENDPOINTS } from '../config/api';
 
 export async function getLiveData() {
   const cacheKey = 'breakersMainData';
@@ -9,7 +10,7 @@ export async function getLiveData() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-    const response = await fetch("http://192.168.1.89:5500/api/breakersMainData", {
+    const response = await fetch(API_ENDPOINTS.breakersMainData, {
       signal: controller.signal
     });
     clearTimeout(timeoutId);
@@ -30,10 +31,8 @@ export async function getBreakerNames() {
   apiCache.clear();
 
   try {
-    const response = await fetch("http://192.168.1.89:5500/api/breakersNames");
+    const response = await fetch(API_ENDPOINTS.breakersNames);
     const data = await response.json();
-
-    console.log('🔍 Breaker names from API:', data.data);
 
     apiCache.set(cacheKey, data.data, 60000); // 1 minute cache
     return data.data;
@@ -47,9 +46,6 @@ export async function fetchAndCombineData() {
   const liveDataFetched = await getLiveData();
   const breakerNamesFetched = await getBreakerNames();
 
-  console.log('🔍 Live data count:', liveDataFetched?.length);
-  console.log('🔍 Breaker names count:', breakerNamesFetched?.length);
-
   // If no breaker names, return empty
   if (!Array.isArray(breakerNamesFetched) || breakerNamesFetched.length === 0) {
     console.warn('No breaker names available');
@@ -58,7 +54,7 @@ export async function fetchAndCombineData() {
 
   // If we have live data, combine it
   if (Array.isArray(liveDataFetched) && liveDataFetched.length > 0) {
-    const combined = liveDataFetched.map((item: { switch_id: number; }) => {
+    const combined = liveDataFetched.map((item: any) => {
       const breakerInfo = breakerNamesFetched.find((b: any) => b.id === item.switch_id) || {};
       const result = {
         ...item,
@@ -67,14 +63,6 @@ export async function fetchAndCombineData() {
         load: breakerInfo.load || 'Unknown',
         ...breakerInfo
       };
-      if (item.switch_id === 1) {
-        console.log('🔍 Breaker 1 - breakerInfo.type:', breakerInfo.type);
-        console.log('🔍 Breaker 1 - breakerInfo.load:', breakerInfo.load);
-        console.log('🔍 Breaker 1 - result.type:', result.type);
-        console.log('🔍 Breaker 1 - result.load:', result.load);
-        console.log('🔍 Breaker 1 - Full breakerInfo:', JSON.stringify(breakerInfo));
-        console.log('🔍 Breaker 1 - Full result:', JSON.stringify(result));
-      }
       return result;
     });
     return combined;
@@ -111,7 +99,7 @@ export async function getActivePowerData(switch_id: string) {
   if (cached) return cached;
 
   try {
-    const response = await fetch(`http://192.168.1.89:5500/api/activePower/${switch_id}`);
+    const response = await fetch(API_ENDPOINTS.activePower(parseInt(switch_id)));
     const data = await response.json();
     apiCache.set(cacheKey, data.data, 30000); // 30 seconds cache
     return data.data;
@@ -123,7 +111,7 @@ export async function getActivePowerData(switch_id: string) {
 //  -------------------------------------- 
 export async function getActiveEnergyData(switch_id: string) {
   try {
-    const response = await fetch(`http://192.168.1.89:5500/api/activeEnergy/${switch_id}`);
+    const response = await fetch(API_ENDPOINTS.activeEnergy(parseInt(switch_id)));
     const data = await response.json();
     return data.data; // Return the array/object
   } catch (err) {
@@ -134,7 +122,7 @@ export async function getActiveEnergyData(switch_id: string) {
 
 export async function getAlerts() {
   try {
-    const response = await fetch(`http://192.168.1.89:5500/api/alerts`);
+    const response = await fetch(API_ENDPOINTS.alerts);
     const data = await response.json();
     return data; // Return the array/object
   } catch (err) {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Line, Doughnut } from 'react-chartjs-2';
 import jsPDF from 'jspdf';
+import { API_ENDPOINTS } from '../../config/api';
 import './BillingScreen.css';
 
 interface ConsumptionData {
@@ -26,6 +27,7 @@ export const BillingScreen = () => {
   const [showTariffModal, setShowTariffModal] = useState<boolean>(false);
   const [adminPassword, setAdminPassword] = useState<string>('');
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [breakerOptions, setBreakerOptions] = useState<Array<{ value: string; label: string; type: string }>>([]);
   const tariffRates = {
     summer: { peak: 1.6895, offPeak: 0.5283, peakHours: '17:00-23:00' },
     winter: { peak: 1.2071, offPeak: 0.4557, peakHours: '17:00-22:00' },
@@ -104,11 +106,39 @@ export const BillingScreen = () => {
   // Load tariff and efficiency settings
   useEffect(() => {
     fetchTariffSettings();
+    fetchBreakerOptions();
   }, []);
+
+  const fetchBreakerOptions = async () => {
+    try {
+      const response = await fetch(API_ENDPOINTS.breakersNames);
+      if (response.ok) {
+        const result = await response.json();
+        const breakers = result.data || [];
+        const options = breakers.map((b: any) => ({
+          value: String(b.id),
+          label: `${b.name} - ${b.load || 'N/A'}`,
+          type: b.type || 'N/A'
+        }));
+        setBreakerOptions(options);
+      }
+    } catch (err) {
+      console.error('Error fetching breaker options:', err);
+      // Fallback to default options if API fails
+      setBreakerOptions([
+        { value: '1', label: 'Q1 - Main Supply', type: 'EMAX E1.2' },
+        { value: '2', label: 'Q2 - Building 1 Ground Floor', type: 'XT4' },
+        { value: '3', label: 'Q3 - Building 2 First Floor', type: 'XT4' },
+        { value: '4', label: 'Q4 - Building 4 Second Floor', type: 'XT4' },
+        { value: '8', label: 'Q8 - Bridge', type: 'XT2' },
+        { value: '13', label: 'Q9 - Bridge Secondary', type: 'XT2' }
+      ]);
+    }
+  };
 
   const fetchTariffSettings = async () => {
     try {
-      const response = await fetch('http://localhost:5500/api/tariff-rates');
+      const response = await fetch(API_ENDPOINTS.tariffRates);
       if (response.ok) {
         const result = await response.json();
         const rates = result.data || [];
@@ -151,11 +181,10 @@ export const BillingScreen = () => {
     setLoading(true);
     setConsumptionData([]); // איפוס הנתונים
     try {
-      const response = await fetch(`http://localhost:5500/api/consumption-billing/${selectedBreaker}?start=${startDate}&end=${endDate}`);
+      const response = await fetch(API_ENDPOINTS.consumption(selectedBreaker, startDate, endDate));
       const result = await response.json();
 
       if (result.status === 200 && result.data) {
-        console.log('Data from server:', result.data);
         setConsumptionData(result.data);
       } else {
         generateDummyData();
@@ -208,7 +237,6 @@ export const BillingScreen = () => {
       });
     }
 
-    console.log('Generated dummy data:', data);
     setConsumptionData(data);
   };
 
@@ -222,15 +250,6 @@ export const BillingScreen = () => {
       setEndDate(today.toISOString().split('T')[0]);
     }
   };
-
-  const breakerOptions = [
-    { value: '1', label: 'Q1 - Main Supply', type: 'EMAX E1.2' },
-    { value: '2', label: 'Q2 - Building 1 Ground Floor', type: 'XT4' },
-    { value: '3', label: 'Q3 - Building 2 First Floor', type: 'XT4' },
-    { value: '4', label: 'Q4 - Building 4 Second Floor', type: 'XT4' },
-    { value: '8', label: 'Q8 - Bridge', type: 'XT2' },
-    { value: '13', label: 'Q9 - Bridge Secondary', type: 'XT2' }
-  ];
 
   const lineChartData = {
     labels: consumptionData.map(item => new Date(item.consumption_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
@@ -344,7 +363,7 @@ export const BillingScreen = () => {
 
   const handleSaveTariffs = async () => {
     try {
-      const response = await fetch('http://localhost:5500/api/efficiency-settings', {
+      const response = await fetch(API_ENDPOINTS.efficiencySettings, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

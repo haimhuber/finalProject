@@ -3,6 +3,7 @@ import { getAlerts, getBreakerNames, getTime } from '../../Types/CombinedData';
 import { useEffect, useState, useMemo } from 'react';
 import { formatSqlTime, type AckTimestamp, type AlertInterface } from '../../Types/Alerts'
 import { useAlerts } from '../../contexts';
+import { API_ENDPOINTS } from '../../config/api';
 import { Line } from 'react-chartjs-2';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -21,16 +22,14 @@ export const Alerts = () => {
   const { refreshAlerts } = useAlerts();
 
   const readAllAckData = async () => {
-    const res = await fetch('http://192.168.1.89:5500/api/ack-data');
+    const res = await fetch(API_ENDPOINTS.ackData);
     const req = await res.json();
     setAckDataBy(req.data);
-    console.log(req.data);
-
   };
 
   const ackByFb = async (ackId: number) => {
     try {
-      const res = await fetch("http://192.168.1.89:5500/api/ack-by", {
+      const res = await fetch(API_ENDPOINTS.ackBy, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ackId, ackBy }),
@@ -57,7 +56,7 @@ export const Alerts = () => {
   const ackAlarm = async (alertType: string, alertMsg: string, alertId: number) => {
     try {
       const ackUpdate = 1;
-      const res = await fetch("http://192.168.1.89:5500/api/ack", {
+      const res = await fetch(API_ENDPOINTS.ack, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ alertType, alertMsg, alertId, ackUpdate }),
@@ -77,8 +76,6 @@ export const Alerts = () => {
     try {
       const response = await getAlerts();
       setAlerts(response.data ?? []);
-      console.log(alerts);
-
     } catch (err) {
       console.error("Failed to fetch alerts", err);
     }

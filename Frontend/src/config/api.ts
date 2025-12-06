@@ -1,0 +1,42 @@
+// API Configuration
+// Automatically detects server IP dynamically
+
+// Default fallback IP (used during initial load)
+let cachedServerUrl = 'http://192.168.1.89:5500';
+
+// Function to fetch server IP dynamically from the server
+export const initializeServerUrl = async (): Promise<string> => {
+    try {
+        // Try to get server IP from the server itself
+        const response = await fetch('http://192.168.1.89:5500/api/server-ip');
+        const data = await response.json();
+        if (data.status === 200 && data.ip) {
+            cachedServerUrl = `http://${data.ip}:${data.port || 5500}`;
+        }
+    } catch (error) {
+        // Silently use fallback URL
+    }
+    return cachedServerUrl;
+};
+
+// Get current server URL (call initializeServerUrl first in App.tsx)
+export const getServerUrl = () => cachedServerUrl;
+
+export const API_BASE_URL = cachedServerUrl;
+
+// API Endpoints
+export const API_ENDPOINTS = {
+    breakersMainData: `${API_BASE_URL}/api/breakersMainData`,
+    breakersNames: `${API_BASE_URL}/api/breakersNames`,
+    activePower: (switchId: number) => `${API_BASE_URL}/api/activePower/${switchId}`,
+    activeEnergy: (switchId: number) => `${API_BASE_URL}/api/activeEnergy/${switchId}`,
+    alerts: `${API_BASE_URL}/api/alerts`,
+    ackData: `${API_BASE_URL}/api/ack-data`,
+    ackBy: `${API_BASE_URL}/api/ack-by`,
+    ack: `${API_BASE_URL}/api/ack`,
+    consumption: (switchId: string, start: string, end: string) =>
+        `${API_BASE_URL}/api/consumption-billing/${switchId}?start=${start}&end=${end}`,
+    tariffRates: `${API_BASE_URL}/api/tariff-rates`,
+    efficiencySettings: `${API_BASE_URL}/api/efficiency-settings`,
+    breakerInfo: `${API_BASE_URL}/api/breaker-info`,
+};

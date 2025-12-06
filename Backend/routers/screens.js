@@ -2,10 +2,15 @@ const express = require('express');
 const router = express.Router();
 const screenAction = require('../controller/screensActions');
 const sendMail = require('../controller/email');
+const { getLocalIPs } = require('../ipAddress/getPcIp');
 
 
 router.get('', (req, res) => {
     res.status(200).json({ Msg: "Hello! Welcome to my api!" });
+});
+router.get('/server-ip', (req, res) => {
+    const serverIp = getLocalIPs();
+    res.status(200).json({ status: 200, ip: serverIp, port: 5500 });
 });
 router.get('/breakersNames', screenAction.breakersNames);
 router.get('/breakersMainData', screenAction.breakersLiveData);

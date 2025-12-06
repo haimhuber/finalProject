@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import './App.css'
 import { useAuth, useAlerts, useTime } from './contexts';
+import { initializeServerUrl } from './config/api';
 
 const HomeScreen = lazy(() => import('./Screens/Home/HomeScreen').then(m => ({ default: m.HomeScreen })));
 
@@ -19,6 +20,30 @@ function AppContent() {
   const { alertsNumber } = useAlerts();
   const { season, peakOffSeason, shortDate } = useTime();
   const location = useLocation();
+  const [, forceUpdate] = useState({});
+
+  // Initialize server URL on app start
+  useEffect(() => {
+    initializeServerUrl();
+  }, []);
+
+  // רענון אוטומטי בתחילת כל שעה עגולה לעדכון תעריפים
+  useEffect(() => {
+    const scheduleNextUpdate = () => {
+      const now = new Date();
+      const nextHour = new Date(now);
+      nextHour.setHours(now.getHours() + 1, 0, 0, 0); // Next full hour
+      const msUntilNextHour = nextHour.getTime() - now.getTime();
+
+      return setTimeout(() => {
+        forceUpdate({}); // Force re-render at start of hour
+        scheduleNextUpdate(); // Schedule next hour
+      }, msUntilNextHour);
+    };
+
+    const timeout = scheduleNextUpdate();
+    return () => clearTimeout(timeout);
+  }, []);
 
   // הסתרת Navbar בעמודי ה-authentication
   const hideNavbar = ['/login', '/Signin', '/reset-password'].includes(location.pathname);

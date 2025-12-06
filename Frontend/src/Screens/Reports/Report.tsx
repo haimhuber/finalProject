@@ -46,9 +46,9 @@ const Report = () => {
       try {
         const req = await getBreakerNames();
         setBreakerList(req);
-      } catch(err) {
+      } catch (err) {
         console.error("Error msg", err);
-      }    
+      }
     }
     fetchNames();
   }, []);
@@ -65,8 +65,7 @@ const Report = () => {
         })
       });
       const result = await response.json();
-      console.log('API Response:', result);
-      
+
       // Filter data based on sample type
       let filteredData = result.data || [];
       if (sampleType === 'daily') {
@@ -88,7 +87,7 @@ const Report = () => {
         });
         filteredData = Object.values(hourlyData);
       }
-      
+
       setSwitchReportData(filteredData);
     } catch (err) {
       console.error('Error fetching switch data:', err);
@@ -143,8 +142,8 @@ const Report = () => {
     } else {
       try {
         // Add switch data logic here
-      } catch(err) {
-        console.error({"Error msg": err});
+      } catch (err) {
+        console.error({ "Error msg": err });
       }
     }
     SetshowSwitchData(!showSwitchData);
@@ -167,13 +166,13 @@ const Report = () => {
       <div className="billing-controls">
         <div className="control-group">
           <label>Report Type:</label>
-          <button 
+          <button
             className={`control-btn ${showAlert ? 'active' : ''}`}
             onClick={setAlert}
           >
             📊 Alerts Report
           </button>
-          <button 
+          <button
             className={`control-btn ${showSwitchData ? 'active' : ''}`}
             onClick={() => SetshowSwitchData(!showSwitchData)}
           >
@@ -225,11 +224,10 @@ const Report = () => {
 
         <div className="control-group">
           <label>Start Date:</label>
-          <input 
-            type="date" 
-            value={startDate} 
+          <input
+            type="date"
+            value={startDate}
             onChange={(e) => {
-              console.log('Start date changed:', e.target.value);
               setStartDate(e.target.value);
             }}
             style={{ padding: '0.8rem', border: '2px solid #e1e8ed', borderRadius: '8px' }}
@@ -238,11 +236,10 @@ const Report = () => {
 
         <div className="control-group">
           <label>End Date:</label>
-          <input 
-            type="date" 
-            value={endDate} 
+          <input
+            type="date"
+            value={endDate}
             onChange={(e) => {
-              console.log('End date changed:', e.target.value);
               setEndDate(e.target.value);
             }}
             style={{ padding: '0.8rem', border: '2px solid #e1e8ed', borderRadius: '8px' }}
@@ -270,112 +267,112 @@ const Report = () => {
       </div>
 
       <div ref={reportRef}>
-      {showAlert && (
-        <div className="data-table-section">
-          <div className="table-header">
-            <h3>Alerts Report</h3>
-            <span className="table-info">{data.length} alerts found | Period: {startDate} to {endDate}</span>
-          </div>
-          
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Alarm ID</th>
-                  <th>Type</th>
-                  <th>Message</th>
-                  <th>Status</th>
-                  <th>Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data
-                  .filter(alert => {
-                    if (!startDate || !endDate) return true;
-                    const alertDate = new Date(alert.timestamp).toISOString().split('T')[0];
-                    return alertDate >= startDate && alertDate <= endDate;
-                  })
-                  .map((alert) => (
-                  <tr key={alert.id}>
-                    <td>{alert.id}</td>
-                    <td>{alert.alarmId}</td>
-                    <td>
-                      <span className="rate-badge standard">{alert.alert_type}</span>
-                    </td>
-                    <td>{alert.alert_message}</td>
-                    <td>
-                      <span className={`rate-badge ${alert.alertAck ? 'off-peak' : 'peak'}`}>
-                        {alert.alertAck ? "✓ ACK" : "⚠ Not Ack"}
-                      </span>
-                    </td>
-                    <td className="timestamp-cell">
-                      {formatTimestamp(alert.timestamp)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+        {showAlert && (
+          <div className="data-table-section">
+            <div className="table-header">
+              <h3>Alerts Report</h3>
+              <span className="table-info">{data.length} alerts found | Period: {startDate} to {endDate}</span>
+            </div>
 
-      {showSwitchData && (
-        <div className="data-table-section">
-          <div className="table-header">
-            <h3>Switch Report</h3>
-            <span className="table-info">Period: {startDate} to {endDate} | Breaker: {selectedBreaker || 'Not Selected'} | Data: {breakerDataPick || 'Not Selected'}</span>
-          </div>
-          
-          <div className="table-container">
-            {!selectedBreaker || !breakerDataPick ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#E31E24', backgroundColor: '#fff5f5', border: '1px solid #E31E24', borderRadius: '8px' }}>
-                <h3>⚠️ Selection Required</h3>
-                <p>Please select both Breaker and Data Type to view the report</p>
-              </div>
-            ) : switchReportData.length === 0 && !loading ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-                <h3>No Data Available</h3>
-                <p>No data found for the selected date range</p>
-              </div>
-            ) : (
+            <div className="table-container">
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Breaker ID</th>
-                    <th>Name</th>
-                    <th>Data Type</th>
-                    <th>Value</th>
+                    <th>ID</th>
+                    <th>Alarm ID</th>
+                    <th>Type</th>
+                    <th>Message</th>
+                    <th>Status</th>
                     <th>Timestamp</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {switchReportData
-                    .map((row, index) => {
-                      const breakerInfo = breakerList.find(b => b.id == selectedBreaker);
-                      
-                      return (
-                        <tr key={index}>
-                          <td>{selectedBreaker}</td>
-                          <td>{breakerInfo?.name || `Q${selectedBreaker}`}</td>
-                          <td>
-                            <span className="rate-badge standard">{breakerDataPick}</span>
-                          </td>
-                          <td className="consumption-value">
-                            {breakerDataPick === 'ActiveEnergy' ? row.ActiveEnergy : row.ActivePower} {breakerDataPick === 'ActiveEnergy' ? 'kWh' : 'kW'}
-                          </td>
-                          <td className="timestamp-cell">
-                            {formatTimestamp(row.timestamp)}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                  {data
+                    .filter(alert => {
+                      if (!startDate || !endDate) return true;
+                      const alertDate = new Date(alert.timestamp).toISOString().split('T')[0];
+                      return alertDate >= startDate && alertDate <= endDate;
+                    })
+                    .map((alert) => (
+                      <tr key={alert.id}>
+                        <td>{alert.id}</td>
+                        <td>{alert.alarmId}</td>
+                        <td>
+                          <span className="rate-badge standard">{alert.alert_type}</span>
+                        </td>
+                        <td>{alert.alert_message}</td>
+                        <td>
+                          <span className={`rate-badge ${alert.alertAck ? 'off-peak' : 'peak'}`}>
+                            {alert.alertAck ? "✓ ACK" : "⚠ Not Ack"}
+                          </span>
+                        </td>
+                        <td className="timestamp-cell">
+                          {formatTimestamp(alert.timestamp)}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {showSwitchData && (
+          <div className="data-table-section">
+            <div className="table-header">
+              <h3>Switch Report</h3>
+              <span className="table-info">Period: {startDate} to {endDate} | Breaker: {selectedBreaker || 'Not Selected'} | Data: {breakerDataPick || 'Not Selected'}</span>
+            </div>
+
+            <div className="table-container">
+              {!selectedBreaker || !breakerDataPick ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#E31E24', backgroundColor: '#fff5f5', border: '1px solid #E31E24', borderRadius: '8px' }}>
+                  <h3>⚠️ Selection Required</h3>
+                  <p>Please select both Breaker and Data Type to view the report</p>
+                </div>
+              ) : switchReportData.length === 0 && !loading ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+                  <h3>No Data Available</h3>
+                  <p>No data found for the selected date range</p>
+                </div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Breaker ID</th>
+                      <th>Name</th>
+                      <th>Data Type</th>
+                      <th>Value</th>
+                      <th>Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {switchReportData
+                      .map((row, index) => {
+                        const breakerInfo = breakerList.find(b => b.id == selectedBreaker);
+
+                        return (
+                          <tr key={index}>
+                            <td>{selectedBreaker}</td>
+                            <td>{breakerInfo?.name || `Q${selectedBreaker}`}</td>
+                            <td>
+                              <span className="rate-badge standard">{breakerDataPick}</span>
+                            </td>
+                            <td className="consumption-value">
+                              {breakerDataPick === 'ActiveEnergy' ? row.ActiveEnergy : row.ActivePower} {breakerDataPick === 'ActiveEnergy' ? 'kWh' : 'kW'}
+                            </td>
+                            <td className="timestamp-cell">
+                              {formatTimestamp(row.timestamp)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
