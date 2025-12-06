@@ -75,7 +75,7 @@ function AppContent() {
                 if (month === 12 || month === 1 || month === 2) {
                   peakRate = '₪1.21/kWh';
                   offPeakRate = '₪0.46/kWh';
-                  isPeakTime = !isWeekend && hour >= 17 && hour < 22;
+                  isPeakTime = hour >= 17 && hour < 22; // All days including weekends
                 } else if (month >= 6 && month <= 9) {
                   peakRate = '₪1.69/kWh';
                   offPeakRate = '₪0.53/kWh';
@@ -115,14 +115,14 @@ function AppContent() {
                 let isPeakTime = false;
 
                 if (month === 12 || month === 1 || month === 2) {
-                  isPeakTime = !isWeekend && hour >= 17 && hour < 22;
+                  isPeakTime = hour >= 17 && hour < 22; // All days including weekends
                   return (
                     <>
-                      <div style={{ 
+                      <div style={{
                         color: isPeakTime ? '#10b981' : '#6b7280',
                         fontWeight: isPeakTime ? '600' : '400'
                       }}>PEAK: 17:00-22:00 (All days)</div>
-                      <div style={{ 
+                      <div style={{
                         color: !isPeakTime ? '#10b981' : '#6b7280',
                         fontWeight: !isPeakTime ? '600' : '400'
                       }}>OFF: 00:00-17:00, 22:00-24:00</div>
@@ -135,11 +135,11 @@ function AppContent() {
                   if (!isWeekend) {
                     return (
                       <>
-                        <div style={{ 
+                        <div style={{
                           color: isPeakTime ? '#10b981' : '#6b7280',
                           fontWeight: isPeakTime ? '600' : '400'
                         }}>PEAK: 17:00-23:00 (Weekdays)</div>
-                        <div style={{ 
+                        <div style={{
                           color: !isPeakTime ? '#10b981' : '#6b7280',
                           fontWeight: !isPeakTime ? '600' : '400'
                         }}>OFF: 00:00-17:00, 23:00-24:00</div>
@@ -155,11 +155,11 @@ function AppContent() {
                 if (!isWeekend) {
                   return (
                     <>
-                      <div style={{ 
+                      <div style={{
                         color: isPeakTime ? '#10b981' : '#6b7280',
                         fontWeight: isPeakTime ? '600' : '400'
                       }}>PEAK: 17:00-22:00 (Weekdays)</div>
-                      <div style={{ 
+                      <div style={{
                         color: !isPeakTime ? '#10b981' : '#6b7280',
                         fontWeight: !isPeakTime ? '600' : '400'
                       }}>OFF: 00:00-17:00, 22:00-24:00</div>

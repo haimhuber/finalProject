@@ -56,25 +56,25 @@ export const HomeScreen: React.FC = () => {
 
   // MAIN DATA FETCH
   useEffect(() => {
-    async function load() {
-      setLoading(true);
+    async function load(isInitialLoad = false) {
+      if (isInitialLoad) setLoading(true);
       try {
         const combined = await fetchAndCombineData();
         console.log('🏠 HomeScreen received data - first breaker:', combined[0]);
         console.log('🏠 HomeScreen - breaker 1 type:', combined[0]?.type);
         console.log('🏠 HomeScreen - breaker 1 load:', combined[0]?.load);
         setCombinedDataState(combined);
-        setLoading(false);
+        if (isInitialLoad) setLoading(false);
       } catch (err) {
         console.error(err);
-        setLoading(false);
+        if (isInitialLoad) setLoading(false);
       }
     }
-    load();
+    load(true);
 
-    // רענן נתונים כל דקה (60000 מילישניות)
+    // רענן נתונים כל דקה (60000 מילישניות) ברקע בלי loading state
     const interval = setInterval(() => {
-      load();
+      load(false);
     }, 60000);
 
     return () => clearInterval(interval);
@@ -505,56 +505,55 @@ export const HomeScreen: React.FC = () => {
 
             {/* Protection Status Section */}
             <div className="protection-status-section" style={{
-              padding: '2rem',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '8px',
+              padding: '1.5rem',
+              backgroundColor: '#ffffff',
+              borderRadius: '4px',
               marginBottom: '2rem',
-              border: '2px solid #ff9c6e',
+              border: '1px solid #e0e0e0',
               minHeight: '500px',
               overflowY: 'auto'
             }}>
-              <h4 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#d4380d', fontSize: '1.5rem', textAlign: 'center' }}>
-                🛡️ Protection Status & Fault Detection
+              <h4 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#000000', fontSize: '1.3rem', fontWeight: '500' }}>
+                Protection Status & Fault Detection
               </h4>
 
-              <div style={{ fontSize: '1rem', marginBottom: '2rem', color: '#666', paddingBottom: '1.5rem', borderBottom: '2px solid #ddd' }}>
-                <strong>📅 Last Sampling Update:</strong> <br />
-                <span style={{ color: '#1890ff', fontWeight: 'bold', fontSize: '1.1rem' }}>{formatTimestamp(selectedBreaker?.timestamp)}</span>
+              <div style={{ fontSize: '0.9rem', marginBottom: '1.5rem', color: '#666', paddingBottom: '1rem', borderBottom: '1px solid #f0f0f0' }}>
+                <strong>Last Sampling Update:</strong>
+                <span style={{ color: '#333', fontWeight: '500', marginLeft: '0.5rem' }}>{formatTimestamp(selectedBreaker?.timestamp)}</span>
               </div>
 
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gap: '1.5rem'
+                gap: '1rem'
               }}>
                 {getProtectionStatus() && Object.entries(getProtectionStatus() || {}).map(([key, value]) => (
                   <div key={key} style={{
-                    padding: '1.2rem',
-                    backgroundColor: '#fff',
-                    borderRadius: '8px',
-                    border: `2px solid ${value?.includes('TRIP') || value?.includes('TRIPPED') || value?.includes('UNDEFINED') ? '#ff4d4f' : value?.includes('ENABLED') ? '#52c41a' : '#d9d9d9'}`,
-                    fontSize: '0.95rem',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    padding: '1rem',
+                    backgroundColor: '#fafafa',
+                    borderRadius: '4px',
+                    border: `1px solid ${value?.includes('TRIP') || value?.includes('TRIPPED') || value?.includes('UNDEFINED') ? '#ff4d4f' : value?.includes('ENABLED') ? '#52c41a' : '#e0e0e0'}`,
+                    fontSize: '0.9rem'
                   }}>
-                    <strong style={{ display: 'block', marginBottom: '0.5rem', color: '#333', fontSize: '1rem' }}>
-                      {key === 'ProtectionTrip' ? '⚡ Protection Trip' :
-                        key === 'ProtectionInstTrip' ? '⚡ Instantaneous Trip' :
-                          key === 'ProtectionI_Enabled' ? '🔌 Phase Current (I) Protection' :
-                            key === 'ProtectionS_Enabled' ? '⚙️ Short Circuit (S) Protection' :
-                              key === 'ProtectionL_Enabled' ? '🔗 Load (L) Protection' :
-                                key === 'ProtectionG_Trip' ? '🌍 Ground (G) Trip' :
-                                  key === 'ProtectionI_Trip' ? '⚠️ Phase Current (I) Trip' :
-                                    key === 'ProtectionS_Trip' ? '⚠️ Short Circuit (S) Trip' :
-                                      key === 'ProtectionL_Trip' ? '⚠️ Load (L) Trip' :
-                                        key === 'TripDisconnected' ? '🔴 Trip Disconnected' :
-                                          key === 'Tripped' ? '❌ Breaker Tripped' :
-                                            '❓ Undefined Status'}
+                    <strong style={{ display: 'block', marginBottom: '0.5rem', color: '#333', fontSize: '0.9rem', fontWeight: '500' }}>
+                      {key === 'ProtectionTrip' ? 'Protection Trip' :
+                        key === 'ProtectionInstTrip' ? 'Instantaneous Trip' :
+                          key === 'ProtectionI_Enabled' ? 'Phase Current (I) Protection' :
+                            key === 'ProtectionS_Enabled' ? 'Short Circuit (S) Protection' :
+                              key === 'ProtectionL_Enabled' ? 'Load (L) Protection' :
+                                key === 'ProtectionG_Trip' ? 'Ground (G) Trip' :
+                                  key === 'ProtectionI_Trip' ? 'Phase Current (I) Trip' :
+                                    key === 'ProtectionS_Trip' ? 'Short Circuit (S) Trip' :
+                                      key === 'ProtectionL_Trip' ? 'Load (L) Trip' :
+                                        key === 'TripDisconnected' ? 'Trip Disconnected' :
+                                          key === 'Tripped' ? 'Breaker Tripped' :
+                                            'Undefined Status'}
                     </strong>
                     <div style={{
                       marginTop: '0.5rem',
-                      color: value?.includes('TRIP') || value?.includes('TRIPPED') || value?.includes('UNDEFINED') ? '#ff4d4f' : value?.includes('ENABLED') ? '#52c41a' : '#1890ff',
-                      fontWeight: 'bold',
-                      fontSize: '1.1rem'
+                      color: value?.includes('TRIP') || value?.includes('TRIPPED') || value?.includes('UNDEFINED') ? '#ff4d4f' : value?.includes('ENABLED') ? '#52c41a' : '#666',
+                      fontWeight: '500',
+                      fontSize: '0.9rem'
                     }}>
                       {value}
                     </div>
