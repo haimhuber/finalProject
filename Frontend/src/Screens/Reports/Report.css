@@ -10,8 +10,8 @@
 .billing-header {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: white;
-  padding: 2rem 2rem 3rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  padding: 1.2rem 1.2rem 1.8rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
@@ -19,14 +19,14 @@
 }
 
 .header-content h1 {
-  font-size: 2.5rem;
+  font-size: 1.6rem;
   font-weight: 300;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.3rem 0;
   letter-spacing: -0.5px;
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: 0.7rem;
   opacity: 0.9;
   margin: 0;
   font-weight: 300;
@@ -35,21 +35,25 @@
 .abb-logo {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
 }
 
 .logo-circle {
-  width: 60px;
-  height: 60px;
-  background: #E31E24;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #E31E24 0%, #c41820 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(227, 30, 36, 0.3);
+  border-radius: 8px;
+  box-shadow:
+    0 4px 12px rgba(227, 30, 36, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(227, 30, 36, 0.3);
 }
 
 .logo-text-circle {
-  font-size: 18px;
+  font-size: 12px;
   font-weight: bold;
   color: white;
   letter-spacing: 1px;
@@ -143,7 +147,7 @@
   margin: 2rem;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
@@ -227,23 +231,23 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .billing-header {
-    padding: 1.5rem;
+    padding: 1.2rem 1.2rem 1.8rem;
   }
-  
+
   .billing-controls {
     flex-direction: column;
     padding: 1rem;
   }
-  
+
   .control-group {
     min-width: unset;
   }
-  
+
   .data-table-section {
     margin: 1rem;
   }
-  
+
   .header-content h1 {
-    font-size: 2rem;
+    font-size: 1.6rem;
   }
 }

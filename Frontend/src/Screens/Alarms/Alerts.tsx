@@ -163,24 +163,24 @@ export const Alerts = () => {
     }
   };
 
-  const activeAlerts = useMemo(() => 
+  const activeAlerts = useMemo(() =>
     filteredAlerts.filter(alert => !alert.alertAck).length, [filteredAlerts]
   );
-  const acknowledgedAlerts = useMemo(() => 
+  const acknowledgedAlerts = useMemo(() =>
     filteredAlerts.filter(alert => alert.alertAck).length, [filteredAlerts]
   );
   const totalAlerts = filteredAlerts.length;
 
   // Chart data for last 30 days
   const chartData = useMemo(() => {
-    const last30Days = Array.from({length: 30}, (_, i) => {
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (29 - i));
       return date.toISOString().split('T')[0];
     });
 
     const dailyCounts = last30Days.map(date => {
-      return alerts.filter(alert => 
+      return alerts.filter(alert =>
         new Date(alert.timestamp).toISOString().split('T')[0] === date
       ).length;
     });
@@ -226,29 +226,29 @@ export const Alerts = () => {
   const exportToPDF = () => {
     try {
       const doc = new jsPDF();
-      
+
       // ABB Logo
       doc.setFillColor(227, 30, 36);
       doc.rect(22, 12, 16, 16, 'F');
       doc.setFontSize(8);
       doc.setTextColor(255, 255, 255);
       doc.text('ABB', 26, 22);
-      
+
       // Header
       doc.setFontSize(20);
       doc.setTextColor(30, 62, 80);
       doc.text('Alerts Report', 50, 25);
-      
+
       doc.setFontSize(12);
       doc.setTextColor(127, 140, 141);
       doc.text('ABB Smart Power Digital Solutions - Site Caesarea', 20, 35);
-      
+
       // Report details
       doc.setFontSize(10);
       doc.setTextColor(44, 62, 80);
       doc.text(`Report Period: ${new Date(startDate || '').toLocaleDateString()} - ${new Date(endDate || '').toLocaleDateString()}`, 20, 50);
       doc.text(`Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString('en-GB', { hour12: false })}`, 20, 58);
-      
+
       // Summary
       doc.setFillColor(248, 249, 250);
       doc.rect(20, 65, 170, 25, 'F');
@@ -259,33 +259,36 @@ export const Alerts = () => {
       doc.text(`Total Alerts: ${totalAlerts}`, 25, 83);
       doc.text(`Active Alerts: ${activeAlerts}`, 100, 83);
       doc.text(`Acknowledged: ${acknowledgedAlerts}`, 25, 91);
-      
+
       // Table - show active alerts first
       const sortedAlerts = [...filteredAlerts].sort((a, b) => {
         if (a.alertAck === b.alertAck) return 0;
         return a.alertAck ? 1 : -1; // Active alerts first
       });
-      
-      const tableData = sortedAlerts.slice(0, 20).map(alert => [
-        alert.id.toString(),
-        names[alert.alarmId - 1]?.name || 'Unknown',
-        alert.alert_type,
-        alert.alert_message,
-        new Date(alert.timestamp).toLocaleDateString(),
-        alert.alertAck ? 'Yes' : 'No'
-      ]);
+
+      const tableData = sortedAlerts.slice(0, 20).map(alert => {
+        const ackTimestamp = ackDataBy.find(item => item.ackId === alert.id)?.timestamp;
+        return [
+          names[alert.alarmId - 1]?.name || 'Unknown',
+          alert.alert_type,
+          alert.alert_message,
+          new Date(alert.timestamp).toLocaleDateString(),
+          alert.alertAck ? 'Yes' : 'No',
+          ackTimestamp ? new Date(ackTimestamp).toLocaleString() : '--'
+        ];
+      });
 
       autoTable(doc, {
-        head: [['ID', 'Breaker', 'Type', 'Message', 'Date', 'Ack']],
+        head: [['Breaker', 'Type', 'Message', 'Date', 'Ack', 'Ack Timestamp']],
         body: tableData,
         startY: 100,
         styles: { fontSize: 8 },
         headStyles: { fillColor: [255, 105, 0] }
       });
-      
+
       const fileName = `Alerts_Report_${new Date().toISOString().split('T')[0]}.pdf`;
       doc.save(fileName);
-      
+
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
@@ -305,7 +308,7 @@ export const Alerts = () => {
           <p className="subtitle">ABB Smart Power Digital Solutions - Site Caesarea</p>
         </div>
       </div>
-      
+
       <div className="billing-controls">
         <div className="control-card">
           <label>Time Period</label>
@@ -317,32 +320,32 @@ export const Alerts = () => {
             <option value="custom">Custom</option>
           </select>
         </div>
-        
+
         {dateRange === 'custom' && (
           <>
             <div className="control-card">
               <label>Start Date</label>
-              <input 
-                type="date" 
-                value={startDate} 
+              <input
+                type="date"
+                value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
               />
             </div>
-            
+
             <div className="control-card">
               <label>End Date</label>
-              <input 
-                type="date" 
-                value={endDate} 
+              <input
+                type="date"
+                value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
               />
             </div>
           </>
         )}
-        
+
         <div className="control-card">
-          <button 
-            className="refresh-btn" 
+          <button
+            className="refresh-btn"
             onClick={fetchAlerts}
             disabled={loading}
           >
@@ -360,7 +363,7 @@ export const Alerts = () => {
             <span className="metric-change negative">Requires Attention</span>
           </div>
         </div>
-        
+
         <div className="metric-card">
           <div className="metric-icon">✅</div>
           <div className="metric-content">
@@ -369,7 +372,7 @@ export const Alerts = () => {
             <span className="metric-change positive">Resolved</span>
           </div>
         </div>
-        
+
         <div className="metric-card">
           <div className="metric-icon">📊</div>
           <div className="metric-content">
@@ -378,7 +381,7 @@ export const Alerts = () => {
             <span className="metric-change">In Selected Period</span>
           </div>
         </div>
-        
+
         <div className="metric-card">
           <div className="metric-icon">📈</div>
           <div className="metric-content">
@@ -395,7 +398,7 @@ export const Alerts = () => {
             <h3>Alerts Trend (Last 30 Days)</h3>
             <div className="chart-legend">
               <span className="legend-item">
-                <span className="legend-color" style={{backgroundColor: '#FF6900'}}></span>
+                <span className="legend-color" style={{ backgroundColor: '#FF6900' }}></span>
                 Daily Alerts Count
               </span>
             </div>
@@ -415,7 +418,6 @@ export const Alerts = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Breaker Name</th>
                 <th>Type</th>
                 <th>Message</th>
@@ -430,46 +432,52 @@ export const Alerts = () => {
                   if (a.alertAck === b.alertAck) return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
                   return a.alertAck ? 1 : -1; // Active alerts first
                 })
-                .map((alert) => (
-                <tr key={alert.id} style={{ backgroundColor: !alert.alertAck ? '#ff4d4f20' : 'transparent' }}>
-                  <td>{alert.id}</td>
-                  <td>{names[alert.alarmId - 1]?.name || 'Unknown'}</td>
-                  <td>
-                    <span className={`rate-badge ${alert.alert_type === 'tripped' ? 'peak' : alert.alert_type === 'CommStatus - Error' ? 'standard' : 'off-peak'}`}>
-                      {alert.alert_type}
-                    </span>
-                  </td>
-                  <td style={{ maxWidth: '200px', wordWrap: 'break-word' }}>{alert.alert_message}</td>
-                  <td>{new Date(alert.timestamp).toLocaleString()}</td>
-                  <td>
-                    {alert.alertAck ? (
-                      <div className="ack-badge">
-                        <span className="ack-icon">✔</span>
-                        <span className="ack-text">
-                          {ackDataBy.find(item => item.ackId === alert.id)?.ackBy || "--"}
+                .map((alert) => {
+                  const ackTimestamp = ackDataBy.find(item => item.ackId === alert.id)?.timestamp;
+                  return (
+                    <tr key={alert.id} style={{ backgroundColor: !alert.alertAck ? '#ff4d4f20' : 'transparent' }}>
+                      <td>{names[alert.alarmId - 1]?.name || 'Unknown'}</td>
+                      <td>
+                        <span className={`rate-badge ${alert.alert_type === 'tripped' ? 'peak' : alert.alert_type === 'CommStatus - Error' ? 'standard' : 'off-peak'}`}>
+                          {alert.alert_type}
                         </span>
-                      </div>
-                    ) : (
-                      <div className="not-ack-badge">
-                        🚨 ACTIVE
-                      </div>
-                    )}
-                  </td>
-                  <td>
-                    {!alert.alertAck && (
-                      <button
-                        className="export-btn"
-                        onClick={() => {
-                          ackAlarm(alert.alert_type, alert.alert_message, alert.id);
-                          ackByFb(alert.id);
-                        }}
-                      >
-                        Acknowledge
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      </td>
+                      <td style={{ maxWidth: '200px', wordWrap: 'break-word' }}>{alert.alert_message}</td>
+                      <td>{new Date(alert.timestamp).toLocaleString()}</td>
+                      <td>
+                        {alert.alertAck ? (
+                          <div className="ack-badge">
+                            <span className="ack-icon">✔</span>
+                            <span className="ack-text">
+                              {ackDataBy.find(item => item.ackId === alert.id)?.ackBy || "--"}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="not-ack-badge">
+                            🚨 ACTIVE
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        {alert.alertAck ? (
+                          <div className="ack-timestamp">
+                            {ackTimestamp ? new Date(ackTimestamp).toLocaleString() : '--'}
+                          </div>
+                        ) : (
+                          <button
+                            className="export-btn"
+                            onClick={() => {
+                              ackAlarm(alert.alert_type, alert.alert_message, alert.id);
+                              ackByFb(alert.id);
+                            }}
+                          >
+                            Acknowledge
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>

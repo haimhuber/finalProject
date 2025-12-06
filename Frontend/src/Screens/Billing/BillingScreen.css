@@ -10,7 +10,7 @@
 .billing-header {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: white;
-  padding: 1rem 2rem 1.5rem;
+  padding: 0.6rem 1.2rem 0.8rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -19,14 +19,14 @@
 }
 
 .header-content h1 {
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   font-weight: 300;
-  margin: 0 0 0.3rem 0;
+  margin: 0 0 0.2rem 0;
   letter-spacing: -0.5px;
 }
 
 .subtitle {
-  font-size: 0.9rem;
+  font-size: 0.65rem;
   opacity: 0.9;
   margin: 0;
   font-weight: 300;
@@ -35,21 +35,25 @@
 .abb-logo {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
 }
 
 .logo-circle {
-  width: 60px;
-  height: 60px;
-  background: #E31E24;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #E31E24 0%, #c41820 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(227, 30, 36, 0.3);
+  border-radius: 8px;
+  box-shadow:
+    0 4px 12px rgba(227, 30, 36, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(227, 30, 36, 0.3);
 }
 
 .logo-text-circle {
-  font-size: 18px;
+  font-size: 12px;
   font-weight: bold;
   color: white;
   letter-spacing: 1px;
@@ -243,7 +247,7 @@
 }
 
 .auth-section {
-  padding: 0;
+  padding: 2.5rem 2rem;
   text-align: center;
   background: transparent;
   border-radius: 0;
@@ -251,22 +255,26 @@
 }
 
 .auth-section p {
-  margin-bottom: 1.5rem;
-  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.95);
   font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.4px;
 }
 
 .auth-section input {
   width: 100%;
-  padding: 12px 16px;
-  margin-bottom: 1.5rem;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  padding: 12px 0 12px 0;
+  margin-bottom: 2rem;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.08);
+  background: transparent;
   color: white;
   transition: all 0.3s ease;
   font-size: 1rem;
+  text-align: center;
 }
 
 .auth-section input::placeholder {
@@ -275,17 +283,17 @@
 
 .auth-section input:focus {
   outline: none;
-  border-color: #E31E24;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 20px rgba(227, 30, 36, 0.3);
+  border-bottom-color: #E31E24;
+  background: transparent;
+  box-shadow: none;
 }
 
 .auth-section button {
-  background: linear-gradient(135deg, #E31E24 0%, #c41820 100%);
+  background: transparent;
   color: white;
   border: none;
-  padding: 11px 24px;
-  border-radius: 8px;
+  padding: 0;
+  border-radius: 0;
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -294,14 +302,15 @@
 
 .modal-actions {
   display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  border-top: 1px solid #eee;
-  margin-top: 1rem;
+  gap: 2rem;
+  padding: 0;
+  border-top: none;
+  margin-top: 2rem;
+  justify-content: center;
 }
 
 .save-btn {
-  background: #10b981;
+  background: transparent;
   color: white;
   border: none;
   padding: 0.8rem 1.5rem;
@@ -396,23 +405,23 @@
 }
 
 .tariff-header .close-btn {
-  background: none;
+  background: transparent;
   border: none;
   color: white;
   font-size: 1.8rem;
   cursor: pointer;
   padding: 0;
-  width: 35px;
-  height: 35px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: background 0.2s ease;
+  border-radius: 0;
+  transition: opacity 0.2s ease;
 }
 
 .tariff-header .close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  opacity: 0.7;
 }
 
 .password-modal {
@@ -448,48 +457,54 @@
 }
 
 .password-modal .close-btn {
-  background: rgba(255, 255, 255, 0.15);
+  background: transparent;
   border: none;
-  color: #000;
+  color: #333;
   font-size: 1.8rem;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
+  border-radius: 0;
+  transition: opacity 0.2s ease;
 }
 
 .password-modal .close-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  opacity: 0.6;
 }
 
 .password-modal .auth-section {
-  padding: 2.5rem;
+  padding: 2.5rem 2rem;
+  background: transparent;
+  border-radius: 0;
+  border: none;
 }
 
 .password-modal .auth-section p {
-  margin: 0 0 1.5rem 0;
-  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 2rem 0;
+  color: rgba(255, 255, 255, 0.95);
   text-align: center;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
+  letter-spacing: 0.4px;
 }
 
 .password-modal .auth-section input {
   width: 100%;
-  padding: 12px 16px;
-  margin-bottom: 1.5rem;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  padding: 12px 0 12px 0;
+  margin-bottom: 2rem;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0;
   font-size: 1rem;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.08);
+  background: transparent;
   color: white;
   transition: all 0.3s ease;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
 }
 
 .password-modal .auth-section input::placeholder {
@@ -498,9 +513,9 @@
 
 .password-modal .auth-section input:focus {
   outline: none;
-  border-color: #E31E24;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 20px rgba(227, 30, 36, 0.3);
+  border-bottom-color: #E31E24;
+  background: transparent;
+  box-shadow: none;
 }
 
 .password-modal .modal-actions {
@@ -835,11 +850,11 @@
   }
 
   .header-content h1 {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 
   .subtitle {
-    font-size: 0.8rem;
+    font-size: 0.65rem;
   }
 
   .control-card {
@@ -863,15 +878,15 @@
 
 @media (max-width: 768px) {
   .billing-header {
-    padding: 1rem;
+    padding: 0.6rem 1.2rem 0.8rem;
   }
 
   .header-content h1 {
-    font-size: 1.8rem;
+    font-size: 1.2rem;
   }
 
   .subtitle {
-    font-size: 0.9rem;
+    font-size: 0.65rem;
   }
 
   .billing-controls {

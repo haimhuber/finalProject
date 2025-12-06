@@ -27,6 +27,17 @@ function AppContent() {
     <div className="app-layout">
       {!hideNavbar && (
         <nav className='sidebar-nav'>
+          {isAuthenticated && (
+            <div className="user-info">
+              <div className="user-avatar">
+                <span className="avatar-letter">{user.charAt(0).toUpperCase()}</span>
+              </div>
+              <div className="user-details">
+                <span className="user-name">{user}</span>
+                <Link to="/logout" className="logout-link">Logout</Link>
+              </div>
+            </div>
+          )}
           <div className="sidebar-logo">
             <div className="sidebar-logo-circle">
               <span className="sidebar-logo-text">ABB</span>
@@ -126,16 +137,6 @@ function AppContent() {
             <Link to="/reports" className="nav-link">📈 Reports</Link>
             <Link to="/billing" className="nav-link">💰 Billing</Link>
             <Link to="/settings" className="nav-link">⚙️ Settings</Link>
-          </div>
-
-          <div className="nav-footer">
-            {isAuthenticated && (
-              <div className="user-info">
-                <span className="user-name">{user}</span>
-                <Link to="/logout" className="logout-link">Logout</Link>
-              </div>
-            )}
-            {!isAuthenticated && <Link to="/login" className="nav-link">🔐 Login</Link>}
           </div>
         </nav>
       )}
