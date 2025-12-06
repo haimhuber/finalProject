@@ -746,4 +746,41 @@ async function updateEfficiencySettings(efficiencyBase, efficiencyMultiplier, up
   }
 }
 
-module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, clearLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser, getTariffRates, updateTariffRate, updateTariffRatesOnly, updateEfficiencySettings };
+async function getBreakerInfo() {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .query('SELECT id, name, type, load FROM MainData ORDER BY id');
+
+    return { status: 200, data: result.recordset };
+  } catch (err) {
+    console.error('Error fetching breaker info:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function updateBreakerInfo(id, name, type, load, updatedBy) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    const result = await pool.request()
+      .input('id', sql.Int, id)
+      .input('name', sql.VarChar, name)
+      .input('type', sql.VarChar, type)
+      .input('load', sql.VarChar, load)
+      .query(`
+        UPDATE MainData 
+        SET name = @name, type = @type, load = @load 
+        WHERE id = @id
+      `);
+
+    // Log to audit trail
+    await auditTrailData(updatedBy, `Updated breaker ${id}: ${name}`);
+
+    return { status: 200, data: { success: true, rowsAffected: result.rowsAffected[0] } };
+  } catch (err) {
+    console.error('Error updating breaker info:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, clearLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser, getTariffRates, updateTariffRate, updateTariffRatesOnly, updateEfficiencySettings, getBreakerInfo, updateBreakerInfo };

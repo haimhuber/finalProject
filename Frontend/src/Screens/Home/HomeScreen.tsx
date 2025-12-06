@@ -60,6 +60,9 @@ export const HomeScreen: React.FC = () => {
       setLoading(true);
       try {
         const combined = await fetchAndCombineData();
+        console.log('🏠 HomeScreen received data - first breaker:', combined[0]);
+        console.log('🏠 HomeScreen - breaker 1 type:', combined[0]?.type);
+        console.log('🏠 HomeScreen - breaker 1 load:', combined[0]?.load);
         setCombinedDataState(combined);
         setLoading(false);
       } catch (err) {
@@ -343,92 +346,97 @@ export const HomeScreen: React.FC = () => {
       </div>
 
       <div className="breakers-grid">
-        {combinedDataState.map((breaker) => (
-          <div
-            key={breaker.switch_id}
-            className="breaker-card"
-            onClick={() => handleBreakerClick(breaker)}
-          >
-            <div className="breaker-header">
-              <h3>{breaker.name}</h3>
-              <div className="status-container">
-                {breaker.CommStatus && !breaker.Tripped ? (
-                  <div className="health-indicator">
-                    <span className="checkmark">✓</span>
+        {combinedDataState.map((breaker) => {
+          if (breaker.switch_id === 1) {
+            console.log('🎨 RENDER - Breaker 1 type:', breaker.type, 'load:', breaker.load);
+          }
+          return (
+            <div
+              key={breaker.switch_id}
+              className="breaker-card"
+              onClick={() => handleBreakerClick(breaker)}
+            >
+              <div className="breaker-header">
+                <h3>{breaker.name}</h3>
+                <div className="status-container">
+                  {breaker.CommStatus && !breaker.Tripped ? (
+                    <div className="health-indicator">
+                      <span className="checkmark">✓</span>
+                    </div>
+                  ) : (
+                    <div className={`status-indicator ${!breaker.CommStatus ? 'comm-error' : 'tripped'
+                      }`}>
+                      <span className="status-text">
+                        {!breaker.CommStatus ? 'COMM ERR' : 'TRIPPED'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="breaker-info">
+                <div className="info-row">
+                  <span>Type:</span>
+                  <span>{breaker.type}</span>
+                </div>
+                <div className="info-row">
+                  <span>Load:</span>
+                  <span>{breaker.load}</span>
+                </div>
+                <div className="info-row">
+                  <span>Position:</span>
+                  <span className={breaker.Tripped ? 'status-error' : breaker.BreakerClose ? 'status-ok' : 'status-error'}>
+                    {breaker.Tripped ? 'Tripped' : breaker.BreakerClose ? 'Closed' : 'Open'}
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span>Comm:</span>
+                  <span className={breaker.CommStatus ? 'status-ok' : 'status-error'}>
+                    {breaker.CommStatus ? 'OK' : 'Error'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="breaker-data">
+                <div className="data-section">
+                  <h4>Voltages</h4>
+                  <div className="data-grid">
+                    <span>V12: {breaker.V12 || 0}V</span>
+                    <span>V23: {breaker.V23 || 0}V</span>
+                    <span>V31: {breaker.V31 || 0}V</span>
                   </div>
-                ) : (
-                  <div className={`status-indicator ${!breaker.CommStatus ? 'comm-error' : 'tripped'
-                    }`}>
-                    <span className="status-text">
-                      {!breaker.CommStatus ? 'COMM ERR' : 'TRIPPED'}
-                    </span>
+                </div>
+
+                <div className="data-section">
+                  <h4>Currents</h4>
+                  <div className="data-grid">
+                    <span>I1: {breaker.I1 || 0}A</span>
+                    <span>I2: {breaker.I2 || 0}A</span>
+                    <span>I3: {breaker.I3 || 0}A</span>
                   </div>
-                )}
-              </div>
-            </div>
-
-            <div className="breaker-info">
-              <div className="info-row">
-                <span>Type:</span>
-                <span>{breaker.type}</span>
-              </div>
-              <div className="info-row">
-                <span>Load:</span>
-                <span>{breaker.load}</span>
-              </div>
-              <div className="info-row">
-                <span>Position:</span>
-                <span className={breaker.Tripped ? 'status-error' : breaker.BreakerClose ? 'status-ok' : 'status-error'}>
-                  {breaker.Tripped ? 'Tripped' : breaker.BreakerClose ? 'Closed' : 'Open'}
-                </span>
-              </div>
-              <div className="info-row">
-                <span>Comm:</span>
-                <span className={breaker.CommStatus ? 'status-ok' : 'status-error'}>
-                  {breaker.CommStatus ? 'OK' : 'Error'}
-                </span>
-              </div>
-            </div>
-
-            <div className="breaker-data">
-              <div className="data-section">
-                <h4>Voltages</h4>
-                <div className="data-grid">
-                  <span>V12: {breaker.V12 || 0}V</span>
-                  <span>V23: {breaker.V23 || 0}V</span>
-                  <span>V31: {breaker.V31 || 0}V</span>
                 </div>
-              </div>
 
-              <div className="data-section">
-                <h4>Currents</h4>
-                <div className="data-grid">
-                  <span>I1: {breaker.I1 || 0}A</span>
-                  <span>I2: {breaker.I2 || 0}A</span>
-                  <span>I3: {breaker.I3 || 0}A</span>
+                <div className="data-section">
+                  <h4>Power</h4>
+                  <div className="data-grid">
+                    <span>Active: {breaker.ActivePower || 0} kW</span>
+                    <span>Apparent: {breaker.ApparentPower || 0} kVA</span>
+                    <span>Reactive: {breaker.ReactivePower || 0} kVAR</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="data-section">
-                <h4>Power</h4>
-                <div className="data-grid">
-                  <span>Active: {breaker.ActivePower || 0} kW</span>
-                  <span>Apparent: {breaker.ApparentPower || 0} kVA</span>
-                  <span>Reactive: {breaker.ReactivePower || 0} kVAR</span>
-                </div>
-              </div>
-
-              <div className="data-section">
-                <h4>Energy & Frequency</h4>
-                <div className="data-grid">
-                  <span>Active Energy: {breaker.ActiveEnergy || 0} kWh</span>
-                  <span>Frequency: {breaker.Frequency || 0} Hz</span>
-                  <span>Power Factor: {breaker.PowerFactor || 0}</span>
+                <div className="data-section">
+                  <h4>Energy & Frequency</h4>
+                  <div className="data-grid">
+                    <span>Active Energy: {breaker.ActiveEnergy || 0} kWh</span>
+                    <span>Frequency: {breaker.Frequency || 0} Hz</span>
+                    <span>Power Factor: {breaker.PowerFactor || 0}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Side Panel */}

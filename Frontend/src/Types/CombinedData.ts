@@ -25,12 +25,15 @@ export async function getLiveData() {
 
 export async function getBreakerNames() {
   const cacheKey = 'breakersNames';
-  const cached = apiCache.get(cacheKey);
-  if (cached) return cached;
+
+  // Clear cache to force fresh data
+  apiCache.clear();
 
   try {
     const response = await fetch("http://192.168.1.89:5500/api/breakersNames");
     const data = await response.json();
+
+    console.log('🔍 Breaker names from API:', data.data);
 
     apiCache.set(cacheKey, data.data, 60000); // 1 minute cache
     return data.data;
@@ -44,7 +47,8 @@ export async function fetchAndCombineData() {
   const liveDataFetched = await getLiveData();
   const breakerNamesFetched = await getBreakerNames();
 
-
+  console.log('🔍 Live data count:', liveDataFetched?.length);
+  console.log('🔍 Breaker names count:', breakerNamesFetched?.length);
 
   // If no breaker names, return empty
   if (!Array.isArray(breakerNamesFetched) || breakerNamesFetched.length === 0) {
@@ -56,13 +60,22 @@ export async function fetchAndCombineData() {
   if (Array.isArray(liveDataFetched) && liveDataFetched.length > 0) {
     const combined = liveDataFetched.map((item: { switch_id: number; }) => {
       const breakerInfo = breakerNamesFetched.find((b: any) => b.id === item.switch_id) || {};
-      return {
+      const result = {
         ...item,
         name: breakerInfo.name || item.name || 'Unknown',
         type: breakerInfo.type || 'Unknown',
         load: breakerInfo.load || 'Unknown',
         ...breakerInfo
       };
+      if (item.switch_id === 1) {
+        console.log('🔍 Breaker 1 - breakerInfo.type:', breakerInfo.type);
+        console.log('🔍 Breaker 1 - breakerInfo.load:', breakerInfo.load);
+        console.log('🔍 Breaker 1 - result.type:', result.type);
+        console.log('🔍 Breaker 1 - result.load:', result.load);
+        console.log('🔍 Breaker 1 - Full breakerInfo:', JSON.stringify(breakerInfo));
+        console.log('🔍 Breaker 1 - Full result:', JSON.stringify(result));
+      }
+      return result;
     });
     return combined;
   }

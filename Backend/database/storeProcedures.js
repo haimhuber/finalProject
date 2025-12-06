@@ -585,7 +585,7 @@ async function createSp() {
         CREATE OR ALTER PROCEDURE getAllSwitchesNames
         AS
         BEGIN
-            SELECT id, name FROM MainData ORDER BY id;
+            SELECT id, name, type, load FROM MainData ORDER BY id;
         END`);
         console.log("✅ Stored Procedure 'getAllSwitchesNames' created successfully");
 

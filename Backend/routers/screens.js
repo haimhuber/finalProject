@@ -41,6 +41,8 @@ router.get('/tariff-rates', screenAction.getTariffRates);
 router.put('/tariff-rates', screenAction.updateTariffRate);
 router.patch('/tariff-rates', screenAction.updateTariffRatesOnly);
 router.patch('/efficiency-settings', screenAction.updateEfficiencySettings);
+router.get('/breaker-info', screenAction.getBreakerInfo);
+router.put('/breaker-info', screenAction.updateBreakerInfo);
 
 
 

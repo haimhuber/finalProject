@@ -68,60 +68,105 @@ function AppContent() {
                 const dayOfWeek = now.getDay();
                 const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
+                let peakRate = '';
+                let offPeakRate = '';
+                let isPeakTime = false;
+
                 if (month === 12 || month === 1 || month === 2) {
-                  if (!isWeekend && hour >= 17 && hour < 22) return 'Current Rate - ₪1.21/kWh';
-                  return 'Current Rate - ₪0.46/kWh';
+                  peakRate = '₪1.21/kWh';
+                  offPeakRate = '₪0.46/kWh';
+                  isPeakTime = !isWeekend && hour >= 17 && hour < 22;
+                } else if (month >= 6 && month <= 9) {
+                  peakRate = '₪1.69/kWh';
+                  offPeakRate = '₪0.53/kWh';
+                  isPeakTime = !isWeekend && hour >= 17 && hour < 23;
+                } else {
+                  peakRate = '₪0.50/kWh';
+                  offPeakRate = '₪0.45/kWh';
+                  isPeakTime = !isWeekend && hour >= 17 && hour < 22;
                 }
 
-                if (month >= 6 && month <= 9) {
-                  if (!isWeekend && hour >= 17 && hour < 23) return 'Current Rate - ₪1.69/kWh';
-                  return 'Current Rate - ₪0.53/kWh';
-                }
-
-                // Spring/Autumn
-                if (!isWeekend && hour >= 17 && hour < 22) return 'Current Rate - ₪0.50/kWh';
-                return 'Current Rate - ₪0.45/kWh';
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <div style={{
+                      color: isPeakTime ? '#10b981' : '#6b7280',
+                      fontWeight: isPeakTime ? '600' : '400'
+                    }}>
+                      PEAK RATE - {peakRate}
+                    </div>
+                    <div style={{
+                      color: !isPeakTime ? '#10b981' : '#6b7280',
+                      fontWeight: !isPeakTime ? '600' : '400'
+                    }}>
+                      OFF PEAK RATE - {offPeakRate}
+                    </div>
+                  </div>
+                );
               })()}
             </div>
             <div className="status-item">
               {(() => {
                 const now = new Date();
+                const hour = now.getHours();
                 const month = now.getMonth() + 1;
                 const dayOfWeek = now.getDay();
                 const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
+                let isPeakTime = false;
+
                 if (month === 12 || month === 1 || month === 2) {
+                  isPeakTime = !isWeekend && hour >= 17 && hour < 22;
                   return (
                     <>
-                      <div>PEAK: 17:00-22:00 (All days)</div>
-                      <div>OFF: 00:00-17:00, 22:00-24:00</div>
+                      <div style={{ 
+                        color: isPeakTime ? '#10b981' : '#6b7280',
+                        fontWeight: isPeakTime ? '600' : '400'
+                      }}>PEAK: 17:00-22:00 (All days)</div>
+                      <div style={{ 
+                        color: !isPeakTime ? '#10b981' : '#6b7280',
+                        fontWeight: !isPeakTime ? '600' : '400'
+                      }}>OFF: 00:00-17:00, 22:00-24:00</div>
                     </>
                   );
                 }
 
                 if (month >= 6 && month <= 9) {
+                  isPeakTime = !isWeekend && hour >= 17 && hour < 23;
                   if (!isWeekend) {
                     return (
                       <>
-                        <div>PEAK: 17:00-23:00 (Weekdays)</div>
-                        <div>OFF: 00:00-17:00, 23:00-24:00</div>
+                        <div style={{ 
+                          color: isPeakTime ? '#10b981' : '#6b7280',
+                          fontWeight: isPeakTime ? '600' : '400'
+                        }}>PEAK: 17:00-23:00 (Weekdays)</div>
+                        <div style={{ 
+                          color: !isPeakTime ? '#10b981' : '#6b7280',
+                          fontWeight: !isPeakTime ? '600' : '400'
+                        }}>OFF: 00:00-17:00, 23:00-24:00</div>
                       </>
                     );
                   } else {
-                    return 'OFF-PEAK: All day (Weekend)';
+                    return <div style={{ color: '#10b981', fontWeight: '600' }}>OFF-PEAK: All day (Weekend)</div>;
                   }
                 }
 
                 // Spring/Autumn (Mar-May, Oct-Nov)
+                isPeakTime = !isWeekend && hour >= 17 && hour < 22;
                 if (!isWeekend) {
                   return (
                     <>
-                      <div>PEAK: 17:00-22:00 (Weekdays)</div>
-                      <div>OFF: 00:00-17:00, 22:00-24:00</div>
+                      <div style={{ 
+                        color: isPeakTime ? '#10b981' : '#6b7280',
+                        fontWeight: isPeakTime ? '600' : '400'
+                      }}>PEAK: 17:00-22:00 (Weekdays)</div>
+                      <div style={{ 
+                        color: !isPeakTime ? '#10b981' : '#6b7280',
+                        fontWeight: !isPeakTime ? '600' : '400'
+                      }}>OFF: 00:00-17:00, 22:00-24:00</div>
                     </>
                   );
                 } else {
-                  return 'OFF-PEAK: All day (Weekend)';
+                  return <div style={{ color: '#10b981', fontWeight: '600' }}>OFF-PEAK: All day (Weekend)</div>;
                 }
               })()}
             </div>

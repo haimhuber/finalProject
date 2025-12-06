@@ -360,6 +360,11 @@
   color: #5a6c7d;
 }
 
+.info-row span:last-child {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
 .status-ok {
   color: #059669;
   font-weight: 600;
