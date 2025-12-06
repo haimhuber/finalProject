@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import './App.css'
 import { useAuth, useAlerts, useTime } from './contexts';
@@ -14,17 +14,18 @@ const Alerts = lazy(() => import('./Screens/Alarms/Alerts').then(m => ({ default
 const Report = lazy(() => import('./Screens/Reports/Report'));
 const Billing = lazy(() => import('./Screens/Billing/BillingScreen').then(m => ({ default: m.BillingScreen })));
 
-function App() {
+function AppContent() {
   const { isAuthenticated, user, token } = useAuth();
   const { alertsNumber } = useAlerts();
   const { season, peakOffSeason, shortDate } = useTime();
+  const location = useLocation();
 
-
+  // הסתרת Navbar בעמודי ה-authentication
+  const hideNavbar = ['/login', '/Signin', '/reset-password'].includes(location.pathname);
 
   return (
-
-    <BrowserRouter>
-      <div className="app-layout">
+    <div className="app-layout">
+      {!hideNavbar && (
         <nav className='sidebar-nav'>
           <div className="sidebar-logo">
             <div className="sidebar-logo-circle">
@@ -127,24 +128,32 @@ function App() {
             {!isAuthenticated && <Link to="/login" className="nav-link">🔐 Login</Link>}
           </div>
         </nav>
+      )}
 
-        <div className="main-content">
-          <Suspense fallback={<div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>}>
-            <Routes>
-              <Route path="/" element={<HomeScreen />} />
+      <div className="main-content">
+        <Suspense fallback={<div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<HomeScreen />} />
 
-              <Route path="/settings" element={<Setting />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/logout" element={<Logout />} />
-              <Route path="/Signin" element={<Signin />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/alerts" element={<Alerts />} />
-              <Route path="/reports" element={<Report />} />
-              <Route path="/billing" element={<Billing />} />
-            </Routes>
-          </Suspense>
-        </div>
+            <Route path="/settings" element={<Setting />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/logout" element={<Logout />} />
+            <Route path="/Signin" element={<Signin />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/reports" element={<Report />} />
+            <Route path="/billing" element={<Billing />} />
+          </Routes>
+        </Suspense>
       </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

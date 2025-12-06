@@ -4,6 +4,8 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header Section */
@@ -11,7 +13,7 @@
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: white;
   padding: 2rem 2rem 3rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
@@ -64,7 +66,7 @@
 .status-chart-wrapper {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   padding: 2rem;
   text-align: center;
 }
@@ -80,7 +82,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
-  width: 400px;
+  width: 100%;
   height: 100px;
   margin: 0 auto;
 }
@@ -90,14 +92,14 @@
   border-radius: 12px;
   padding: 12px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid #e2e8f0;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .status-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .status-card.closed {
@@ -140,7 +142,7 @@
   background: white;
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -211,7 +213,7 @@
 .breaker-card {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   padding: 1.5rem;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -282,7 +284,7 @@
 
 .status-indicator.closed {
   background: linear-gradient(145deg, #4ade80, #22c55e);
-  box-shadow: 
+  box-shadow:
     0 4px 8px rgba(34, 197, 94, 0.3),
     inset 0 1px 2px rgba(255, 255, 255, 0.3),
     inset 0 -1px 2px rgba(0, 0, 0, 0.1);
@@ -292,7 +294,7 @@
 
 .status-indicator.open {
   background: linear-gradient(145deg, #fbbf24, #f59e0b);
-  box-shadow: 
+  box-shadow:
     0 4px 8px rgba(245, 158, 11, 0.3),
     inset 0 1px 2px rgba(255, 255, 255, 0.3),
     inset 0 -1px 2px rgba(0, 0, 0, 0.1);
@@ -302,7 +304,7 @@
 
 .status-indicator.tripped {
   background: linear-gradient(145deg, #ef4444, #dc2626);
-  box-shadow: 
+  box-shadow:
     0 4px 8px rgba(220, 38, 38, 0.4),
     inset 0 1px 2px rgba(255, 255, 255, 0.3),
     inset 0 -1px 2px rgba(0, 0, 0, 0.1);
@@ -313,7 +315,7 @@
 
 .status-indicator.comm-error {
   background: linear-gradient(145deg, #6b7280, #4b5563);
-  box-shadow: 
+  box-shadow:
     0 4px 8px rgba(75, 85, 99, 0.3),
     inset 0 1px 2px rgba(255, 255, 255, 0.3),
     inset 0 -1px 2px rgba(0, 0, 0, 0.1);
@@ -328,7 +330,7 @@
 
 .status-indicator:active {
   transform: translateY(0);
-  box-shadow: 
+  box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.2),
     inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
@@ -406,7 +408,7 @@
   width: 500px;
   height: 100vh;
   background: white;
-  box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -533,9 +535,17 @@
 }
 
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 /* Responsive */
@@ -543,78 +553,78 @@
   .billing-header {
     padding: 1rem;
   }
-  
+
   .header-content h1 {
     font-size: 1.8rem;
   }
-  
+
   .subtitle {
     font-size: 0.9rem;
   }
-  
+
   .status-chart-container {
     padding: 0 1rem 1rem;
   }
-  
+
   .status-cards-grid {
     grid-template-columns: repeat(2, 1fr);
     width: 100%;
     gap: 10px;
   }
-  
+
   .status-card {
     padding: 8px;
   }
-  
+
   .status-number {
     font-size: 16px;
   }
-  
+
   .status-label {
     font-size: 8px;
   }
-  
+
   .breakers-grid {
     grid-template-columns: 1fr;
     padding: 0 1rem 1rem;
     gap: 1rem;
   }
-  
+
   .breaker-card {
     padding: 1rem;
   }
-  
+
   .breaker-header h3 {
     font-size: 1rem;
   }
-  
+
   .data-grid {
     grid-template-columns: 1fr;
     font-size: 0.8rem;
   }
-  
+
   .data-section h4 {
     font-size: 0.8rem;
   }
-  
+
   .sidebar {
     width: 100vw;
   }
-  
+
   .dashboard-sidebar-header {
     padding: 1rem;
   }
-  
+
   .sidebar-header-content {
     flex-direction: column;
     text-align: center;
     gap: 0.5rem;
   }
-  
+
   .chart-controls {
     padding: 1rem;
   }
-  
+
   .sidebar-chart {
     padding: 1rem;
     height: 300px;
@@ -625,33 +635,33 @@
   .header-content h1 {
     font-size: 1.5rem;
   }
-  
+
   .logo-circle {
     width: 40px;
     height: 40px;
   }
-  
+
   .logo-text-circle {
     font-size: 12px;
   }
-  
+
   .status-cards-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .breaker-card {
     padding: 0.8rem;
   }
-  
+
   .health-indicator {
     width: 25px;
     height: 25px;
   }
-  
+
   .checkmark {
     font-size: 1rem;
   }
-  
+
   .status-indicator {
     width: 50px;
     height: 25px;

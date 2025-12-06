@@ -72,9 +72,9 @@ const Login = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail })
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         // Use the same sendEmail function as login
         try {
@@ -175,6 +175,15 @@ const Login = () => {
   return (
     <div className="login-fullscreen">
       <div className="login-container">
+        {/* LOGO SECTION - LEFT SIDE */}
+        <div className="login-logo">
+          <div className="login-logo-circle">
+            <span className="login-logo-text">ABB</span>
+          </div>
+          <h2>Digital Panel</h2>
+          <p className="login-subtitle">Energy Management System</p>
+          <p className="login-description">Secure access to your power monitoring dashboard</p>
+        </div>
 
         {/* LOGIN FORM */}
         {!showAuth && (
@@ -206,7 +215,7 @@ const Login = () => {
             >
               Signin
             </button>
-            
+
             <button
               className="forgot-password"
               type="button"
@@ -254,7 +263,7 @@ const Login = () => {
           <div className="auth-box">
             <h2>Reset Password</h2>
             <p>Enter your email to receive verification code</p>
-            
+
             <input
               type="email"
               placeholder="Email"
@@ -262,7 +271,7 @@ const Login = () => {
               onChange={(e) => setForgotEmail(e.target.value)}
               required
             />
-            
+
             <button
               className="signin"
               type="button"
@@ -270,7 +279,7 @@ const Login = () => {
             >
               Send Verification Code
             </button>
-            
+
             <button
               className="signin"
               type="button"
@@ -286,7 +295,7 @@ const Login = () => {
           <div className="auth-box">
             <h2>Enter Verification Code</h2>
             <p>Code sent to: {forgotEmail}</p>
-            
+
             <input
               type="text"
               placeholder="Verification Code"
@@ -294,7 +303,7 @@ const Login = () => {
               onChange={(e) => setForgotCode(e.target.value)}
               required
             />
-            
+
             <button
               className="signin"
               type="button"
@@ -302,7 +311,7 @@ const Login = () => {
             >
               Verify & Reset Password
             </button>
-            
+
             <button
               className="signin"
               type="button"

@@ -37,6 +37,16 @@ const Signin: React.FC = () => {
   return (
     <div className="login-fullscreen">
       <div className="login-container">
+        {/* LOGO SECTION - TOP */}
+        <div className="login-logo">
+          <div className="login-logo-circle">
+            <span className="login-logo-text">ABB</span>
+          </div>
+          <h2>Digital Panel</h2>
+          <p className="login-subtitle">Energy Management System</p>
+          <p className="login-description">Secure access to your power monitoring dashboard</p>
+        </div>
+
         <form className="login-box" onSubmit={handleSignin}>
           <h1>Sign In</h1>
 
@@ -55,7 +65,7 @@ const Signin: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          
+
           <input
             type="password"
             placeholder="Confirm Password"
@@ -63,7 +73,7 @@ const Signin: React.FC = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-          
+
           <input
             type="email"
             placeholder="Email"
@@ -73,6 +83,14 @@ const Signin: React.FC = () => {
           />
 
           <button type="submit">Sign In</button>
+
+          <button
+            className="signin"
+            type="button"
+            onClick={() => window.location.href = "/login"}
+          >
+            Back to Login
+          </button>
         </form>
       </div>
     </div>

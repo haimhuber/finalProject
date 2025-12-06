@@ -558,7 +558,6 @@ async function createSp() {
                 SUM(daily_consumption) OVER (ORDER BY consumption_date) as cumulative_consumption,
                 SUM(daily_cost) OVER (ORDER BY consumption_date) as cumulative_cost
             FROM WithCosts
-            WHERE daily_consumption > 0
             ORDER BY consumption_date;
         END`);
         console.log("✅ Stored Procedure 'GetConsumptionWithBilling' (Seasonal) created successfully");
