@@ -460,7 +460,6 @@ export const HomeScreen: React.FC = () => {
                   <option value="energy">Energy & Frequency</option>
                 </select>
               </div>
-
               <div className="control-group">
                 <label>Time Period:</label>
                 <select value={dateRange} onChange={(e) => handleDateRangeChange(e.target.value)}>
@@ -470,7 +469,6 @@ export const HomeScreen: React.FC = () => {
                   <option value="custom">Custom</option>
                 </select>
               </div>
-
               {dateRange === 'custom' && (
                 <>
                   <div className="control-group">
@@ -481,7 +479,6 @@ export const HomeScreen: React.FC = () => {
                       onChange={(e) => setStartDate(e.target.value)}
                     />
                   </div>
-
                   <div className="control-group">
                     <label>End Date:</label>
                     <input
