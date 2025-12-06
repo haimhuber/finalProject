@@ -35,7 +35,20 @@ function AppContent() {
           </div>
 
           <div className="sidebar-status">
-            <div className="status-item">📅 {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} 🕐 {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</div>
+            <div className="status-item">
+              📅 {new Date().toLocaleDateString('en-GB', {
+                weekday: 'long',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              })}
+              <br />
+              🕐 {new Date().toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </div>
+
             <div className="status-item">
               {(() => {
                 const now = new Date();
