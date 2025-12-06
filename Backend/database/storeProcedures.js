@@ -174,6 +174,28 @@ async function createSp() {
         console.log("✅ Stored Procedure 'GetDailySampleActiveEnergy' created successfully");
         // ---------------------------------------------------------------------------------------
         await pool.request().query(`             
+        CREATE OR ALTER PROCEDURE GetLast2DaysActivePower
+            @switch_id INT
+        AS
+        BEGIN
+            SET NOCOUNT ON;
+
+            -- Get all records from the last 2 days at the current hour
+            DECLARE @TwoDaysAgo DATETIME = DATEADD(DAY, -2, GETDATE());
+            DECLARE @CurrentHour INT = DATEPART(HOUR, GETDATE());
+
+            SELECT 
+                ActivePower,
+                timestamp
+            FROM Switches
+            WHERE switch_id = @switch_id
+                AND timestamp >= @TwoDaysAgo
+                AND DATEPART(HOUR, timestamp) = @CurrentHour
+            ORDER BY timestamp ASC;
+        END`);
+        console.log("✅ Stored Procedure 'GetLast2DaysActivePower' created successfully");
+        // ---------------------------------------------------------------------------------------
+        await pool.request().query(`             
         CREATE or alter PROCEDURE AddUser
             @userName VARCHAR(20),
             @userPassword VARCHAR(255),

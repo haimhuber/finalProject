@@ -4,14 +4,15 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { getAlerts, getBreakerNames } from "../../Types/CombinedData";
 import type { AlertInterface } from "../../Types/Alerts";
-import { breakerDataList, type BreakerData, type DigitalPanelCardProps } from '../../Types/digitalPanel';
+import { breakerDataList } from '../../Types/digitalPanel';
+import { API_ENDPOINTS } from "../../config/api";
 
 const Report = () => {
   const reportRef = useRef<HTMLDivElement | null>(null);
   const [data, setData] = useState<AlertInterface[]>([]);
   const [showAlert, setShowAlert] = useState(false);
   const [showSwitchData, SetshowSwitchData] = useState(false);
-  const [breakerList, setBreakerList] = useState<string[]>([]);
+  const [breakerList, setBreakerList] = useState<any[]>([]);
   const [selectedBreaker, setSelectedBreaker] = useState("");
   const breakerData = breakerDataList;
   const [breakerDataPick, setBbreakerDataPick] = useState("");
@@ -33,7 +34,7 @@ const Report = () => {
       const response = await getAlerts();
       setData(response.data ?? []);
     } catch (err) {
-      console.error("Failed to fetch alerts", err);
+      // Error handled silently
     }
   };
 
@@ -47,15 +48,16 @@ const Report = () => {
         const req = await getBreakerNames();
         setBreakerList(req);
       } catch (err) {
-        console.error("Error msg", err);
+        // Error handled silently
       }
     }
     fetchNames();
   }, []);
 
   const fetchSwitchData = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('http://192.168.1.89:5500/api/report', {
+      const response = await fetch(API_ENDPOINTS.report, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -69,8 +71,8 @@ const Report = () => {
       // Filter data based on sample type
       let filteredData = result.data || [];
       if (sampleType === 'daily') {
-        const dailyData = {};
-        filteredData.forEach(row => {
+        const dailyData: { [key: string]: any } = {};
+        filteredData.forEach((row: any) => {
           const date = new Date(row.timestamp).toDateString();
           if (!dailyData[date] || new Date(row.timestamp) > new Date(dailyData[date].timestamp)) {
             dailyData[date] = row;
@@ -78,8 +80,8 @@ const Report = () => {
         });
         filteredData = Object.values(dailyData);
       } else if (sampleType === 'hourly') {
-        const hourlyData = {};
-        filteredData.forEach(row => {
+        const hourlyData: { [key: string]: any } = {};
+        filteredData.forEach((row: any) => {
           const hour = new Date(row.timestamp).toISOString().slice(0, 13);
           if (!hourlyData[hour] || new Date(row.timestamp) > new Date(hourlyData[hour].timestamp)) {
             hourlyData[hour] = row;
@@ -90,7 +92,9 @@ const Report = () => {
 
       setSwitchReportData(filteredData);
     } catch (err) {
-      console.error('Error fetching switch data:', err);
+      // Error handled silently
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -133,20 +137,6 @@ const Report = () => {
 
   function setAlert() {
     setShowAlert(!showAlert);
-  }
-
-  async function setSwitchData(id: string, data: string) {
-    if (!id || !data) {
-      alert(`Please pick all relevant data `);
-      return;
-    } else {
-      try {
-        // Add switch data logic here
-      } catch (err) {
-        console.error({ "Error msg": err });
-      }
-    }
-    SetshowSwitchData(!showSwitchData);
   }
 
   return (

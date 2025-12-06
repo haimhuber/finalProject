@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./LoginPage.css";
 import { sendEmail } from "../../Types/CombinedData";
+import { API_ENDPOINTS } from "../../config/api";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -67,7 +68,7 @@ const Login = () => {
 
     try {
       // First check if user exists
-      const response = await fetch('http://192.168.1.89:5500/api/forgot-password', {
+      const response = await fetch(API_ENDPOINTS.forgotPassword, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail })
@@ -111,7 +112,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://192.168.1.89:5500/api/login", {
+      const res = await fetch(API_ENDPOINTS.login, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -156,7 +157,7 @@ const Login = () => {
         const usernameAudit = sessionStorage.getItem("username");
         const type = "login";
 
-        await fetch("http://192.168.1.89:5500/api/audit", {
+        await fetch(API_ENDPOINTS.audit, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ usernameAudit, type })

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_ENDPOINTS } from "../../config/api";
 import "../Login/LoginPage.css";
 
 const ResetPassword = () => {
@@ -30,14 +31,14 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await fetch('http://192.168.1.89:5500/api/reset-password', {
+      const response = await fetch(API_ENDPOINTS.resetPassword, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, newPassword })
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         alert('Password updated successfully!');
         window.location.href = "/login";

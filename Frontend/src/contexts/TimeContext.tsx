@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import type { PaekOffSeason } from '../Types/peakAndOffSeason';
 
 interface TimeContextType {
@@ -35,61 +36,70 @@ export const TimeProvider: React.FC<TimeProviderProps> = ({ children }) => {
   };
 
   const getPeakOffHours = (date = new Date()) => {
-    const day = date.getDay();
+    const day = date.getDay(); // 0 = Sunday, 5 = Friday, 6 = Saturday
     const month = date.getMonth() + 1;
 
     let season: 'winter' | 'spring' | 'summer' | 'fall';
 
-    if (month === 12 || month <= 2) season = 'winter';
-    else if (month <= 5) season = 'spring';
-    else if (month <= 8) season = 'summer';
+    // Determine season
+    if (month >= 12 || month <= 2) season = 'winter';
+    else if (month >= 3 && month <= 5) season = 'spring';
+    else if (month >= 6 && month <= 9) season = 'summer';
     else season = 'fall';
 
+    // Winter (December-February) - All days same (including Saturday and Friday)
+    if (season === 'winter') {
+      setPeakOffSeason({
+        offPeakStart: '22:00',
+        offPeakEnd: '17:00',
+        peakStart: '17:00',
+        peakEnd: '22:00'
+      });
+      return;
+    }
+
+    // Saturday (day 6) - no peak hours (except winter)
     if (day === 6) {
       setPeakOffSeason({
         offPeakStart: '00:00',
         offPeakEnd: '23:59',
-        peakStart: 'null',
-        peakEnd: 'null'
+        peakStart: 'N/A',
+        peakEnd: 'N/A'
       });
       return;
     }
 
+    // Friday (day 5) and holiday eves - no peak hours (except winter)
     if (day === 5) {
       setPeakOffSeason({
         offPeakStart: '00:00',
-        offPeakEnd: '10:00',
-        peakStart: '14:00',
-        peakEnd: '17:00'
+        offPeakEnd: '23:59',
+        peakStart: 'N/A',
+        peakEnd: 'N/A'
       });
       return;
     }
 
+    // Weekdays (Sunday-Thursday)
     switch (season) {
-      case 'summer':
+      case 'summer': // June-September
         setPeakOffSeason({
-          offPeakStart: '23:00',
-          offPeakEnd: '07:00',
-          peakStart: '14:00',
-          peakEnd: '18:00'
-        });
-        break;
-      case 'winter':
-        setPeakOffSeason({
-          offPeakStart: '23:00',
-          offPeakEnd: '07:00',
+          offPeakStart: '00:00',
+          offPeakEnd: '17:00',
           peakStart: '17:00',
-          peakEnd: '21:00'
+          peakEnd: '23:00'
         });
         break;
-      case 'spring':
-      case 'fall':
+      case 'spring': // March-May
+      case 'fall': // October-November
         setPeakOffSeason({
-          offPeakStart: '23:00',
-          offPeakEnd: '07:00',
-          peakStart: '18:00',
-          peakEnd: '21:00'
+          offPeakStart: '00:00',
+          offPeakEnd: '17:00',
+          peakStart: '17:00',
+          peakEnd: '22:00'
         });
+        break;
+      default:
         break;
     }
   };

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { getAlerts } from '../Types/CombinedData';
 
 interface AlertsContextType {
@@ -28,7 +29,7 @@ export const AlertsProvider: React.FC<AlertsProviderProps> = ({ children }) => {
     try {
       const response = await getAlerts();
       const data = response?.data;
-      
+
       if (Array.isArray(data)) {
         for (let index = 0; index < data.length; index++) {
           if (data[index].alertAck === 0) {
@@ -38,7 +39,7 @@ export const AlertsProvider: React.FC<AlertsProviderProps> = ({ children }) => {
       }
       setAlertsNumber(alertCounter);
     } catch (err) {
-      console.error('Failed to fetch alerts', err);
+      // Error handled silently
       setAlertsNumber(0);
     }
   };

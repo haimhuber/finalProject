@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Setting.css";
+import { API_ENDPOINTS } from "../../config/api";
 import type { AuditTrail } from "../../Types/AuditTrail";
 
 export const Setting = () => {
@@ -86,7 +87,7 @@ export const Setting = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.1.89:5500/api/users');
+      const response = await fetch(API_ENDPOINTS.users);
       if (response.ok) {
         const result = await response.json();
         setUsers(result.data || []);
@@ -99,7 +100,7 @@ export const Setting = () => {
         ]);
       }
     } catch (err) {
-      console.error('Error fetching users:', err);
+      // Error handled silently
       // Fallback data
       setUsers([
         { id: 1, userName: 'admin', email: 'admin@abb.com', timestamp: '2025-12-05T10:30:00' },
@@ -120,7 +121,7 @@ export const Setting = () => {
 
     if (window.confirm(`Are you sure you want to delete user: ${username}?`)) {
       try {
-        const response = await fetch(`http://192.168.1.89:5500/api/users/${userId}`, {
+        const response = await fetch(API_ENDPOINTS.deleteUser(userId), {
           method: 'DELETE',
           headers: {
             'current-user': sessionStorage.getItem('username') || ''
@@ -135,7 +136,7 @@ export const Setting = () => {
           alert('Failed to delete user');
         }
       } catch (err) {
-        console.error('Error deleting user:', err);
+        // Error handled silently
         alert('Error deleting user');
       }
     }
@@ -144,13 +145,13 @@ export const Setting = () => {
   const fetchBreakers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.1.89:5500/api/breaker-info');
+      const response = await fetch(API_ENDPOINTS.breakerInfo);
       if (response.ok) {
         const result = await response.json();
         setBreakers(result.data || []);
       }
     } catch (err) {
-      console.error('Error fetching breakers:', err);
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -160,7 +161,7 @@ export const Setting = () => {
     if (!editingBreaker) return;
 
     try {
-      const response = await fetch('http://192.168.1.89:5500/api/breaker-info', {
+      const response = await fetch(API_ENDPOINTS.breakerInfo, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -184,7 +185,7 @@ export const Setting = () => {
         alert('Failed to update breaker');
       }
     } catch (err) {
-      console.error('Error updating breaker:', err);
+      // Error handled silently
       alert('Error updating breaker');
     }
   };
@@ -193,7 +194,7 @@ export const Setting = () => {
   const fetchAuditData = async () => {
     setLoading(true);
     try {
-      const req = await fetch("http://192.168.1.89:5500/api/audit");
+      const req = await fetch(API_ENDPOINTS.audit);
       const response = await req.json();
       let data = response.data || [];
 
@@ -207,7 +208,7 @@ export const Setting = () => {
 
       setAuditData(data);
     } catch (err) {
-      console.error("Error fetching audit:", err);
+      // Error handled silently
     } finally {
       setLoading(false);
     }

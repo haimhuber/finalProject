@@ -150,7 +150,7 @@ export async function breakersPosition() {
   if (cached) return cached;
 
   try {
-    const req = await fetch('http://192.168.1.89:5500/api/breakerspositions');
+    const req = await fetch(API_ENDPOINTS.breakersPositions);
     const res = await req.json();
     apiCache.set(cacheKey, res, 15000); // 15 seconds cache
     return res;
@@ -165,7 +165,7 @@ export async function getBatchActivePowerData() {
   if (cached) return cached;
 
   try {
-    const response = await fetch('http://192.168.1.89:5500/api/batchActivePower');
+    const response = await fetch(API_ENDPOINTS.batchActivePower);
     const data = await response.json();
     apiCache.set(cacheKey, data.data, 30000); // 30 seconds cache
     return data.data;
@@ -181,7 +181,7 @@ export async function getBatchActiveEnergyData() {
   if (cached) return cached;
 
   try {
-    const response = await fetch('http://192.168.1.89:5500/api/batchActiveEnergy');
+    const response = await fetch(API_ENDPOINTS.batchActiveEnergy);
     const data = await response.json();
     apiCache.set(cacheKey, data.data, 30000); // 30 seconds cache
     return data.data;
@@ -193,7 +193,7 @@ export async function getBatchActiveEnergyData() {
 
 export async function sendEmail(email: string) {
   try {
-    const res = await fetch("http://192.168.1.89:5500/api/email", {
+    const res = await fetch(API_ENDPOINTS.email, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })

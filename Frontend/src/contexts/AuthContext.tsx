@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -30,7 +31,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const storedToken = sessionStorage.getItem('token');
     const storedUsername = sessionStorage.getItem('username');
-    
+
     if (storedToken && storedUsername) {
       setToken(storedToken);
       setUser(storedUsername);

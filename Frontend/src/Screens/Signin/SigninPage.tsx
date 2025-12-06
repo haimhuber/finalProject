@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./SigninPage.css";
+import { API_ENDPOINTS } from "../../config/api";
 
 const Signin: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -18,7 +19,7 @@ const Signin: React.FC = () => {
     }
 
     try {
-      const res = await fetch("http://192.168.1.89:5500/api/adduser", {
+      const res = await fetch(API_ENDPOINTS.addUser, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, email }),

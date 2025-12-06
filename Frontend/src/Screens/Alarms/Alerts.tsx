@@ -47,7 +47,7 @@ export const Alerts = () => {
         }
       }
     } catch (err) {
-      console.error(err);
+      // Error handled silently
       alert("Something went wrong. Please try again.");
     }
 
@@ -66,7 +66,7 @@ export const Alerts = () => {
         alert(data.message || "Alarm can't be acknowledged");
       }
     } catch (err) {
-      console.error(err);
+      // Error handled silently
       alert("Something went wrong. Please try again.");
     }
   };
@@ -77,14 +77,14 @@ export const Alerts = () => {
       const response = await getAlerts();
       setAlerts(response.data ?? []);
     } catch (err) {
-      console.error("Failed to fetch alerts", err);
+      // Error handled silently
     }
 
     try {
       const responseNames = await getBreakerNames();
       setNames(responseNames ?? []);
     } catch (err) {
-      console.error("Failed to fetch Breakers Names", err);
+      // Error handled silently
     } finally {
       setLoading(false);
 
@@ -250,9 +250,9 @@ export const Alerts = () => {
       doc.setFillColor(248, 249, 250);
       doc.rect(20, 65, 170, 25, 'F');
       doc.setFontSize(11);
-      doc.setFont(undefined, 'bold');
+      doc.setFont('helvetica', 'bold');
       doc.text('Summary:', 25, 75);
-      doc.setFont(undefined, 'normal');
+      doc.setFont('helvetica', 'normal');
       doc.text(`Total Alerts: ${totalAlerts}`, 25, 83);
       doc.text(`Active Alerts: ${activeAlerts}`, 100, 83);
       doc.text(`Acknowledged: ${acknowledgedAlerts}`, 25, 91);
@@ -287,7 +287,7 @@ export const Alerts = () => {
       doc.save(fileName);
 
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      // Error handled silently
       alert('Error generating PDF. Please try again.');
     }
   };

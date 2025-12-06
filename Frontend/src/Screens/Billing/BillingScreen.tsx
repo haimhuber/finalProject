@@ -62,23 +62,25 @@ export const BillingScreen = () => {
     let peakHoursLabel = 'No peak';
     let offPeakHoursLabel = 'All hours';
 
-    // Calculate peak hours based on season and day type
-    if (!weekend) {
+    // Winter: all days have peak hours 17:00-22:00
+    if (seasonKey === 'winter') {
+      peakHours = 5; // 17:00-22:00 = 5 hours
+      peakHoursLabel = '17:00-22:00';
+      offPeakHoursLabel = '00:00-17:00 and 22:00-24:00';
+    }
+    // Non-winter seasons: check if it's a weekday
+    else if (!weekend) {
       if (seasonKey === 'summer') {
         peakHours = 6; // 17:00-23:00 = 6 hours
         peakHoursLabel = '17:00-23:00';
         offPeakHoursLabel = '00:00-17:00 and 23:00-24:00';
-      } else if (seasonKey === 'winter') {
-        peakHours = 5; // 17:00-22:00 = 5 hours
-        peakHoursLabel = '17:00-22:00';
-        offPeakHoursLabel = '00:00-17:00 and 22:00-24:00';
-      } else { // spring/autumn
+      } else { // spring/autumn weekdays
         peakHours = 5; // 17:00-22:00 = 5 hours
         peakHoursLabel = '17:00-22:00';
         offPeakHoursLabel = '00:00-17:00 and 22:00-24:00';
       }
     } else {
-      // Weekends: no peak pricing
+      // Non-winter weekends (Fri/Sat): no peak pricing
       peakHours = 0;
       peakHoursLabel = 'No peak (Fri/Sat)';
       offPeakHoursLabel = 'All hours (24:00)';
@@ -123,7 +125,7 @@ export const BillingScreen = () => {
         setBreakerOptions(options);
       }
     } catch (err) {
-      console.error('Error fetching breaker options:', err);
+      // Error handled silently
       // Fallback to default options if API fails
       setBreakerOptions([
         { value: '1', label: 'Q1 - Main Supply', type: 'EMAX E1.2' },
@@ -148,7 +150,7 @@ export const BillingScreen = () => {
         }
       }
     } catch (err) {
-      console.error('Error fetching tariff settings:', err);
+      // Error handled silently
     }
   };
 
@@ -190,7 +192,7 @@ export const BillingScreen = () => {
         generateDummyData();
       }
     } catch (error) {
-      console.warn('Backend server not available, using dummy data:', error);
+      // Backend server not available, using dummy data
       generateDummyData();
     } finally {
       setLoading(false);
@@ -499,7 +501,7 @@ export const BillingScreen = () => {
       doc.save(fileName);
 
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      // Error handled silently
       alert('Error generating PDF. Please try again.');
     }
   };

@@ -61,24 +61,24 @@ async function writeBreakerData(data, tableIndex) {
 async function getActivePower(switch_id) {
   try {
     if (!switch_id) {
-      throw new Error('Missing required parameters: switch_id, startTime, endTime');
+      throw new Error('Missing required parameters: switch_id');
     }
 
     const pool = await connectDb.connectionToSqlDB();
     const result = await pool.request()
       .input('switch_id', sql.Int, switch_id)
-      .execute('GetDailySample');           // call the SP that returns formatted time
+      .execute('GetLast2DaysActivePower');
 
     if (!result.recordset || result.recordset.length === 0) {
-      console.log('No data found for the given parameters');
+      console.log('No data found for switch_id:', switch_id);
       return { status: 200, data: [] };
     }
 
-    console.log({ status: 200, data: result.recordset });
+    console.log(`✅ Found ${result.recordset.length} records for switch_id ${switch_id}`);
     return { status: 200, data: result.recordset };
 
   } catch (err) {
-    console.error('Error fetching active energy:', err);
+    console.error('Error fetching active power:', err);
     return { status: 500, message: err.message };
   }
 }
