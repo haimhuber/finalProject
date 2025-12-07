@@ -21,12 +21,44 @@ function askUser(question) {
 
 async function deleteAllTables() {
   try {
-    const pool = await sqlConnection.connectionToSqlDB(database);
+    const pool = await sqlConnection.connectionToSqlDB();
+    
+    // Check if MainData table exists
+    const tableCheck = await pool.request().query(`
+      SELECT COUNT(*) AS tableExists 
+      FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = 'MainData'
+    `);
+    
+    if (tableCheck.recordset[0].tableExists === 0) {
+      console.log('ℹ️ MainData table does not exist yet. Will be created now.');
+      return true;
+    }
+    
     const check = await pool.request().query('SELECT COUNT(*) AS count FROM MainData');
     const dbCount = check.recordset[0].count;
     const configCount = config.breakers.length;
 
-    if (dbCount !== configCount) {
+    // If MainData is empty (fresh installation), proceed without asking
+    if (dbCount === 0) {
+      console.log('ℹ️ MainData is empty. Proceeding with initial data insertion.');
+      
+      // Reset IDENTITY to start from 0
+      await pool.request().query('DBCC CHECKIDENT (MainData, RESEED, 0)');
+      
+      for (const breaker of config.breakers) {
+        await pool
+          .request()
+          .input('name', breaker.name)
+          .input('type', breaker.type)
+          .input('load', breaker.load)
+          .query('INSERT INTO MainData (name, type, load) VALUES (@name, @type, @load)');
+      }
+
+      console.log('✅ Data inserted into MainData successfully.');
+      return true; // ✅ indicates action was taken
+    } else if (dbCount !== configCount) {
+      // Only ask for confirmation if data exists and counts don't match
       const answer = await askUser(
         '⚠️ WARNING: config.json changed! This will DELETE ALL DATA from the database. Are you sure? (yes/no): '
       );
@@ -43,7 +75,7 @@ async function deleteAllTables() {
         // Then delete parent table
         await pool.request().query('DELETE FROM MainData');
 
-        // Reset IDENTITY
+        // Reset IDENTITY to start from 0
         await pool.request().query('DBCC CHECKIDENT (MainData, RESEED, 0)');
 
         console.log('✅ All tables cleared successfully.');
@@ -69,8 +101,8 @@ async function deleteAllTables() {
     }
   } catch (err) {
     console.error('❌ Error during table deletion/insertion:', err.message);
-    if(err.message === "Invalid object name 'MainData'"){ return true}
-    return false;
+    console.log('ℹ️ Assuming tables need to be created.');
+    return true;
   }
 }
 

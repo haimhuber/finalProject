@@ -205,7 +205,7 @@ async function createSp() {
                 SET NOCOUNT ON;
 
                 -- Check if username already exists
-                IF EXISTS (SELECT 1 FROM Users WHERE userName = @userName)
+                IF EXISTS (SELECT 1 FROM Users WHERE username = @userName)
                 BEGIN
                     SELECT 
                         0 AS success,
@@ -214,7 +214,7 @@ async function createSp() {
                 END;
 
                 -- Insert new user
-                INSERT INTO Users (userName, userPassword, email)
+                INSERT INTO Users (username, password, email)
                 VALUES (@userName, @userPassword, @userEmail);
 
                 SELECT
@@ -231,9 +231,9 @@ async function createSp() {
             BEGIN
                 SET NOCOUNT ON;
 
-                SELECT userPassword, email
+                SELECT password, email
                 FROM Users
-                WHERE userName = @userName;
+                WHERE username = @userName;
             END
             `);
         console.log("✅ Stored Procedure 'CheckUserExists' created successfully");
@@ -864,7 +864,7 @@ async function createSp() {
         AS
         BEGIN
             UPDATE Users 
-            SET userPassword = @newPassword 
+            SET password = @newPassword 
             WHERE email = @email;
             
             IF @@ROWCOUNT > 0
@@ -998,5 +998,6 @@ async function createSp() {
         throw error;
     }
 }
+createSp();
 
 module.exports = { createSp };

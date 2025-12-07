@@ -38,7 +38,7 @@ async function pollData() {
 
       // Write to historical Switches table only every minute
       if (write) {
-        const sendData = await sqlDB.writeBreakerData(data, i + 1);
+        const sendData = await sqlDB.writeBreakerData(data, i);
         console.log("📤 DB response:", sendData);
 
         if (sendData.status === 200) {

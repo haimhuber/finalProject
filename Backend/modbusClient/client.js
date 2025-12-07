@@ -24,7 +24,7 @@ async function readRegisters(start) {
   }
 
   try {
-    const result = await client.readHoldingRegisters(start, 16);
+    const result = await client.readHoldingRegisters(start, 15);
     return result.data;
   } catch (err) {
     console.log("⚠️ Read error:", err.message);

@@ -181,11 +181,29 @@ async function createTables() {
         peakHours VARCHAR(50) NOT NULL,
         weekdaysOnly BIT NOT NULL DEFAULT 1,
         isActive BIT NOT NULL DEFAULT 1,
+        efficiencyBase DECIMAL(10,2) DEFAULT 100.00,
+        efficiencyMultiplier DECIMAL(10,2) DEFAULT 1.00,
         createdBy VARCHAR(50),
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
     console.log({ 'TariffRates table created (if not exists)': 200 });
+
+    // Add missing columns if table already exists
+    await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+                     WHERE TABLE_NAME = 'TariffRates' AND COLUMN_NAME = 'efficiencyBase')
+      BEGIN
+        ALTER TABLE TariffRates ADD efficiencyBase DECIMAL(10,2) DEFAULT 100.00;
+      END
+      
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+                     WHERE TABLE_NAME = 'TariffRates' AND COLUMN_NAME = 'efficiencyMultiplier')
+      BEGIN
+        ALTER TABLE TariffRates ADD efficiencyMultiplier DECIMAL(10,2) DEFAULT 1.00;
+      END
+    `);
+    console.log({ 'TariffRates columns verified': 200 });
 
     // Insert default tariff rates
     await pool.request().query(`
