@@ -35,7 +35,7 @@ async function writeBreakerData(data, tableIndex) {
       .input('ReactivePower', data[9] / 10.0)
       .input('ApparentPower', data[10] / 10.0)
       .input('NominalCurrent', data[11] / 10.0)
-      .input('ActiveEnergy', (activeEnergy))
+      .input('ActiveEnergy', ((data[13] * 65536) + data[14]) / 10.0)
       .input('CommStatus', bits[0])
       .input('ProtectionTrip', bits[1])
       .input('ProtectionInstTrip', bits[2])
@@ -56,6 +56,10 @@ async function writeBreakerData(data, tableIndex) {
     if (result.rowsAffected[0] === 0) {
       return { message: 'Values cannot be sent', status: 404 };
     }
+
+    // ✅ Check for protection alerts after successful write
+    await checkProtectionAlerts(tableIndex, bits);
+
     return { message: 'Values sent successfully', status: 200 };
   } catch (err) {
     console.error('DB insert error:', err); // log full error
@@ -514,7 +518,7 @@ async function updateLiveData(data, tableIndex) {
       .input('ReactivePower', data[9] / 10.0)
       .input('ApparentPower', data[10] / 10.0)
       .input('NominalCurrent', data[11] / 10.0)
-      .input('ActiveEnergy', activeEnergy)
+      .input('ActiveEnergy', ((data[13] * 65536) + data[14]) / 10.0)
       .input('CommStatus', bits[0])
       .input('ProtectionTrip', bits[1])
       .input('ProtectionInstTrip', bits[2])
@@ -796,4 +800,48 @@ async function updateBreakerInfo(id, name, type, load, updatedBy) {
   }
 }
 
-module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, clearLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser, getTariffRates, updateTariffRate, updateTariffRatesOnly, updateEfficiencySettings, getBreakerInfo, updateBreakerInfo };
+// --------------------------------------------------------------------------------------//
+// PROTECTION ALERTS MONITORING
+// --------------------------------------------------------------------------------------//
+
+async function addProtectionAlert(switch_id, alert_type, alert_message) {
+  try {
+    const pool = await connectDb.connectionToSqlDB();
+    await pool.request()
+      .input('switch_id', sql.Int, switch_id)
+      .input('alert_type', sql.VarChar, alert_type)
+      .input('alert_message', sql.VarChar, alert_message)
+      .execute('AddProtectionAlert');
+    
+    return { status: 200 };
+  } catch (err) {
+    console.error('Error adding protection alert:', err);
+    return { status: 500, message: err.message };
+  }
+}
+
+async function checkProtectionAlerts(switch_id, bits) {
+  const alerts = [
+    // CommStatus is INVERTED: 0 = Error, 1 = OK
+    { bit: bits[0], type: 'CommStatus', message: 'Communication Error - No response from breaker', inverted: true },
+    // All other alerts: 1 = Error, 0 = OK
+    { bit: bits[1], type: 'ProtectionTrip', message: 'Protection Trip Activated', inverted: false },
+    { bit: bits[2], type: 'ProtectionInstTrip', message: 'Instantaneous Protection Trip', inverted: false },
+    { bit: bits[6], type: 'ProtectionG_Trip', message: 'Ground Fault Protection Trip', inverted: false },
+    { bit: bits[7], type: 'ProtectionI_Trip', message: 'Overcurrent Protection Trip', inverted: false },
+    { bit: bits[8], type: 'ProtectionS_Trip', message: 'Short Circuit Protection Trip', inverted: false },
+    { bit: bits[9], type: 'ProtectionL_Trip', message: 'Long Time Delay Protection Trip', inverted: false },
+    { bit: bits[10], type: 'TripDisconnected', message: 'Trip Circuit Disconnected', inverted: false },
+    { bit: bits[11], type: 'Tripped', message: 'Breaker Tripped', inverted: false }
+  ];
+
+  for (const alert of alerts) {
+    const isError = alert.inverted ? (alert.bit === 0) : (alert.bit === 1);
+    
+    if (isError) {
+      await addProtectionAlert(switch_id, alert.type, alert.message);
+    }
+  }
+}
+
+module.exports = { auditTrailData, AuditTrail, breakerSwtichStatus, reportPowerData, readAllAckData, writeBreakerData, getActivePower, getBreakersMainData, getBreakersNames, getActiveEnergy, addUser, userExist, getAlertData, akcAlert, akcAlertBy, getBatchActivePower, getBatchActiveEnergy, getConsumptionBilling, checkDataExists, updateLiveData, clearLiveData, getLiveDataOnly, getHourlySamples, getDailySamples, getWeeklySamples, getUsers, getUserById, getUserByEmail, updateUserPassword, deleteUser, getTariffRates, updateTariffRate, updateTariffRatesOnly, updateEfficiencySettings, getBreakerInfo, updateBreakerInfo, addProtectionAlert, checkProtectionAlerts };
