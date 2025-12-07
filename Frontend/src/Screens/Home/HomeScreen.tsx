@@ -1,5 +1,6 @@
 import './HomeScreen.css';
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -27,6 +28,7 @@ ChartJS.register(
 );
 
 export const HomeScreen: React.FC = () => {
+  const navigate = useNavigate();
   const [combinedDataState, setCombinedDataState] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedBreaker, setSelectedBreaker] = useState<any>(null);
@@ -53,8 +55,8 @@ export const HomeScreen: React.FC = () => {
   // CHECK TOKEN
   useEffect(() => {
     const token = sessionStorage.getItem("token");
-    if (!token) window.location.href = "/login";
-  }, []);
+    if (!token) navigate("/login");
+  }, [navigate]);
 
   // MAIN DATA FETCH
   useEffect(() => {
@@ -480,7 +482,7 @@ export const HomeScreen: React.FC = () => {
         {combinedDataState.map((breaker) => (
           <div
             key={breaker.switch_id}
-            className="breaker-card"
+            className={`breaker-card ${!breaker.CommStatus ? 'comm-error' : ''}`}
             onClick={() => handleBreakerClick(breaker)}
           >
             <div className="breaker-header">
@@ -575,7 +577,12 @@ export const HomeScreen: React.FC = () => {
                   <div className={`status-indicator ${!breaker.CommStatus ? 'comm-error' : 'tripped'
                     }`}>
                     <span className="status-text">
-                      {!breaker.CommStatus ? 'COMM ERR' : 'TRIPPED'}
+                      {!breaker.CommStatus ? (
+                        <>
+                          <span style={{ fontSize: '1rem', marginRight: '4px' }}>📡</span>
+                          COMM ERR
+                        </>
+                      ) : 'TRIPPED'}
                     </span>
                   </div>
                 )}

@@ -1,7 +1,7 @@
 {
     "breakers": [
         {
-            "name": "Q1",
+            "name": "Q0",
             "type": "EMAX E1.2",
             "load": "Main supply"
         },

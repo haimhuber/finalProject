@@ -2,13 +2,13 @@
 // Automatically detects server IP dynamically
 
 // Default fallback IP (used during initial load)
-let cachedServerUrl = 'http://192.168.1.89:5500';
+let cachedServerUrl = 'http://192.168.1.148:5500';
 
 // Function to fetch server IP dynamically from the server
 export const initializeServerUrl = async (): Promise<string> => {
     try {
         // Try to get server IP from the server itself
-        const response = await fetch('http://192.168.1.89:5500/api/server-ip');
+        const response = await fetch('http://192.168.1.148:5500/api/server-ip');
         const data = await response.json();
         if (data.status === 200 && data.ip) {
             cachedServerUrl = `http://${data.ip}:${data.port || 5500}`;

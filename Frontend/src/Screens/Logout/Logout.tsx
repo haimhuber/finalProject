@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export const Logout = () => {
+  const navigate = useNavigate();
   const hasLoggedOut = useRef(false);
   
   useEffect(() => {
@@ -26,10 +28,10 @@ export const Logout = () => {
       alert(`User: ${username} Log out`);
       sessionStorage.removeItem("token");
       sessionStorage.removeItem("username");
-      window.location.href = "/login";
+      navigate("/login");
     }
     logout();
-  }, []);
+  }, [navigate]);
   return (
 
     <div>Logout</div>

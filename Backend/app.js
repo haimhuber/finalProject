@@ -42,12 +42,13 @@ app.use(
 );
 
 createDatabase.createDatabase();
-//startModbusClient.start();
+startModbusClient.start();
 app.use('/api', screenRouters);
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server listening at http://0.0.0.0:${port}`);
-  console.log(`Available on: http://192.168.1.89:${port}`);
+  console.log(`Available on: http://${ips}:${port}`);
+  console.log(`Local IP detected: ${ips}`);
 });
 
 

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Setting.css";
 import { API_ENDPOINTS } from "../../config/api";
 import type { AuditTrail } from "../../Types/AuditTrail";
 
 export const Setting = () => {
+  const navigate = useNavigate();
   const [auditTrail, setAuditTrail] = useState(false);
   const [userManagement, setUserManagement] = useState(false);
   const [breakerManagement, setBreakerManagement] = useState(false);
@@ -24,9 +26,9 @@ export const Setting = () => {
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (!token) {
-      window.location.href = "/login";
+      navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
   // Initialize dates
   useEffect(() => {

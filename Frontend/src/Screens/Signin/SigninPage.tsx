@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./SigninPage.css";
 import { API_ENDPOINTS } from "../../config/api";
 
 const Signin: React.FC = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,7 +31,7 @@ const Signin: React.FC = () => {
 
       if (!data.data) return alert(data.message || "User name already exist"); // data.data = 0
       alert("User created successfully");
-      window.location.href = "/login";
+      navigate("/login");
     } catch (err) {
       console.error(err);
       alert("Something went wrong. Please try again.");
@@ -88,7 +90,7 @@ const Signin: React.FC = () => {
           <button
             className="signin"
             type="button"
-            onClick={() => window.location.href = "/login"}
+            onClick={() => navigate("/login")}
           >
             Back to Login
           </button>

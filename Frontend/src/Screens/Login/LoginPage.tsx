@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 import { sendEmail } from "../../Types/CombinedData";
 import { API_ENDPOINTS } from "../../config/api";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
@@ -57,7 +59,7 @@ const Login = () => {
 
 
   function signin() {
-    window.location.href = "/Signin";
+    navigate("/Signin");
   }
 
   async function handleForgotPassword() {
@@ -102,7 +104,7 @@ const Login = () => {
 
   function verifyForgotCode() {
     if (Number(forgotCode) === forgotEmailCode) {
-      window.location.href = `/reset-password?email=${encodeURIComponent(forgotEmail)}`;
+      navigate(`/reset-password?email=${encodeURIComponent(forgotEmail)}`);
     } else {
       alert('Verification code is incorrect!');
     }
@@ -166,8 +168,8 @@ const Login = () => {
         console.error("Audit error:", err);
       }
 
-      // Redirect
-      window.location.href = "/";
+      // Redirect to home page
+      navigate("/");
     } else {
       alert("Verification code is incorrect!");
     }

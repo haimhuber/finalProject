@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { API_ENDPOINTS } from "../../config/api";
 import "../Login/LoginPage.css";
 
 const ResetPassword = () => {
+  const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -41,7 +43,7 @@ const ResetPassword = () => {
 
       if (result.success) {
         alert('Password updated successfully!');
-        window.location.href = "/login";
+        navigate("/login");
       } else {
         alert(result.message || 'Failed to update password');
       }
@@ -78,7 +80,7 @@ const ResetPassword = () => {
 
           <button
             type="button"
-            onClick={() => window.location.href = "/login"}
+            onClick={() => navigate("/login")}
           >
             Back to Login
           </button>

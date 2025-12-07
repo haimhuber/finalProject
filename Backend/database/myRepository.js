@@ -7,6 +7,12 @@ const configPath = path.join(__dirname, '../config.json');
 const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 
 async function writeBreakerData(data, tableIndex) {
+  let activeEnergy = 0;
+  if (data[15] === 2) {
+    activeEnergy = ((data[13] * 65536) + data[14]) / 10.0;
+  } else if (data[15] === 1) {
+    activeEnergy = data[13];
+  }
   const bits = [];
   for (let i = 14; i >= 0; i--) { // Only 14 bits
     bits.push((data[12] >> i) & 1); // MSB bits[0] | LSB bits[14]
@@ -24,12 +30,12 @@ async function writeBreakerData(data, tableIndex) {
       .input('I2', data[4] / 10.0)
       .input('I3', data[5] / 10.0)
       .input('Frequency', data[6] / 10.0)
-      .input('PowerFactor', data[7] / 1000.0)
+      .input('PowerFactor', data[7] / 100.0)
       .input('ActivePower', data[8] / 10.0)
       .input('ReactivePower', data[9] / 10.0)
       .input('ApparentPower', data[10] / 10.0)
       .input('NominalCurrent', data[11] / 10.0)
-      .input('ActiveEnergy', ((data[13] * 65536) + data[14]) / 10.0)
+      .input('ActiveEnergy', (activeEnergy))
       .input('CommStatus', bits[0])
       .input('ProtectionTrip', bits[1])
       .input('ProtectionInstTrip', bits[2])
@@ -480,6 +486,13 @@ async function checkDataExists(switch_id, start_date, end_date) {
 }
 
 async function updateLiveData(data, tableIndex) {
+  let activeEnergy = 0;
+  if (data[15] === 2) {
+    activeEnergy = ((data[13] * 65536) + data[14]) / 10.0;
+  } else if (data[15] === 1) {
+    activeEnergy = data[13];
+  }
+
   const bits = [];
   for (let i = 14; i >= 0; i--) {
     bits.push((data[12] >> i) & 1);
@@ -496,12 +509,12 @@ async function updateLiveData(data, tableIndex) {
       .input('I2', data[4] / 10.0)
       .input('I3', data[5] / 10.0)
       .input('Frequency', data[6] / 10.0)
-      .input('PowerFactor', data[7] / 1000.0)
+      .input('PowerFactor', data[7] / 100.0)
       .input('ActivePower', data[8] / 10.0)
       .input('ReactivePower', data[9] / 10.0)
       .input('ApparentPower', data[10] / 10.0)
       .input('NominalCurrent', data[11] / 10.0)
-      .input('ActiveEnergy', ((data[13] * 65536) + data[14]) / 10.0)
+      .input('ActiveEnergy', activeEnergy)
       .input('CommStatus', bits[0])
       .input('ProtectionTrip', bits[1])
       .input('ProtectionInstTrip', bits[2])
