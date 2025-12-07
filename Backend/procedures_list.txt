@@ -1,0 +1,16 @@
+name                                                                                                                            
+--------------------------------------------------------------------------------------------------------------------------------
+addBreakerData                                                                                                                  
+AddUser                                                                                                                         
+AlertsData                                                                                                                      
+CheckUserExists                                                                                                                 
+getActiveEnergy                                                                                                                 
+getAllSwitchesData                                                                                                              
+getAllSwitchesNames                                                                                                             
+GetDailySample                                                                                                                  
+GetDailySampleActiveEnergy                                                                                                      
+GetLast2DaysActivePower                                                                                                         
+getLiveData                                                                                                                     
+UpdateLiveData                                                                                                                  
+
+(12 rows affected)

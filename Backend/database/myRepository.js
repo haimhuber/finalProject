@@ -196,11 +196,11 @@ async function userExist(userName) {
       .execute('CheckUserExists');
     if (!result.recordset || result.recordset.length === 0) {
       console.log('User not found');
-      return { status: 404, data: false, userData: null };
+      return { status: 404, data: null };
     }
 
     console.log({ status: 200, data: result.recordset[0] });
-    return { status: 200, data: true, userData: result.recordset[0] };
+    return { status: 200, data: result.recordset[0] };
 
   } catch (err) {
     console.error('Error fetching user data:', err);
@@ -215,12 +215,18 @@ async function getAlertData() {
     const result = await pool.request()
       .execute('AlertsData');
     if (!result.recordset || result.recordset.length === 0) {
-      console.log('No data found');
-      return { status: 400, data: false, userData: result.recordset[0] };
+      console.log('No alerts found');
+      return { status: 200, data: [] };
     }
 
-    console.log({ status: 200, data: result.recordset });
-    return { status: 200, data: result.recordset };
+    // Fix timezone issue - convert timestamps to local time strings
+    const data = result.recordset.map(alert => ({
+      ...alert,
+      timestamp: alert.timestamp ? new Date(alert.timestamp).toISOString().replace('Z', '') : null
+    }));
+
+    console.log({ status: 200, data });
+    return { status: 200, data };
 
   } catch (err) {
     console.error('Error fetching Switches data:', err);
@@ -300,9 +306,16 @@ async function readAllAckData() {
       console.log("❌ Alert not found");
       return { status: 404, data: false };
     }
+
+    // Fix timezone issue - convert timestamps to local time strings
+    const data = result.recordset.map(ack => ({
+      ...ack,
+      timestamp: ack.timestamp ? new Date(ack.timestamp).toISOString().replace('Z', '') : null
+    }));
+
     return {
       status: 200,
-      data: result.recordset,
+      data,
     };
 
   } catch (err) {

@@ -1,0 +1,13 @@
+TABLE_NAME                                                                                                                      
+--------------------------------------------------------------------------------------------------------------------------------
+AckAlert                                                                                                                        
+Alerts                                                                                                                          
+Events                                                                                                                          
+LiveData                                                                                                                        
+MainData                                                                                                                        
+Switches                                                                                                                        
+TariffRates                                                                                                                     
+UserAuditTrail                                                                                                                  
+Users                                                                                                                           
+
+(9 rows affected)

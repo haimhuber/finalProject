@@ -440,7 +440,17 @@ export const Alerts = () => {
                         </span>
                       </td>
                       <td style={{ maxWidth: '200px', wordWrap: 'break-word' }}>{alert.alert_message}</td>
-                      <td>{new Date(alert.timestamp).toLocaleString()}</td>
+                      <td>
+                        {new Date(alert.timestamp).toLocaleString('he-IL', { 
+                          year: 'numeric', 
+                          month: '2-digit', 
+                          day: '2-digit', 
+                          hour: '2-digit', 
+                          minute: '2-digit', 
+                          second: '2-digit',
+                          hour12: false
+                        })}
+                      </td>
                       <td>
                         {alert.alertAck ? (
                           <div className="ack-badge">
@@ -458,7 +468,15 @@ export const Alerts = () => {
                       <td>
                         {alert.alertAck ? (
                           <div className="ack-timestamp">
-                            {ackTimestamp ? new Date(ackTimestamp).toLocaleString() : '--'}
+                            {ackTimestamp ? new Date(ackTimestamp).toLocaleString('he-IL', { 
+                              year: 'numeric', 
+                              month: '2-digit', 
+                              day: '2-digit', 
+                              hour: '2-digit', 
+                              minute: '2-digit', 
+                              second: '2-digit',
+                              hour12: false
+                            }) : '--'}
                           </div>
                         ) : (
                           <button

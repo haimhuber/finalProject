@@ -28,17 +28,23 @@ async function pollData() {
       const data = await modbus.readRegisters(reg);
       if (!data) {
         console.log();
-        console.log(`⚠️ Breaker ${i + 1}: no data`);
+        console.log(`⚠️ Breaker ${i + 1}: no data - adding CommStatus alert`);
+        
+        // Add communication error alert
+        await sqlDB.addProtectionAlert(i + 1, 'CommStatus - Error', `Communication Error - No response from breaker ${i + 1}`);
         continue;
       }
       console.log(`✅ Breaker ${i + 1}:`, data);
 
+      // Check protection bits and add alerts if needed
+      await sqlDB.checkProtectionAlerts(i + 1, data);
+
       // Always update LiveData
-      const liveDataUpdate = await sqlDB.updateLiveData(data, i + 1);
+      const liveDataUpdate = await sqlDB.updateLiveData(data, i + 1 );
 
       // Write to historical Switches table only every minute
       if (write) {
-        const sendData = await sqlDB.writeBreakerData(data, i);
+        const sendData = await sqlDB.writeBreakerData(data, i + 1);
         console.log("📤 DB response:", sendData);
 
         if (sendData.status === 200) {

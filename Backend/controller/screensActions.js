@@ -113,18 +113,22 @@ const addingUser = async (req, res) => {
 };
 
 const checkIfUserExist = async (req, res) => {
+    console.log('🔍 req.body:', req.body);
     const { username, password } = req.body;
+    console.log('🔍 username:', username, 'password:', password);
     if (!username || !password)
         return res.status(401).json({ message: "Invalid username or password" });
     try {
         const chekcIfUserExist = await sqlData.userExist(username);
 
-        if (!chekcIfUserExist.userData) {
+        if (!chekcIfUserExist.data) {
             return res.status(404).json({ msg: "User not found" });
         }
 
-        const enctypedPassword = await bcrypt.compare(password, chekcIfUserExist.userData.userPassword);
-        if (enctypedPassword) res.status(200).json({ msg: "Password ok -> login finished", data: true, userEmail: chekcIfUserExist.userData.email });
+        console.log('🔍 Before bcrypt.compare - password:', password, 'hash:', chekcIfUserExist.data.password);
+        console.log('🔍 password type:', typeof password, 'hash type:', typeof chekcIfUserExist.data.password);
+        const enctypedPassword = await bcrypt.compare(password, chekcIfUserExist.data.password);
+        if (enctypedPassword) res.status(200).json({ msg: "Password ok -> login finished", data: true, userEmail: chekcIfUserExist.data.email });
         else res.status(404).json({ msg: "Password mismatch" });
 
     } catch (err) {

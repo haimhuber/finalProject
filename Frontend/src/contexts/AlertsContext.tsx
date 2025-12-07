@@ -32,7 +32,7 @@ export const AlertsProvider: React.FC<AlertsProviderProps> = ({ children }) => {
 
       if (Array.isArray(data)) {
         for (let index = 0; index < data.length; index++) {
-          if (data[index].alertAck === 0) {
+          if (!data[index].alertAck) {  // Changed from === 0 to !alertAck
             ++alertCounter;
           }
         }
@@ -45,7 +45,12 @@ export const AlertsProvider: React.FC<AlertsProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    refreshAlerts();
+    refreshAlerts(); // Initial fetch
+    
+    // Poll for new alerts every 10 seconds
+    const intervalId = setInterval(refreshAlerts, 10000);
+    
+    return () => clearInterval(intervalId); // Cleanup on unmount
   }, []);
 
   return (

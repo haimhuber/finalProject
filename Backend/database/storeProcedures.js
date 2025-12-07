@@ -261,8 +261,8 @@ async function createSp() {
                 SET NOCOUNT ON;
                 UPDATE Alerts
                 SET 
-                    alert_type = @AckType,
-                    alert_message = @AckMessage,
+                    alarmType = @AckType,
+                    alarmMessage = @AckMessage,
                     alertAck = @AckValue
                 WHERE id = @AlertId;
         END`);
@@ -275,7 +275,7 @@ async function createSp() {
             AS
             BEGIN
                 SET NOCOUNT ON;
-                INSERT INTO AckAlert (ackId, ackBy)
+                INSERT INTO AckAlert (ackId, user_id)
                 VALUES (@ackId, @ackBy);
         END`);
         console.log("✅ Stored Procedure 'AddAckAlert' created successfully");
@@ -976,12 +976,12 @@ async function createSp() {
                 SELECT 1 
                 FROM Alerts 
                 WHERE alarmId = @switch_id 
-                AND alert_type = @alert_type 
+                AND alarmType = @alert_type 
                 AND alertAck = 0
             )
             BEGIN
                 -- Insert new alert
-                INSERT INTO Alerts (alarmId, alert_type, alert_message, alertAck, timestamp)
+                INSERT INTO Alerts (alarmId, alarmType, alarmMessage, alertAck, timestamp)
                 VALUES (@switch_id, @alert_type, @alert_message, 0, GETDATE());
                 
                 PRINT '⚠️ New alert logged: ' + @alert_type + ' for breaker ID ' + CAST(@switch_id AS VARCHAR);
