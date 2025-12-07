@@ -11,7 +11,14 @@ async function connectionToSqlDB() {
         options: {
             encrypt: false,
             trustServerCertificate: true
-        }
+        },
+        pool: {
+            max: 10,
+            min: 0,
+            idleTimeoutMillis: 30000
+        },
+        connectionTimeout: 30000,  // 30 seconds for connection
+        requestTimeout: 30000      // 30 seconds for queries
     };
     try {
         let pool = await sql.connect(config);
